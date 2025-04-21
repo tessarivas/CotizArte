@@ -1,0 +1,464 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// CATEGORÍAS PRINCIPALES DE ARTE
+model ArtCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relaciones
+  artTypes    ArtType[]
+}
+
+// TIPOS DE ARTE
+model ArtType {
+  id          Int         @id @default(autoincrement())
+  categoryId  Int
+  name        String
+  description String
+  baseFormula String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relaciones
+  category          ArtCategory            @relation(fields: [categoryId], references: [id])
+  techniques        ArtTechnique[]
+  pricingProfiles   PricingProfile[]
+  projects          Project[]
+  marketComparisons MarketComparison[]
+}
+
+// TÉCNICAS ESPECÍFICAS DENTRO DE CADA TIPO
+model ArtTechnique {
+  id              Int       @id @default(autoincrement())
+  artTypeId       Int
+  name            String
+  description     String
+  priceMultiplier Float
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  artType           ArtType             @relation(fields: [artTypeId], references: [id])
+  projects          Project[]
+  marketComparisons MarketComparison[]
+}
+
+// USUARIOS
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String
+  password        String
+  profileImageUrl String?
+  bio             String?
+  isEmailVerified Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  pricingProfiles      PricingProfile[]
+  projects             Project[]
+  clients              Client[]
+  userSoftware         UserSoftware[]
+  userDigitalTools     UserDigitalTool[]
+  userTraditionalTools UserTraditionalTool[]
+  userTraditionalMaterials UserTraditionalMaterial[]
+  discounts            Discount[]
+}
+
+// PERFILES DE PRECIOS DEL USUARIO
+model PricingProfile {
+  id                             Int     @id @default(autoincrement())
+  userId                         Int
+  artTypeId                      Int
+  standardHourlyRate             Float
+  preferredHourlyRate            Float
+  projectsPerMonth               Int
+  defaultCommercialLicensePercentage Float   @default(30)
+  defaultUrgencyPercentage       Float   @default(20)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+  
+  // Relaciones
+  user    User    @relation(fields: [userId], references: [id])
+  artType ArtType @relation(fields: [artTypeId], references: [id])
+}
+
+// PROYECTO ARTÍSTICO (Para cotización)
+model Project {
+  id               Int     @id @default(autoincrement())
+  userId           Int
+  artTypeId        Int
+  artTechniqueId   Int?
+  title            String
+  description      String
+  detailLevel      Int
+  size             String?
+  duration         Int?
+  hoursWorked      Float
+  isCommercial     Boolean  @default(false)
+  rapidDelivery    Boolean  @default(false)
+  clientId         Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relaciones
+  user                  User                   @relation(fields: [userId], references: [id])
+  artType               ArtType                @relation(fields: [artTypeId], references: [id])
+  artTechnique          ArtTechnique?          @relation(fields: [artTechniqueId], references: [id])
+  client                Client?                @relation(fields: [clientId], references: [id])
+  quotes                Quote[]
+  digitalIllustration   DigitalIllustration?
+  videoEditing          VideoEditing?
+  painting              Painting?
+  drawing               Drawing?
+  userSoftware          UserSoftware[]
+  userDigitalTools      UserDigitalTool[]
+  userTraditionalMaterials UserTraditionalMaterial[]
+  userTraditionalTools  UserTraditionalTool[]
+  projectSoftware       ProjectSoftware[]
+  projectDigitalTools   ProjectDigitalTool[]
+  projectTraditionalMaterials ProjectTraditionalMaterial[]
+  projectTraditionalTools ProjectTraditionalTool[]
+}
+
+// COTIZACIÓN GENERADA
+model Quote {
+  id                     Int      @id @default(autoincrement())
+  projectId              Int
+  basePrice              Float
+  commercialLicenseFee   Float     @default(0)
+  urgencyFee             Float     @default(0)
+  materialsCost          Float     @default(0)
+  toolsCost              Float     @default(0)
+  softwareCost           Float     @default(0)
+  additionalFees         Float     @default(0)
+  finalPrice             Float
+  discountPercentage     Float     @default(0)
+  finalPriceAfterDiscount Float
+  notes                  String?
+  status                 String
+  shareableLink          String    @unique
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  
+  // Relaciones
+  project                Project   @relation(fields: [projectId], references: [id])
+  marketComparisons      QuoteMarketComparison[]
+}
+
+// CLIENTES
+model Client {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relaciones
+  user      User      @relation(fields: [userId], references: [id])
+  projects  Project[]
+}
+
+// SOFTWARE (para arte digital)
+model Software {
+  id             Int      @id @default(autoincrement())
+  name           String    @unique
+  monthlyCost    Float
+  annualCost     Float
+  hasFreeVersion Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relaciones
+  userSoftware     UserSoftware[]
+  projectSoftware  ProjectSoftware[]
+}
+
+// RELACIÓN USUARIO-SOFTWARE
+model UserSoftware {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  softwareId   Int
+  isActive     Boolean   @default(true)
+  licenseType  String
+  actualCost   Float
+  projectId    Int?
+  usageStartDate DateTime  @default(now())
+  
+  // Relaciones
+  user         User      @relation(fields: [userId], references: [id])
+  software     Software  @relation(fields: [softwareId], references: [id])
+  project      Project?  @relation(fields: [projectId], references: [id])
+}
+
+// HERRAMIENTAS DIGITALES
+model DigitalTool {
+  id              Int      @id @default(autoincrement())
+  name            String    @unique
+  averageCost     Float
+  averageLifespan Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  userDigitalTools     UserDigitalTool[]
+  projectDigitalTools  ProjectDigitalTool[]
+}
+
+// RELACIÓN USUARIO-HERRAMIENTAS DIGITALES
+model UserDigitalTool {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  digitalToolId Int
+  purchasePrice Float
+  purchaseDate  DateTime
+  isActive      Boolean   @default(true)
+  projectId     Int?
+  
+  // Relaciones
+  user        User        @relation(fields: [userId], references: [id])
+  digitalTool DigitalTool @relation(fields: [digitalToolId], references: [id])
+  project     Project?    @relation(fields: [projectId], references: [id])
+}
+
+// MATERIALES TRADICIONALES
+model TraditionalMaterial {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String
+  subCategory String
+  quality     String
+  averageCost Float
+  unit        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relaciones
+  userTraditionalMaterials     UserTraditionalMaterial[]
+  projectTraditionalMaterials  ProjectTraditionalMaterial[]
+}
+
+// RELACIÓN USUARIO-MATERIALES TRADICIONALES
+model UserTraditionalMaterial {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  materialId Int
+  actualCost Float
+  quantity   Float
+  projectId  Int?
+  
+  // Relaciones
+  user          User                @relation(fields: [userId], references: [id])
+  material      TraditionalMaterial @relation(fields: [materialId], references: [id])
+  project       Project?            @relation(fields: [projectId], references: [id])
+}
+
+// HERRAMIENTAS TRADICIONALES
+model TraditionalTool {
+  id              Int      @id @default(autoincrement())
+  name            String
+  category        String
+  averageCost     Float
+  averageLifespan Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relaciones
+  userTraditionalTools     UserTraditionalTool[]
+  projectTraditionalTools  ProjectTraditionalTool[]
+}
+
+// RELACIÓN USUARIO-HERRAMIENTAS TRADICIONALES
+model UserTraditionalTool {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  toolId        Int
+  purchasePrice Float
+  purchaseDate  DateTime
+  isActive      Boolean   @default(true)
+  projectId     Int?
+  
+  // Relaciones
+  user          User            @relation(fields: [userId], references: [id])
+  tool          TraditionalTool @relation(fields: [toolId], references: [id])
+  project       Project?        @relation(fields: [projectId], references: [id])
+}
+
+// DATOS ESPECÍFICOS DE ILUSTRACIÓN DIGITAL
+model DigitalIllustration {
+  id                    Int      @id @default(autoincrement())
+  projectId             Int      @unique
+  illustrationType      String
+  additionalModifications Int      @default(0)
+  modificationCost      Float     @default(0)
+  
+  // Relaciones
+  project               Project   @relation(fields: [projectId], references: [id])
+}
+
+// DATOS ESPECÍFICOS DE EDICIÓN DE VIDEO
+model VideoEditing {
+  id                Int      @id @default(autoincrement())
+  projectId         Int      @unique
+  editingType       String
+  stockFootageCost  Float     @default(0)
+  musicSoundCost    Float     @default(0)
+  pluginsCost       Float     @default(0)
+  includedRevisions Int       @default(2)
+  additionalRevisions Int      @default(0)
+  revisionCost      Float     @default(0)
+  
+  // Relaciones
+  project           Project   @relation(fields: [projectId], references: [id])
+}
+
+// DATOS ESPECÍFICOS DE PINTURA
+model Painting {
+  id                     Int      @id @default(autoincrement())
+  projectId              Int      @unique
+  technique              String
+  canvasPaperCost        Float     @default(0)
+  paintsCost             Float     @default(0)
+  finishingCost          Float     @default(0)
+  framingCost            Float     @default(0)
+  shipping               Boolean   @default(false)
+  shippingCost           Float     @default(0)
+  authenticityCertificate Boolean   @default(false)
+  certificateCost        Float     @default(0)
+  
+  // Relaciones
+  project                Project   @relation(fields: [projectId], references: [id])
+}
+
+// DATOS ESPECÍFICOS DE DIBUJO
+model Drawing {
+  id                     Int      @id @default(autoincrement())
+  projectId              Int      @unique
+  technique              String
+  paperCost              Float     @default(0)
+  materialsCost          Float     @default(0)
+  finishingCost          Float     @default(0)
+  framingCost            Float     @default(0)
+  shipping               Boolean   @default(false)
+  shippingCost           Float     @default(0)
+  authenticityCertificate Boolean   @default(false)
+  certificateCost        Float     @default(0)
+  
+  // Relaciones
+  project                Project   @relation(fields: [projectId], references: [id])
+}
+
+// DESCUENTOS
+model Discount {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  name        String
+  description String
+  percentage  Float
+  isActive    Boolean   @default(true)
+  validFrom   DateTime
+  validTo     DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relaciones
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+// HISTORIAL DE PRECIOS DE MERCADO
+model MarketComparison {
+  id              Int      @id @default(autoincrement())
+  artTypeId       Int
+  artTechniqueId  Int?
+  platformName    String
+  minPrice        Float
+  maxPrice        Float
+  averagePrice    Float
+  detailLevel     Int?
+  comparisonDate  DateTime  @default(now())
+  
+  // Relaciones
+  artType         ArtType       @relation(fields: [artTypeId], references: [id])
+  artTechnique    ArtTechnique? @relation(fields: [artTechniqueId], references: [id])
+}
+
+// LICENCIAS COMERCIALES
+model CommercialLicense {
+  id                 Int      @id @default(autoincrement())
+  name               String    @unique
+  description        String
+  percentageIncrease Float
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// Relaciones muchos a muchos
+model ProjectSoftware {
+  projectId  Int
+  softwareId Int
+  
+  project     Project  @relation(fields: [projectId], references: [id])
+  software    Software @relation(fields: [softwareId], references: [id])
+  
+  @@id([projectId, softwareId])
+}
+
+model ProjectDigitalTool {
+  projectId     Int
+  digitalToolId Int
+  
+  project     Project     @relation(fields: [projectId], references: [id])
+  digitalTool DigitalTool @relation(fields: [digitalToolId], references: [id])
+  
+  @@id([projectId, digitalToolId])
+}
+
+model ProjectTraditionalMaterial {
+  projectId  Int
+  materialId Int
+  quantity   Float
+  
+  project  Project             @relation(fields: [projectId], references: [id])
+  material TraditionalMaterial @relation(fields: [materialId], references: [id])
+  
+  @@id([projectId, materialId])
+}
+
+model ProjectTraditionalTool {
+  projectId  Int
+  toolId     Int
+  
+  project  Project         @relation(fields: [projectId], references: [id])
+  tool     TraditionalTool @relation(fields: [toolId], references: [id])
+  
+  @@id([projectId, toolId])
+}
+
+// Para comparaciones de mercado relacionadas con cotizaciones específicas
+model QuoteMarketComparison {
+  id             Int      @id @default(autoincrement())
+  quoteId        Int
+  platformName   String
+  comparablePrice Float
+  url            String
+  comparisonDate DateTime  @default(now())
+  
+  // Relaciones
+  quote          Quote     @relation(fields: [quoteId], references: [id])
+}
