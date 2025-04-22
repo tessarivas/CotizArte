@@ -10,6 +10,6 @@ export class CreateArtCategoryDto {
 
   @IsNotEmpty()
   @IsString()
-  @MaxLength(255, { message: 'La descripción no puede exceder los 255 caracteres' })
+  @MaxLength(255)
   description: string;
 }

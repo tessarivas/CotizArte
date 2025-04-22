@@ -194,7 +194,9 @@ model Software {
 model UserSoftware {
   id           Int      @id @default(autoincrement())
   userId       Int
-  softwareId   Int
+  softwareId   Int?     // Opcional (si no es de la lista oficial)
+  customName   String?  // Nombre del software personalizado
+  isCustom     Boolean  @default(false) // Indica si es un software personalizado
   isActive     Boolean   @default(true)
   licenseType  String
   actualCost   Float
@@ -203,7 +205,7 @@ model UserSoftware {
   
   // Relaciones
   user         User      @relation(fields: [userId], references: [id])
-  software     Software  @relation(fields: [softwareId], references: [id])
+  software     Software?  @relation(fields: [softwareId], references: [id])
   project      Project?  @relation(fields: [projectId], references: [id])
 }
 

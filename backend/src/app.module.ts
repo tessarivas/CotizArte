@@ -11,6 +11,10 @@ import { ArtCategoriesModule } from './art-categories/art-categories.module';
 import { ArtTypesModule } from './art-types/art-types.module';
 import { ProjectsModule } from './projects/projects.module';
 import { QuotesModule } from './quotes/quotes.module';
+import { ArtTechniquesModule } from './art-techniques/art-techniques.module';
+import { SoftwareModule } from './software/software.module';
+import { UserSoftwareModule } from './user-software/user-software.module';
+import { ClientsModule } from './clients/clients.module';
 
 @Module({
   imports: [
@@ -23,8 +27,12 @@ import { QuotesModule } from './quotes/quotes.module';
     CommonModule,
     ArtCategoriesModule,
     ArtTypesModule,
+    ArtTechniquesModule,
+    SoftwareModule,
+    UserSoftwareModule,
     ProjectsModule,
     QuotesModule,
+    ClientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
