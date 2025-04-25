@@ -1,0 +1,71 @@
+{
+    "folder-color.pathColors": [
+        {
+            "folderPath": "CotizArte\\backend\\src\\art-categories\\art-categories.controller.ts\\",
+            "color": "foldercolorizer.color_006699"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\art-categories\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_00cccc"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\art-techniques\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_00cc66"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\art-types\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_00cc99"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\projects\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_33ccff"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\quotes\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ff66cc"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\software\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ff6666"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\user-software\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ffcccc"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\users\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ff66ff"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\auth\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ffcc00"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\clients\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_00ccff"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\pricing-profiles\\",
+            "badge": "MD"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\common\\",
+            "color": "foldercolorizer.color_9966cc"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\commercial-licence\\",
+            "color": "foldercolorizer.color_99cc66",
+            "badge": "MD"
+        }
+    ]
+}

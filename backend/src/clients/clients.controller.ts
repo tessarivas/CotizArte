@@ -21,11 +21,8 @@ import {
     constructor(private readonly clientsService: ClientsService) {}
   
     @Post()
-    create(
-      @GetUser('id') userId: number,
-      @Body() createClientDto: CreateClientDto
-    ) {
-      return this.clientsService.create(userId, createClientDto);
+    create(@Body() createClientDto: CreateClientDto) {
+      return this.clientsService.create(createClientDto);
     }
   
     @Get()

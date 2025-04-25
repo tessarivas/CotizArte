@@ -7,13 +7,9 @@ import { UpdateClientDto } from './dto/update-client.dto';
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: number, createClientDto: CreateClientDto) {
+  async create(createClientDto: CreateClientDto) {
     return this.prisma.client.create({
-      data: {
-        ...createClientDto,
-        user: { connect: { id: userId } } // Conexión correcta según tu schema
-      },
-      include: { user: { select: { id: true, email: true } } } // Opcional: incluye datos básicos del usuario
+      data: createClientDto,
     });
   }
 

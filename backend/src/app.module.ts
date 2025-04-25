@@ -15,6 +15,9 @@ import { ArtTechniquesModule } from './art-techniques/art-techniques.module';
 import { SoftwareModule } from './software/software.module';
 import { UserSoftwareModule } from './user-software/user-software.module';
 import { ClientsModule } from './clients/clients.module';
+import { PricingProfilesModule } from './pricing-profiles/pricing-profiles.module';
+import { CommercialLicenseModule } from './commercial-licence/commercial-license.module';
+import { DiscountsModule } from './discoutns/discount.module';
 
 @Module({
   imports: [
@@ -31,8 +34,11 @@ import { ClientsModule } from './clients/clients.module';
     SoftwareModule,
     UserSoftwareModule,
     ProjectsModule,
+    PricingProfilesModule,
     QuotesModule,
     ClientsModule,
+    CommercialLicenseModule,
+    DiscountsModule
   ],
   controllers: [AppController],
   providers: [AppService],

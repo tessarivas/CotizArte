@@ -34,6 +34,15 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     try {
+      // Verificar si el email ya existe
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: registerDto.email },
+      });
+      if (existingUser) {
+        throw new UnauthorizedException('Este correo ya está registrado.');
+      }
+  
+      // Continuar con la lógica de creación
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
       const user = await this.prisma.user.create({
         data: {
@@ -44,8 +53,12 @@ export class AuthService {
       });
       return { message: 'User registered successfully', data: user };
     } catch (error) {
-      console.error('Error en register:', error); // 👈 Debug clave
+      if (error.code === 'P2002') { // Código de error para "Unique constraint failed"
+        throw new UnauthorizedException('Este correo ya está registrado.');
+      }
+      console.error('Error en register:', error); // Debug adicional
       throw new InternalServerErrorException('Error al registrar usuario');
-    }
+    }    
   }
+  
 }
