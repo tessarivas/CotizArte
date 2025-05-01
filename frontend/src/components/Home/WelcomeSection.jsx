@@ -5,10 +5,7 @@ import SplashCursor from "@/blocks/Animations/SplashCursor/SplashCursor";
 export const WelcomeSection = () => {
   return (
     <>
-      <div
-        id="welcome-section"
-        className="h-screen w-full snap-start bg-gradient-to-b from-teal-200 via-white to-orange-200 flex flex-col justify-center items-center text-center px-8 relative"
-      >
+      <div className="h-screen w-full snap-start bg-gradient-to-b from-teal-200 via-white to-orange-200 flex flex-col justify-center items-center text-center px-8 relative">
         {/* Partículas y Cursor */}
         <div className="absolute inset-0 z-10">
           <Particles
@@ -97,7 +94,6 @@ export const WelcomeSection = () => {
               className="mx-auto w-62 md:w-78 lg:w-94 opacity-100 rotate-5"
             />
           </div>
-          
         </div>
       </div>
     </>
