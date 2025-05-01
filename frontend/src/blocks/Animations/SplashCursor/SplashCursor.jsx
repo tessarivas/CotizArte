@@ -1077,7 +1077,13 @@ function SplashCursor({
     }
 
     function generateColor() {
-      let c = HSVtoRGB(Math.random(), 1.0, 1.0);
+      let hue;
+      // Excluye verdes (0.25-0.45 en el espectro HSV)
+      do {
+        hue = Math.random();
+      } while (hue > 0.25 && hue < 0.45);
+      
+      let c = HSVtoRGB(hue, 1.0, 1.0);
       c.r *= 0.15;
       c.g *= 0.15;
       c.b *= 0.15;

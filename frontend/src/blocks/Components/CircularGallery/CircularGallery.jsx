@@ -1,9 +1,9 @@
-import Funcionalidad1 from "@/assets/images/CotizArte_Funcionalidades/1.png";
-import Funcionalidad2 from "@/assets/images/CotizArte_Funcionalidades/2.png";
-import Funcionalidad3 from "@/assets/images/CotizArte_Funcionalidades/3.png";
-import Funcionalidad4 from "@/assets/images/CotizArte_Funcionalidades/4.png";
-import Funcionalidad5 from "@/assets/images/CotizArte_Funcionalidades/5.png";
-import Funcionalidad6 from "@/assets/images/CotizArte_Funcionalidades/6.png";
+import Funcionalidad1 from "@/assets/images/CotizArte_Funcionalidades/1.webp";
+import Funcionalidad2 from "@/assets/images/CotizArte_Funcionalidades/2.webp";
+import Funcionalidad3 from "@/assets/images/CotizArte_Funcionalidades/3.webp";
+import Funcionalidad4 from "@/assets/images/CotizArte_Funcionalidades/4.webp";
+import Funcionalidad5 from "@/assets/images/CotizArte_Funcionalidades/5.webp";
+import Funcionalidad6 from "@/assets/images/CotizArte_Funcionalidades/6.webp";
 
 import { useRef, useEffect } from "react";
 import {

@@ -1,14 +1,23 @@
-import { Hero } from "../components/Hero.jsx";
-import { Functionalities } from "@/components/Functionalities.jsx";
+import { WelcomeSection } from "../components/Home/WelcomeSection";
+import { FuncionalitiesSection } from "@/components/Home/FuntionalitiesSections";
+import { GoalsSection } from "@/components/Home/GoalsSections";
+import { FootSection } from "@/components/Home/FootSection";
 import { Outlet } from "react-router";
+import { useEffect } from "react";
 
 function Home() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   return (
-    <>
-      <Hero />
-      <Functionalities />
+    <div className="h-screen w-full overflow-y-scroll overflow-x-hidden snap-y snap-mandatory scrollbar-hide">
+      <WelcomeSection />
+      <FuncionalitiesSection />
+      <GoalsSection />
+      <FootSection />
       <Outlet />
-    </>
+    </div>
   );
 }
 

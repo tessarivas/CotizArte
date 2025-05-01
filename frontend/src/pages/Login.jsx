@@ -8,9 +8,9 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('HandleLogin ejecutado'); // Este debe aparecer
+    console.log('HandleLogin ejecutado'); 
     try {
-      const response = await api.post('/auth/login', { email, password }); // Enviar datos al endpoint
+      const response = await api.post('/auth/login', { email, password }); 
       console.log('Login exitoso:', response.data);
 
       // Aquí podrías almacenar el token recibido si tu backend devuelve uno

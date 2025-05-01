@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
-import Navbar from "./components/Navbar.jsx";
-import { Footer } from "./components/Footer.jsx";
+import Navbar from "/src/components/Navbar";
+
 import "./App.css";
 
 function App() {
@@ -10,7 +10,6 @@ function App() {
       <div className="flex-grow">
         <Outlet />
       </div>
-      <Footer />
     </>
   );
 }
