@@ -52,7 +52,7 @@ export const FuncionalitiesSection = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.1, rotate: rotate }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
       className="absolute w-70 bg-white/60 p-4 rounded-field shadow-xl"
       style={{ top, left }}
     >

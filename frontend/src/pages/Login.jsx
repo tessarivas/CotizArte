@@ -1,38 +1,44 @@
-import api from '../api/axios'; // Importa la instancia de axios configurada
-import React, { useState } from 'react';
+import api from "../api/axios";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('HandleLogin ejecutado'); 
+    setErrorMessage("");
+  
     try {
-      const response = await api.post('/auth/login', { email, password }); 
-      console.log('Login exitoso:', response.data);
-
-      // Aquí podrías almacenar el token recibido si tu backend devuelve uno
-      localStorage.setItem('token', response.data.access_token);
-
-      localStorage.setItem('token', response.data.access_token);
-      console.log('Token almacenado:', localStorage.getItem('token')); // Verificar el token
-
-      // Redirigir al usuario a su dashboard o alguna página principal
-      window.location.href = '/';
+      const response = await api.post("/auth/login", { email, password });
+  
+      if (response.data.access_token) {
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("user", response.data.user.name);
+        localStorage.setItem("email", response.data.user.email); // ✅ Guardar email
+        localStorage.setItem("bio", response.data.user.bio || ""); // ✅ Guardar bio
+        localStorage.setItem("profileImageUrl", response.data.user.profileImageUrl || ""); // ✅ Guardar imagen
+  
+        window.location.href = "/dashboard";
+      } else {
+        throw new Error("No se recibió un token válido");
+      }
     } catch (error) {
-      // Manejo de errores
-      setErrorMessage(error.response?.data?.message || 'Error al iniciar sesión');
+      setErrorMessage(error.response?.data?.message || "Error al iniciar sesión");
     }
   };
+
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleLogin} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h1 className="text-2xl mb-4">Iniciar Sesión</h1>
+    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-b from-teal-200 via-pink-200 to-orange-200">
+      <form onSubmit={handleLogin} className="bg-white shadow-lg rounded-box px-8 py-6 max-w-md w-[20vw]">
+        <h1 className="text-3xl font-title-text text-center text-neutral mb-6">Iniciar Sesión</h1>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Correo:</label>
+          <label className="block text-base-content text-sm font-bold mb-2 font-regular-text" htmlFor="email">
+            Correo:
+          </label>
           <input
             id="email"
             type="email"
@@ -40,12 +46,14 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+            className={`input input-bordered w-full ${errorMessage ? "input-error" : ""}`}
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">Contraseña:</label>
+          <label className="block text-base-content text-sm font-bold mb-2 font-regular-text" htmlFor="password">
+            Contraseña:
+          </label>
           <input
             id="password"
             type="password"
@@ -53,19 +61,22 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+            className={`input input-bordered w-full ${errorMessage ? "input-error" : ""}`}
           />
         </div>
 
-        {errorMessage && <p className="text-red-500 text-xs italic">{errorMessage}</p>}
+        {errorMessage && <p className="text-error text-sm text-center mt-2">{errorMessage}</p>}
 
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Iniciar Sesión
-        </button>
+        <button type="submit" className="btn btn-primary w-full mt-4">Iniciar Sesión</button>
+
+        {/* Botón para registrarse */}
+        <div className="text-center mt-4">
+          <p className="text-sm text-base-content">
+            ¿No estás registrado?{" "}
+            <Link to="/register" className="text-primary font-bold hover:underline">Regístrate aquí</Link>
+          </p>
+        </div>
       </form>
     </div>
   );
-};
+}

@@ -1,5 +1,5 @@
 // src/auth/dto/register.dto.ts
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength, IsOptional } from "class-validator";
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -9,13 +9,22 @@ export class RegisterDto {
   name: string;
 
   @IsNotEmpty()
-  @IsEmail({}, { message: 'Email no válido' })
+  @IsEmail({}, { message: "Email no válido" })
   email: string;
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+  @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
   @Matches(/(?=.*[0-9])(?=.*[a-zA-Z])/, {
-    message: 'La contraseña debe contener al menos un número y una letra',})
+    message: "La contraseña debe contener al menos un número y una letra",
+  })
   password: string;
+
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @IsString()
+  profileImageUrl?: any; // Cambia el tipo según lo que necesites (string, URL, etc.)
 }

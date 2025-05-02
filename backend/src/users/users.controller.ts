@@ -1,3 +1,4 @@
+// users/users.controller.ts
 import {
   Controller,
   Get,
@@ -8,12 +9,16 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { GetUser } from '../common/decorators/get-user.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -36,18 +41,51 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Patch(':id') // Cambio aquí para usar el ID de usuario
+  @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id', ParseIntPipe) id: number, // Aceptar el ID del usuario
-    @Body() updateUserDto: UpdateUserDto
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Delete(':id') // Cambio aquí para usar el ID de usuario
+  @Delete(':id')
   @UseGuards(JwtAuthGuard)
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
+  }
+
+  // ✅ Nueva ruta para subir imagen de perfil
+  @Post(':id/upload-profile-image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('profileImage', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const fileExt = extname(file.originalname);
+          const allowedTypes = ['.png', '.jpg', '.jpeg']; // ✅ Validar tipo de archivo
+
+          if (!allowedTypes.includes(fileExt)) {
+            return cb(new Error('Formato de imagen no permitido'), '');
+          }
+
+          cb(null, `${Date.now()}${fileExt}`);
+        },
+      }),
+    }),
+  )
+  async uploadProfileImage(@Param('id', ParseIntPipe) id: number, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('No se ha subido ninguna imagen');
+    }
+
+    const imageUrl = `/uploads/${file.filename}`;
+
+    // ✅ Verificar que el usuario existe antes de actualizarlo
+    const userExists = await this.usersService.findOne(id);
+    if (!userExists) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    return this.usersService.update(id, { profileImageUrl: imageUrl });
   }
 }

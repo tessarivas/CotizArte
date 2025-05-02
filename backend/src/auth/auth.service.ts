@@ -18,47 +18,54 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
     });
-
-    // 2. Verificar contraseña (si existe el usuario)
+  
+    // 2. Verificar contraseña
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException("Credenciales inválidas");
     }
-
+  
     // 3. Generar token JWT
-    const payload = { email: user.email, sub: user.id }; // 👈 Usa el id de la BD
+    const payload = { email: user.email, sub: user.id };
+  
     return {
       access_token: this.jwtService.sign(payload),
-      user: { email: user.email, id: user.id }, // 👈 Opcional: devolver info del usuario
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email, // ✅ Ahora incluye el email
+        bio: user.bio, // ✅ Ahora incluye la bio
+        profileImageUrl: user.profileImageUrl, // ✅ Ahora incluye la imagen de perfil
+      },
     };
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, file?: Express.Multer.File) {
     try {
-      // Verificar si el email ya existe
       const existingUser = await this.prisma.user.findUnique({
         where: { email: registerDto.email },
       });
+  
       if (existingUser) {
-        throw new UnauthorizedException('Este correo ya está registrado.');
+        throw new UnauthorizedException("Este correo ya está registrado.");
       }
   
-      // Continuar con la lógica de creación
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+      const imageUrl = file ? `/uploads/${file.filename}` : null; // ✅ Guarda imagen si existe
+  
       const user = await this.prisma.user.create({
         data: {
           name: registerDto.name,
           email: registerDto.email,
           password: hashedPassword,
+          bio: registerDto.bio,
+          profileImageUrl: imageUrl, // ✅ Ahora guarda la imagen correctamente
         },
       });
-      return { message: 'User registered successfully', data: user };
-    } catch (error) {
-      if (error.code === 'P2002') { // Código de error para "Unique constraint failed"
-        throw new UnauthorizedException('Este correo ya está registrado.');
-      }
-      console.error('Error en register:', error); // Debug adicional
-      throw new InternalServerErrorException('Error al registrar usuario');
-    }    
-  }
   
+      return { message: "Usuario registrado exitosamente", data: user };
+    } catch (error) {
+      console.error("Error en register:", error);
+      throw new InternalServerErrorException("Error al registrar usuario");
+    }
+  }  
 }
