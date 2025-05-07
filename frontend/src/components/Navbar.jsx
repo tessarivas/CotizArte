@@ -49,12 +49,12 @@ export default function Navbar() {
       <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 w-[30%] bg-white/60 backdrop-blur-lg shadow-xl rounded-4xl px-6 py-2 hidden lg:flex">
         <ul className="flex w-full justify-around items-center text-lg font-bold text-neutral font-regular-text">
           <li>
-            <button onClick={() => handleProtectedRoute("/cotizaciones")} className="hover:bg-white/50 px-4 py-2 rounded-3xl transition">
+            <button onClick={() => handleProtectedRoute("/quotes")} className="hover:bg-white/50 px-4 py-2 rounded-3xl transition cursor-pointer">
               Cotizaciones
             </button>
           </li>
           <li className="relative group">
-            <button className="hover:bg-white/50 px-4 py-2 rounded-3xl transition flex items-center gap-2">
+            <button className="hover:bg-white/50 px-4 py-2 rounded-3xl transition flex items-center gap-2 cursor-pointer">
               Servicios
               <ChevronDown className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" />
             </button>
@@ -62,13 +62,13 @@ export default function Navbar() {
             {/* Dropdown */}
             <ul className="absolute top-full left-1/2 border-5 border-white/10 transform -translate-x-1/2 mt-4 w-40 bg-white/60 backdrop-blur-lg shadow-md rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300">
               <li>
-                <button onClick={() => handleProtectedRoute("/servicios/proyectos")} className="flex items-center gap-2 px-4 py-2 hover:bg-secondary/50 rounded-xl transition">
+                <button onClick={() => handleProtectedRoute("/projects")} className="flex items-center gap-2 px-4 py-2 hover:bg-secondary/50 w-full rounded-xl transition cursor-pointer">
                   <PaintBrushIcon className="w-5 h-5 text-neutral" />
                   Proyectos
                 </button>
               </li>
               <li>
-                <button onClick={() => handleProtectedRoute("/servicios/mercado")} className="flex items-center gap-2 px-4 py-2 hover:bg-secondary/50 rounded-xl transition">
+                <button onClick={() => handleProtectedRoute("/market")} className="flex items-center gap-2 px-4 py-2 hover:bg-secondary/50 w-full rounded-xl transition cursor-pointer">
                   <ShoppingBagIcon className="w-5 h-5 text-neutral" />
                   Mercado
                 </button>
@@ -76,7 +76,7 @@ export default function Navbar() {
             </ul>
           </li>
           <li>
-            <button onClick={() => handleProtectedRoute("/clientes")} className="hover:bg-white/50 px-4 py-2 rounded-3xl transition">
+            <button onClick={() => handleProtectedRoute("/clients")} className="hover:bg-white/50 px-4 py-2 rounded-3xl transition cursor-pointer">
               Clientes
             </button>
           </li>

@@ -1,11 +1,17 @@
 import api from "../api/axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,9 +23,9 @@ export default function Login() {
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("user", response.data.user.name);
-        localStorage.setItem("email", response.data.user.email); // ✅ Guardar email
-        localStorage.setItem("bio", response.data.user.bio || ""); // ✅ Guardar bio
-        localStorage.setItem("profileImageUrl", response.data.user.profileImageUrl || ""); // ✅ Guardar imagen
+        localStorage.setItem("email", response.data.user.email);
+        localStorage.setItem("bio", response.data.user.bio || ""); 
+        localStorage.setItem("profileImageUrl", response.data.user.profileImageUrl || "");
   
         window.location.href = "/dashboard";
       } else {
@@ -32,12 +38,11 @@ export default function Login() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-b from-teal-200 via-pink-200 to-orange-200">
-      <form onSubmit={handleLogin} className="bg-white shadow-lg rounded-box px-8 py-6 max-w-md w-[20vw]">
-        <h1 className="text-3xl font-title-text text-center text-neutral mb-6">Iniciar Sesión</h1>
-
+      <form onSubmit={handleLogin} className="bg-white shadow-lg rounded-box px-8 py-8 max-w-md w-[20vw]">
+        <h1 className="text-4xl font-title-text text-center text-neutral mb-6">Iniciar Sesión</h1>
         <div className="mb-4">
           <label className="block text-base-content text-sm font-bold mb-2 font-regular-text" htmlFor="email">
-            Correo:
+            Correo Electrónico:
           </label>
           <input
             id="email"
@@ -54,22 +59,31 @@ export default function Login() {
           <label className="block text-base-content text-sm font-bold mb-2 font-regular-text" htmlFor="password">
             Contraseña:
           </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className={`input input-bordered w-full ${errorMessage ? "input-error" : ""}`}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className={`input input-bordered w-full ${errorMessage ? "input-error" : ""}`}
+            />
+            <button 
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
         </div>
 
         {errorMessage && <p className="text-error text-sm text-center mt-2">{errorMessage}</p>}
 
         <button type="submit" className="btn btn-primary w-full mt-4">Iniciar Sesión</button>
 
-        {/* Botón para registrarse */}
         <div className="text-center mt-4">
           <p className="text-sm text-base-content">
             ¿No estás registrado?{" "}

@@ -7,11 +7,14 @@ import { UpdateClientDto } from './dto/update-client.dto';
 export class ClientsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createClientDto: CreateClientDto) {
+  async create(userId: number, createClientDto: CreateClientDto) {
     return this.prisma.client.create({
-      data: createClientDto,
+      data: {
+        ...createClientDto,
+        userId, // ✅ Se añade `userId` correctamente
+      },
     });
-  }
+  }  
 
   async findAllByUser(userId: number) {
     return this.prisma.client.findMany({

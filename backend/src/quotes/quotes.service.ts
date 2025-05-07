@@ -1,3 +1,4 @@
+// quotes.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQuoteDto } from './dto/create-quote.dto';
@@ -53,6 +54,20 @@ export class QuotesService {
         notes: dto.notes,
         shareableLink: this.generateShareableLink() // Implementar esta función
       },
+      include: {
+        project: {
+          include: {
+            artType: true,
+            client: true
+          }
+        }
+      }
+    });
+  }
+
+  async findAllByUser(userId: number) {
+    return this.prisma.quote.findMany({
+      where: { project: { userId } },
       include: {
         project: {
           include: {
