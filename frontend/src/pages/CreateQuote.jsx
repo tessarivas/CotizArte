@@ -1,130 +1,162 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/CreateQuote.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "@/api/axios";
+import { useQuoteForm } from "@/hooks/useQuoteForm";
+import { CommonQuoteFields } from "@/components/Quotes/CommonQuoteFields";
+import { DigitalIllustrationQuoteForm } from "@/components/Quotes/DigitalIllustrationQuoteForm";
+import { VideoEditingQuoteForm } from "@/components/Quotes/VideoEditingQuoteForm";
+import { PaintingQuoteForm } from "@/components/Quotes/PaintingQuoteForm";
+import { DrawingQuoteForm } from "@/components/Quotes/DrawingQuoteForm";
+import { QuotePreview } from "@/components/Quotes/QuotePreview";
 
 export default function CreateQuote() {
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [discountPercentage, setDiscountPercentage] = useState(0);
-  const [notes, setNotes] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const { projectId } = useParams();
 
+  // Estado para almacenar el proyecto completo y pricing profile
+  const [project, setProject] = useState(null);
+  const [pricingProfile, setPricingProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Extraer estado y handlers del hook de cotización
+  const {
+    quoteData,
+    specializedData,
+    setSpecializedData,
+    selectedArtType,
+    setSelectedArtType,
+    handleQuoteFieldChange,
+  } = useQuoteForm();
+
+  // Obtener los detalles completos del proyecto usando el projectId de la URL
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProjectDetails = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        if (!token) return console.error("No hay token disponible.");
-
-        const response = await api.get("/projects", {
+        if (!token) throw new Error("Sin token");
+        // Se asume que existe un endpoint GET /projects/:id que devuelve el proyecto completo
+        const response = await api.get(`/projects/${projectId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setProjects(response.data);
+        setProject(response.data);
+        // Establece el artType del proyecto en el estado, si existe
+        if (response.data && response.data.artType) {
+          setSelectedArtType(response.data.artType.id.toString());
+        }
+        // Aquí puedes obtener o simular el pricingProfile (más adelante lo obtendrás del backend)
+        setPricingProfile({
+          hourlyRate: 50,
+          softwareCost: 100,
+          modificationExtra: 10,
+          detailMultiplier: 5,
+          baseRatePerMinute: 2,
+          complexityFactor: 1.5,
+          assetCost: 50,
+          techniqueFactor: 0.1,
+          worksPerMonth: 10,
+          shippingFee: 20,
+          certificateFee: 30,
+        });
       } catch (error) {
-        console.error("Error al obtener proyectos:", error);
+        console.error("Error al obtener el proyecto:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchProjects();
-  }, []);
+    fetchProjectDetails();
+  }, [projectId, setSelectedArtType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("access_token");
+    if (!token) return alert("Debes iniciar sesión");
+
+    // Enviar artTypeId obtenido del objeto project
+    const dataToSend = {
+      projectId: parseInt(projectId, 10),
+      artTypeId: project?.artType?.id, // Aseguramos que project y artType existan
+      discountPercentage: parseFloat(quoteData.discountPercentage) || 0,
+      notes: quoteData.notes,
+      // Agrega otros campos específicos si los necesitas
+    };
+
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        setErrorMessage("Debes iniciar sesión.");
-        return;
-      }
-
-      const selectedProjectData = projects.find(
-        (p) => p.id === parseInt(selectedProject)
-      );
-      if (!selectedProjectData) {
-        setErrorMessage("Proyecto no encontrado.");
-        return;
-      }
-
-      // ✅ Correcciones antes de enviar la cotización
-      const quoteData = {
-        projectId: parseInt(selectedProject),
-        artTypeId: selectedProjectData.artTypeId, // ✅ Vincular el tipo de arte
-        discountPercentage: discountPercentage
-          ? parseFloat(discountPercentage)
-          : null, // ✅ Convertir a número o enviar null
-        notes: notes && notes.trim() !== "" ? notes : null, // ✅ Evitar undefined
-      };
-
-      console.log("Datos de cotización enviados:", quoteData); // ✅ Verificar antes de enviar
-
-      const response = await api.post("/quotes", quoteData, {
+      const response = await api.post("/quotes", dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setSuccessMessage("Cotización creada exitosamente.");
-      setErrorMessage("");
       console.log("Cotización creada:", response.data);
-
-      setTimeout(() => navigate("/quotes"), 2000);
+      navigate("/quotes");
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.message || "Error al crear la cotización."
-      );
+      console.error("Error en la cotización:", error.response?.data || error.message);
     }
   };
 
+  const renderSpecializedForm = () => {
+    switch (selectedArtType) {
+      case "1":
+        return (
+          <DigitalIllustrationQuoteForm
+            data={specializedData}
+            handleChange={(e) =>
+              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
+            }
+          />
+        );
+      case "2":
+        return (
+          <VideoEditingQuoteForm
+            data={specializedData}
+            handleChange={(e) =>
+              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
+            }
+          />
+        );
+      case "3":
+        return (
+          <PaintingQuoteForm
+            data={specializedData}
+            handleChange={(e) =>
+              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
+            }
+          />
+        );
+      case "4":
+        return (
+          <DrawingQuoteForm
+            data={specializedData}
+            handleChange={(e) =>
+              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
+            }
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  if (loading) return <p>Cargando información del proyecto...</p>;
+  if (!project) return <p>No se encontró el proyecto.</p>;
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 mt-20">
+      <h2 className="mb-2">Crear Cotización para el Proyecto {projectId}</h2>
       <h1 className="text-3xl font-bold mb-4">Crear Cotización</h1>
-
-      {/* Mensajes */}
-      {errorMessage && (
-        <p className="text-red-500 text-sm text-center">{errorMessage}</p>
-      )}
-      {successMessage && (
-        <p className="text-green-500 text-sm text-center">{successMessage}</p>
-      )}
-
-      {/* Formulario */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md p-4 rounded-lg"
-      >
-        <label className="block text-sm font-bold mb-2">
-          Seleccionar Proyecto:
-        </label>
-        <select
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-          required
-          className="select select-bordered w-full mb-3"
-        >
-          <option value="">Selecciona un proyecto</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.title}
-            </option>
-          ))}
-        </select>
-
-        <label className="block text-sm font-bold mb-2">Descuento (%):</label>
-        <input
-          type="number"
-          value={discountPercentage}
-          onChange={(e) => setDiscountPercentage(e.target.value)}
-          min="0"
-          max="100"
-          className="input input-bordered w-full mb-3"
+      <form onSubmit={handleSubmit} className="bg-white shadow-md p-4 rounded-lg">
+        {/* Campos comunes de la cotización */}
+        <CommonQuoteFields data={quoteData} handleChange={handleQuoteFieldChange} />
+        {/* Vista previa del precio calculado */}
+        <QuotePreview
+          quoteData={quoteData}
+          specializedData={specializedData}
+          selectedArtType={selectedArtType}
+          project={project}
+          pricingProfile={pricingProfile}
+          additionalData={{ materialsCost: 0, toolsCost: 0 }}
         />
-
-        <label className="block text-sm font-bold mb-2">Notas:</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="textarea textarea-bordered w-full mb-3"
-        />
-
+        {/* Formulario especializado según el tipo de arte */}
+        {renderSpecializedForm()}
         <button type="submit" className="btn btn-primary w-full">
           Crear Cotización
         </button>

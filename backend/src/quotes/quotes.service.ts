@@ -33,8 +33,10 @@ export class QuotesService {
       if (project.userId !== userId) {
         throw new NotFoundException('El proyecto no pertenece a este usuario');
       }
+      if (!project.user.pricingProfiles || project.user.pricingProfiles.length === 0) {
+        throw new NotFoundException("No se encontró un perfil de precios para este tipo de arte");
+      }      
       
-
     // 2. Calcular costos (implementaremos esta función después)
     const costBreakdown = await this.calculateProjectCost(project);
 

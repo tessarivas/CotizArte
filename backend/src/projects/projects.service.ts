@@ -33,6 +33,25 @@ export class ProjectsService {
     });
   }
 
+  async findOne(userId: number, id: number) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        artType: true,
+        artTechnique: true,
+        client: true,
+        digitalIllustration: true,
+        videoEditing: true,
+        painting: true,
+        drawing: true,
+      }
+    });
+    if (!project) {
+      throw new NotFoundException('Proyecto no encontrado.');
+    }
+    return project;
+  }
+
   async create(userId: number, dto: CreateProjectCompleteDto) {
     // Validación de relaciones: artType, técnica y cliente
     await this.validateRelations(userId, dto);

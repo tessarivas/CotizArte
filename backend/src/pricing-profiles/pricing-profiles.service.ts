@@ -13,18 +13,21 @@ export class PricingProfilesService {
       where: { id: userId }
     });
     if (!userExists) throw new NotFoundException('Usuario no encontrado');
-  
+
     // Verifica que el ArtType exista
     const artTypeExists = await this.prisma.artType.findUnique({
       where: { id: dto.artTypeId }
     });
     if (!artTypeExists) throw new NotFoundException('Tipo de arte no encontrado');
-  
+
+    // Asegúrate de que projectsPerMonth tenga un valor
+    const projectsPerMonth = dto.projectsPerMonth ?? 0;
+
     return this.prisma.pricingProfile.create({
       data: {
         standardHourlyRate: dto.standardHourlyRate,
         preferredHourlyRate: dto.preferredHourlyRate,
-        projectsPerMonth: dto.projectsPerMonth,
+        projectsPerMonth: projectsPerMonth,
         user: { connect: { id: userId } }, // Conexión segura
         artType: { connect: { id: dto.artTypeId } }
       },

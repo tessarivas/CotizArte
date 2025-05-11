@@ -33,16 +33,13 @@
   font-style: normal;
 }
 
-/* Estilos para ocultar scrollbar en navegadores modernos */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* Para Firefox */
 .scrollbar-hide {
   scrollbar-width: none;
 }
-
 
 html, body {
   scroll-behavior: smooth;
@@ -74,4 +71,3 @@ html, body {
 .animate-sparkle {
   animation: sparkle-effect 2s infinite alternate ease-in-out;
 }
-

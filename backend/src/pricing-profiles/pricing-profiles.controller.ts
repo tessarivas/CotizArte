@@ -19,6 +19,7 @@ import { User } from '@prisma/client';
   @Controller('pricing-profiles')
   @UseGuards(JwtAuthGuard)
   export class PricingProfilesController {
+    prisma: any;
     constructor(private readonly pricingProfilesService: PricingProfilesService) {}
   
     @Post()
@@ -30,10 +31,35 @@ import { User } from '@prisma/client';
       console.log('User ID recibido:', userId, typeof userId); // Debug crucial
       return this.pricingProfilesService.create(userId, dto);
     }
+
+    @Post()
+    @UseGuards(JwtAuthGuard)
+    async createProfile(@GetUser("id") userId: number, @Body() dto: CreatePricingProfileDto) {
+      return this.prisma.pricingProfile.create({
+        data: {
+          userId,
+          artTypeId: dto.artTypeId,
+          standardHourlyRate: dto.standardHourlyRate,
+          preferredHourlyRate: dto.preferredHourlyRate,
+          projectsPerMonth: dto.projectsPerMonth ?? 10, // Valor por defecto si es null
+          defaultCommercialLicensePercentage: dto.defaultCommercialLicensePercentage ?? 30,
+          defaultUrgencyPercentage: dto.defaultUrgencyPercentage ?? 20,
+        }
+      });
+    }
   
     @Get()
     findAll(@GetUser('id') userId: number) {
       return this.pricingProfilesService.findAllByUser(userId);
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    async findByUser(@GetUser("id") userId: number) {
+      return this.prisma.pricingProfile.findMany({
+        where: { userId },
+        include: { artType: true }
+      });
     }
   
     @Get(':id')

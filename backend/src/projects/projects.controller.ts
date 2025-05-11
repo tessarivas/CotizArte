@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
@@ -38,6 +39,18 @@ export class ProjectsController {
   @Get()
   findAll(@GetUser("id") userId: number) {
     return this.service.findAllByUser(userId);
+  }
+
+  @Get(':id')
+  async findOne(
+    @GetUser("id") userId: number,
+    @Param('id', ParseIntPipe) id: number
+  ) {
+    const project = await this.service.findOne(userId, id);
+    if (!project) {
+      throw new NotFoundException('Proyecto no encontrado.');
+    }
+    return project;
   }
 
   @Get("by-art-type/:artTypeId")

@@ -14,6 +14,8 @@ import CreateProject from './pages/CreateProject.jsx';
 import CreateQuote from './pages/CreateQuote';
 import Clients from './pages/Clients.jsx';
 import AddClient from './pages/AddClient';
+import CreatePricingProfile from './pages/CreatePricingProfile';
+import Market from './pages/Market.jsx';
 
 const root = document.getElementById("root");
 
@@ -33,6 +35,8 @@ createRoot(root).render(
           <Route path="create-quote/:projectId" element={<CreateQuote />} />
           <Route path="clients" element={<Clients />} />
           <Route path="add-client" element={<AddClient />} />
+          <Route path="create-pricing-profile" element={<CreatePricingProfile />} />
+          <Route path="market" element={<Market />} />
         </Route>
       </Routes>
     </BrowserRouter>
