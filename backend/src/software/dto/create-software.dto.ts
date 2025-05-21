@@ -1,16 +1,21 @@
-import { IsNotEmpty, IsString, IsNumber, IsBoolean } from 'class-validator';
+import { IsString, IsNumber, IsBoolean, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateSoftwareDto {
-  @IsNotEmpty()
   @IsString()
-  name: string; // Ej: "Adobe Photoshop"
+  name: string;
 
+  @IsOptional() // Solo se valida si se envía
   @IsNumber()
-  monthlyCost: number; // Ej: 20.99 (0 si es gratis)
+  @Type(() => Number)
+  monthlyCost?: number;
 
+  @IsOptional() // Solo se valida si se envía
   @IsNumber()
-  annualCost: number; // Ej: 239.88
+  @Type(() => Number)
+  annualCost?: number;
 
   @IsBoolean()
-  hasFreeVersion: boolean; // Ej: false
+  @Type(() => Boolean)
+  hasFreeVersion: boolean;
 }

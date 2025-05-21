@@ -1,3 +1,4 @@
+// src/pricing-profiles/pricing-profiles.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePricingProfileDto } from './dto/create-pricing-profile.dto';
@@ -28,38 +29,45 @@ export class PricingProfilesService {
         standardHourlyRate: dto.standardHourlyRate,
         preferredHourlyRate: dto.preferredHourlyRate,
         projectsPerMonth: projectsPerMonth,
-        user: { connect: { id: userId } }, // Conexión segura
+        modificationExtra: dto.modificationExtra ?? 0,
+        defaultCommercialLicensePercentage: dto.defaultCommercialLicensePercentage ?? 30, // <--
+        defaultUrgencyPercentage: dto.defaultUrgencyPercentage ?? 20, // <--
+        user: { connect: { id: userId } },
         artType: { connect: { id: dto.artTypeId } }
       },
-      include: { user: true, artType: true } // Para debug
+      include: { user: true, artType: true }
     });
   }
 
-  async findAllByUser(userId: number) {
+  async findAllByUser(userId: number, artTypeId?: number) {
     return this.prisma.pricingProfile.findMany({
-      where: { userId },
-      include: { artType: true }, // Incluye datos del tipo de arte
+      where: { 
+        userId,
+        ...(artTypeId && { artTypeId }) // Filtrar por tipo de arte si se pasa
+      },
+      include: { artType: true },
     });
   }
 
   async findOne(userId: number, id: number) {
-    const profile = await this.prisma.pricingProfile.findFirst({
-      where: { id, userId },
+    const profile = await this.prisma.pricingProfile.findUnique({
+      where: { id },
       include: { artType: true },
     });
 
-    if (!profile) {
-      throw new NotFoundException('Perfil de precios no encontrado');
+    if (!profile || profile.userId !== userId) {
+      throw new NotFoundException('Perfil de precios no encontrado o no pertenece a este usuario');
     }
 
     return profile;
   }
 
   async update(userId: number, id: number, updatePricingProfileDto: UpdatePricingProfileDto) {
-    await this.findOne(userId, id); // Verifica que el perfil exista y pertenezca al usuario
+    const profile = await this.findOne(userId, id);
+    if (!profile) throw new NotFoundException('No puedes modificar este perfil');
 
     return this.prisma.pricingProfile.update({
-      where: { id },
+      where: { id, userId },
       data: updatePricingProfileDto,
     });
   }

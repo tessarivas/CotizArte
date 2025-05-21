@@ -1,134 +1,136 @@
-// src/pages/CreateQuote.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "@/api/axios";
+
+import { QuoteProgressBar } from "@/components/Quotes/QuoteProgressBar";
+import { ProjectInfoSection } from "@/components/Quotes/ProjectInfoSection";
+import { SupplySelectionSection } from "@/components/Quotes/SupplySelectionSection";
+
 import { useQuoteForm } from "@/hooks/useQuoteForm";
 import { CommonQuoteFields } from "@/components/Quotes/CommonQuoteFields";
 import { DigitalIllustrationQuoteForm } from "@/components/Quotes/DigitalIllustrationQuoteForm";
 import { VideoEditingQuoteForm } from "@/components/Quotes/VideoEditingQuoteForm";
 import { PaintingQuoteForm } from "@/components/Quotes/PaintingQuoteForm";
 import { DrawingQuoteForm } from "@/components/Quotes/DrawingQuoteForm";
+
 import { QuotePreview } from "@/components/Quotes/QuotePreview";
+
+import { SparklesText } from "@/components/magicui/sparkles-text-variant";
+import { ArrowLeftIcon, AlertCircleIcon } from "lucide-react";
+import GradientText from "@/blocks/TextAnimations/GradientText/GradientText";
 
 export default function CreateQuote() {
   const navigate = useNavigate();
   const { projectId } = useParams();
 
-  // Estado para almacenar el proyecto completo y pricing profile
-  const [project, setProject] = useState(null);
-  const [pricingProfile, setPricingProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Extraer estado y handlers del hook de cotización
+  // Hook con toda la lógica
   const {
     quoteData,
     specializedData,
-    setSpecializedData,
     selectedArtType,
-    setSelectedArtType,
     handleQuoteFieldChange,
-  } = useQuoteForm();
+    project,
+    pricingProfile,
+    pricingProfiles,
+    selectedPricingProfile,
+    setSelectedPricingProfile,
+    loading,
+    steps,
+    currentStep,
+    setCurrentStep,
+    formErrors,
+    confirming,
+    setConfirming,
+    clients,
+    quoteClient,
+    setQuoteClient,
+    projectHasClient,
+    handleSubmit,
+  } = useQuoteForm(projectId, navigate);
 
-  // Obtener los detalles completos del proyecto usando el projectId de la URL
-  useEffect(() => {
-    const fetchProjectDetails = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        if (!token) throw new Error("Sin token");
-        // Se asume que existe un endpoint GET /projects/:id que devuelve el proyecto completo
-        const response = await api.get(`/projects/${projectId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProject(response.data);
-        // Establece el artType del proyecto en el estado, si existe
-        if (response.data && response.data.artType) {
-          setSelectedArtType(response.data.artType.id.toString());
-        }
-        // Aquí puedes obtener o simular el pricingProfile (más adelante lo obtendrás del backend)
-        setPricingProfile({
-          hourlyRate: 50,
-          softwareCost: 100,
-          modificationExtra: 10,
-          detailMultiplier: 5,
-          baseRatePerMinute: 2,
-          complexityFactor: 1.5,
-          assetCost: 50,
-          techniqueFactor: 0.1,
-          worksPerMonth: 10,
-          shippingFee: 20,
-          certificateFee: 30,
-        });
-      } catch (error) {
-        console.error("Error al obtener el proyecto:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjectDetails();
-  }, [projectId, setSelectedArtType]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("access_token");
-    if (!token) return alert("Debes iniciar sesión");
-
-    // Enviar artTypeId obtenido del objeto project
-    const dataToSend = {
-      projectId: parseInt(projectId, 10),
-      artTypeId: project?.artType?.id, // Aseguramos que project y artType existan
-      discountPercentage: parseFloat(quoteData.discountPercentage) || 0,
-      notes: quoteData.notes,
-      // Agrega otros campos específicos si los necesitas
-    };
-
-    try {
-      const response = await api.post("/quotes", dataToSend, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Cotización creada:", response.data);
-      navigate("/quotes");
-    } catch (error) {
-      console.error("Error en la cotización:", error.response?.data || error.message);
-    }
-  };
+  // Estados para selección de insumos
+  const [selectedSoftware, setSelectedSoftware] = useState([]);
+  const [selectedDigitalTools, setSelectedDigitalTools] = useState([]);
+  const [selectedTraditionalMaterials, setSelectedTraditionalMaterials] =
+    useState([]);
+  const [selectedTraditionalTools, setSelectedTraditionalTools] = useState([]);
 
   const renderSpecializedForm = () => {
+    if (!selectedArtType) return null;
+    const commonProps = {
+      data: specializedData,
+      handleChange: handleQuoteFieldChange, // <--- usa handleQuoteFieldChange aquí
+      handleQuoteFieldChange: handleQuoteFieldChange,
+      errors: formErrors,
+    };
     switch (selectedArtType) {
       case "1":
         return (
           <DigitalIllustrationQuoteForm
-            data={specializedData}
-            handleChange={(e) =>
-              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
-            }
+            {...commonProps}
+            pricingProfile={pricingProfile}
           />
         );
       case "2":
-        return (
-          <VideoEditingQuoteForm
-            data={specializedData}
-            handleChange={(e) =>
-              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
-            }
-          />
-        );
+        return <VideoEditingQuoteForm {...commonProps} />;
       case "3":
+        return <PaintingQuoteForm {...commonProps} />;
+      case "4":
+        return <DrawingQuoteForm {...commonProps} />;
+      default:
+        return null;
+    }
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
         return (
-          <PaintingQuoteForm
-            data={specializedData}
-            handleChange={(e) =>
-              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
-            }
+          <ProjectInfoSection
+            project={{ ...project, client: quoteClient }}
+            onAssignClient={() => {
+              setCurrentStep(1);
+            }}
           />
         );
-      case "4":
+      case 1:
         return (
-          <DrawingQuoteForm
-            data={specializedData}
-            handleChange={(e) =>
-              setSpecializedData({ ...specializedData, [e.target.name]: e.target.value })
-            }
+          <CommonQuoteFields
+            data={quoteData}
+            handleChange={handleQuoteFieldChange}
+            pricingProfiles={pricingProfiles}
+            selectedPricingProfile={selectedPricingProfile}
+            setSelectedPricingProfile={setSelectedPricingProfile}
+            clients={clients}
+            selectedClient={quoteClient}
+            setSelectedClient={setQuoteClient}
+            projectHasClient={projectHasClient}
+          />
+        );
+      case 2:
+        return <>{renderSpecializedForm()}</>;
+      case 3:
+        return (
+          <SupplySelectionSection
+            selectedArtType={selectedArtType}
+            setSelectedSoftware={setSelectedSoftware}
+            setSelectedDigitalTools={setSelectedDigitalTools}
+            setSelectedTraditionalMaterials={setSelectedTraditionalMaterials}
+            setSelectedTraditionalTools={setSelectedTraditionalTools}
+          />
+        );
+      case 4:
+        return (
+          <QuotePreview
+            quoteData={quoteData}
+            specializedData={specializedData}
+            selectedArtType={selectedArtType}
+            project={project}
+            pricingProfile={pricingProfile}
+            selectedPricingProfile={selectedPricingProfile}
+            selectedSoftware={selectedSoftware}
+            selectedDigitalTools={selectedDigitalTools}
+            selectedTraditionalMaterials={selectedTraditionalMaterials}
+            selectedTraditionalTools={selectedTraditionalTools}
           />
         );
       default:
@@ -136,31 +138,119 @@ export default function CreateQuote() {
     }
   };
 
-  if (loading) return <p>Cargando información del proyecto...</p>;
-  if (!project) return <p>No se encontró el proyecto.</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500"></div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center gap-4">
+        <AlertCircleIcon className="w-16 h-16 text-error" />
+        <h2 className="text-2xl font-bold text-gray-800">
+          No se encontró el proyecto
+        </h2>
+        <button
+          onClick={() => navigate("/quotes")}
+          className="btn btn-primary flex items-center gap-2"
+        >
+          <ArrowLeftIcon className="w-5 h-5" />
+          Volver a Cotizaciones
+        </button>
+      </div>
+    );
+  }
+
+  console.log("Paso actual:", currentStep);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 mt-20">
-      <h2 className="mb-2">Crear Cotización para el Proyecto {projectId}</h2>
-      <h1 className="text-3xl font-bold mb-4">Crear Cotización</h1>
-      <form onSubmit={handleSubmit} className="bg-white shadow-md p-4 rounded-lg">
-        {/* Campos comunes de la cotización */}
-        <CommonQuoteFields data={quoteData} handleChange={handleQuoteFieldChange} />
-        {/* Vista previa del precio calculado */}
-        <QuotePreview
-          quoteData={quoteData}
-          specializedData={specializedData}
-          selectedArtType={selectedArtType}
-          project={project}
-          pricingProfile={pricingProfile}
-          additionalData={{ materialsCost: 0, toolsCost: 0 }}
-        />
-        {/* Formulario especializado según el tipo de arte */}
-        {renderSpecializedForm()}
-        <button type="submit" className="btn btn-primary w-full">
-          Crear Cotización
-        </button>
-      </form>
+    <div className="flex flex-col min-h-screen bg-gradient-to-r from-primary via-secondary to-accent">
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="w-[60vw] mx-auto p-8 pt-22">
+          <div className="text-center mb-5">
+            <SparklesText text="Nueva Cotización" />
+          </div>
+          <div className="bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-8 min-h-[500px] flex flex-col justify-start">
+            <div className="flex justify-between items-center mb-6 -mt-2">
+              <div className="flex items-center gap-3">
+                <GradientText className="text-4xl font-logo-text">
+                  Proyecto:
+                </GradientText>
+                <p className="font-regular-text font-bold text-neutral text-2xl mt-2">
+                  {project.title}
+                </p>
+              </div>
+              <button
+                onClick={() => navigate("/quotes")}
+                className="btn btn-outline btn-secondary flex items-center gap-2"
+              >
+                <ArrowLeftIcon className="w-5 h-5" />
+                Volver
+              </button>
+            </div>
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="space-y-8"
+              onKeyDown={(e) => {
+                if (currentStep === steps.length - 1 && e.key === "Enter") {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <QuoteProgressBar steps={steps} currentStep={currentStep} />
+              {renderStep()}
+            </form>
+          </div>
+          {/* Botones SIEMPRE ABAJO */}
+          <div className="flex justify-between mt-8 w-full max-w-[700px] mx-auto">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
+              disabled={currentStep === 0}
+            >
+              Anterior
+            </button>
+            {currentStep < steps.length - 1 ? (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() =>
+                  setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
+                }
+              >
+                Siguiente
+              </button>
+            ) : !confirming ? (
+              <button
+                type="button"
+                className="btn btn-success text-white"
+                onClick={() => setConfirming(true)}
+              >
+                Confirmar datos
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-success text-white"
+                onClick={() =>
+                  handleSubmit({
+                    selectedSoftware,
+                    selectedDigitalTools,
+                    selectedTraditionalMaterials,
+                    selectedTraditionalTools,
+                  })
+                }
+              >
+                Crear Cotización
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

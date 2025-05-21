@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [SoftwareController],
   providers: [SoftwareService],
-  exports: [SoftwareService], // Para usarlo en otros módulos (ej: UserSoftware)
+  exports: [SoftwareService], 
 })
 export class SoftwareModule {}

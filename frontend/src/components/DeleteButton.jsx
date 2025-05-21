@@ -3,7 +3,7 @@ import { Trash2Icon } from "lucide-react";
 
 const DeleteButton = ({
   onConfirm,
-  message = "¿Seguro de que quieres eliminar este cliente?",
+  message = "¿Seguro de que deseas eliminar?",
   className = "font-regular-text",
 }) => {
   const [showToast, setShowToast] = useState(null);
@@ -39,7 +39,7 @@ const DeleteButton = ({
           console.log("Showing confirmation toast");
           setShowToast("confirm");
         }}
-        className={`flex items-center gap-1 cursor-pointer bg-red-500 text-white font-bold px-3 py-1 rounded-lg shadow-md hover:bg-red-600 transition ${className}`}
+        className={`flex items-center gap-1 cursor-pointer btn btn-error text-white font-bold ${className}`}
       >
         <Trash2Icon className="w-4 h-4" /> Eliminar
                 </button>

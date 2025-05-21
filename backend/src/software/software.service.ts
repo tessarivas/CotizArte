@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSoftwareDto } from './dto/create-software.dto';
 import { UpdateSoftwareDto } from './dto/update-software.dto';
@@ -7,32 +7,47 @@ import { UpdateSoftwareDto } from './dto/update-software.dto';
 export class SoftwareService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createSoftwareDto: CreateSoftwareDto) {
-    return this.prisma.software.create({
-      data: createSoftwareDto,
-    });
+  async create(dto: CreateSoftwareDto, userId: number) {
+    if (!userId) throw new Error('userId is required');
+    const payload = {
+      ...dto,
+      userId,
+      monthlyCost: dto.monthlyCost ?? 0,
+      annualCost: dto.annualCost ?? 0,
+    };
+    return this.prisma.software.create({ data: payload });
   }
 
-  async findAll() {
-    return this.prisma.software.findMany();
+  async findAll(userId: number) {
+    return this.prisma.software.findMany({ where: { userId } });
   }
 
-  async findOne(id: string) {
-    return this.prisma.software.findUnique({
-      where: { id: parseInt(id) },
-    });
+  async findOne(id: number, userId: number) {
+    const software = await this.prisma.software.findFirst({ where: { id, userId } });
+    if (!software) {
+      throw new NotFoundException('Software not found');
+    }
+    return software;
   }
 
-  async update(id: string, updateSoftwareDto: UpdateSoftwareDto) {
+  async update(id: number, dto: UpdateSoftwareDto, userId: number) {
+    // Verifica que el software pertenezca al usuario
+    const software = await this.prisma.software.findFirst({ where: { id, userId } });
+    if (!software) {
+      throw new NotFoundException('Software not found');
+    }
     return this.prisma.software.update({
-      where: { id: parseInt(id) },
-      data: updateSoftwareDto,
+      where: { id },
+      data: dto,
     });
   }
 
-  async remove(id: string) {
-    return this.prisma.software.delete({
-      where: { id: parseInt(id) },
-    });
+  async remove(id: number, userId: number) {
+    // Verifica que el software pertenezca al usuario
+    const software = await this.prisma.software.findFirst({ where: { id, userId } });
+    if (!software) {
+      throw new NotFoundException('Software not found');
+  }
+    return this.prisma.software.delete({ where: { id } });
   }
 }

@@ -13,11 +13,15 @@ export class CreatePricingProfileDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  projectsPerMonth?: number; // Permite valores opcionales
+  projectsPerMonth?: number;
 
   @IsOptional()
   defaultCommercialLicensePercentage?: number;
 
   @IsOptional()
   defaultUrgencyPercentage?: number;
+
+  @IsOptional()
+  @Min(0)
+  modificationExtra?: number;
 }

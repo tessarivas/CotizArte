@@ -1,10 +1,5 @@
-// src/hooks/useProjectForm.js
 import { useEffect, useState } from "react";
 import api from "@/api/axios";
-import { useDigitalIllustration } from "./useDigitalIllustration";
-import { useVideoEditing } from "./useVideoEditing";
-import { usePainting } from "./usePainting";
-import { useDrawing } from "./useDrawing";
 
 export function useProjectForm() {
   // Estados para los campos comunes del proyecto
@@ -15,8 +10,8 @@ export function useProjectForm() {
     hoursWorked: 0,
     isCommercial: false,
     rapidDelivery: false,
-    duration: "", // Opcional (por ejemplo, para video)
-    size: "",     // Se usará según el tipo de arte
+    duration: "",
+    size: "",
   });
 
   // Estados para selecciones
@@ -28,13 +23,6 @@ export function useProjectForm() {
   const [artTypes, setArtTypes] = useState([]);
   const [techniques, setTechniques] = useState([]);
   const [clients, setClients] = useState([]);
-
-  // Hooks especializados para cada tipo de arte
-  const { digitalIllustrationData, handleDigitalIllustrationChange } =
-    useDigitalIllustration();
-  const { videoEditingData, handleVideoEditingChange } = useVideoEditing();
-  const { paintingData, handlePaintingChange } = usePainting();
-  const { drawingData, handleDrawingChange } = useDrawing();
 
   // Cargar artTypes y clientes al montar el componente
   useEffect(() => {
@@ -76,6 +64,33 @@ export function useProjectForm() {
     setFormData((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
+  // Validación solo de los campos generales
+  const validateProjectData = (data) => {
+    if (!data.title.trim()) return "El título es obligatorio.";
+    if (!data.description.trim()) return "La descripción es obligatoria.";
+    if (isNaN(data.detailLevel) || data.detailLevel < 1 || data.detailLevel > 5) {
+      return "El nivel de detalle debe ser un número entre 1 y 5.";
+    }
+    if (isNaN(data.hoursWorked) || data.hoursWorked <= 0) {
+      return "Las horas trabajadas deben ser un número positivo.";
+    }
+    return null;
+  };
+
+  // Solo envía los datos generales, tipo de arte, técnica y cliente
+  const formatDataToSend = () => {
+    return {
+      ...formData,
+      artTypeId: selectedArtType ? parseInt(selectedArtType) : null,
+      artTechniqueId: selectedTechnique ? parseInt(selectedTechnique) : null,
+      clientId: selectedClient ? parseInt(selectedClient) : null,
+      detailLevel: parseInt(formData.detailLevel),
+      hoursWorked: parseFloat(formData.hoursWorked),
+      size: formData.size ? parseInt(formData.size) : null,
+      duration: formData.duration ? parseInt(formData.duration) : null,
+    };
+  };
+
   return {
     formData,
     setFormData,
@@ -89,13 +104,7 @@ export function useProjectForm() {
     techniques,
     clients,
     handleCommonChange,
-    digitalIllustrationData,
-    handleDigitalIllustrationChange,
-    videoEditingData,
-    handleVideoEditingChange,
-    paintingData,
-    handlePaintingChange,
-    drawingData,
-    handleDrawingChange,
+    validateProjectData,
+    formatDataToSend,
   };
 }

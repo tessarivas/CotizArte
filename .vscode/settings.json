@@ -66,6 +66,11 @@
             "folderPath": "CotizArte\\backend\\src\\commercial-licence\\",
             "color": "foldercolorizer.color_99cc66",
             "badge": "MD"
+        },
+        {
+            "folderPath": "CotizArte\\backend\\src\\discoutns\\",
+            "badge": "MD",
+            "color": "foldercolorizer.color_ccff99"
         }
     ]
 }

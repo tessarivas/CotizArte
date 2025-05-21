@@ -1,62 +1,88 @@
-// quotes.service.ts
+// src/quotes/quotes.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQuoteDto } from './dto/create-quote.dto';
+
+const ART_TYPE = {
+  DIGITAL_ILLUSTRATION: 1,
+  VIDEO_EDITING: 2,
+  PAINTING: 3,
+  DRAWING: 4
+};
+
+const DEFAULT_SOFTWARE_COST = 50;
+const DEFAULT_MATERIAL_COST = 30;
+const DEFAULT_TOOL_COST = 20;
 
 @Injectable()
 export class QuotesService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: number, dto: CreateQuoteDto) {
-    // 1. Validar proyecto y pertenencia al usuario
     const project = await this.prisma.project.findUnique({
-        where: { id: dto.projectId },
-        include: {
-          user: {
-            include: {
-              pricingProfiles: {
-                where: {
-                  artTypeId: dto.artTypeId
-                }
-              }
+      where: { id: dto.projectId },
+      include: {
+        user: {
+          include: {
+            pricingProfiles: {
+              where: { artTypeId: dto.artTypeId }
             }
-          },
-          artType: true,
-          artTechnique: true,
-          client: true
-        }
-      });
-
-      if (!project) {
-        throw new NotFoundException('El proyecto no existe');
+          }
+        },
+        artType: true,
+        artTechnique: true,
+        client: true
       }
-      if (project.userId !== userId) {
-        throw new NotFoundException('El proyecto no pertenece a este usuario');
-      }
-      if (!project.user.pricingProfiles || project.user.pricingProfiles.length === 0) {
-        throw new NotFoundException("No se encontró un perfil de precios para este tipo de arte");
-      }      
-      
-    // 2. Calcular costos (implementaremos esta función después)
-    const costBreakdown = await this.calculateProjectCost(project);
+    });
 
-    // 3. Crear la cotización
+    if (!project) throw new NotFoundException('El proyecto no existe');
+    if (project.userId !== userId) throw new NotFoundException('El proyecto no pertenece a este usuario');
+
+    if (!project.user.pricingProfiles || project.user.pricingProfiles.length === 0) {
+      throw new NotFoundException("No se encontró un perfil de precios para este tipo de arte");
+    }
+
+    const costBreakdown = await this.calculateProjectCost(project, dto);
+
+    // IMPORTANTE: El subtotal solo debe incluir basePrice + commercialFee + urgencyFee
+    // Para asegurar que coincida con el cálculo del frontend
+    const subtotal =
+      costBreakdown.basePrice +
+      costBreakdown.commercialFee +
+      costBreakdown.urgencyFee;
+    
+    const discountAmount = subtotal * ((dto.discountPercentage || 0) / 100);
+    const finalPriceAfterDiscount = subtotal - discountAmount;
+
+    // Debug log para verificar cálculos
+    console.log('Backend cost breakdown:', {
+      basePrice: costBreakdown.basePrice,
+      commercialFee: costBreakdown.commercialFee,
+      urgencyFee: costBreakdown.urgencyFee,
+      subtotal: subtotal,
+      discountPercentage: dto.discountPercentage || 0,
+      discountAmount: discountAmount,
+      finalPriceAfterDiscount: finalPriceAfterDiscount
+    });
+
     return this.prisma.quote.create({
       data: {
         projectId: project.id,
+        clientId: dto.clientId ?? undefined,
         basePrice: costBreakdown.basePrice,
         commercialLicenseFee: costBreakdown.commercialFee,
         urgencyFee: costBreakdown.urgencyFee,
         materialsCost: costBreakdown.materialsCost,
         toolsCost: costBreakdown.toolsCost,
-        finalPrice: costBreakdown.finalPrice,
+        finalPrice: subtotal,
         discountPercentage: dto.discountPercentage || 0,
-        finalPriceAfterDiscount: costBreakdown.finalPrice * (1 - (dto.discountPercentage || 0) / 100),
+        finalPriceAfterDiscount,
         status: 'PENDING',
         notes: dto.notes,
-        shareableLink: this.generateShareableLink() // Implementar esta función
+        shareableLink: this.generateShareableLink()
       },
       include: {
+        client: true,
         project: {
           include: {
             artType: true,
@@ -71,6 +97,7 @@ export class QuotesService {
     return this.prisma.quote.findMany({
       where: { project: { userId } },
       include: {
+        client: true,
         project: {
           include: {
             artType: true,
@@ -81,68 +108,94 @@ export class QuotesService {
     });
   }
 
-  private async calculateProjectCost(project: any) {
-    if (!project.user.pricingProfiles || project.user.pricingProfiles.length === 0) {
-        throw new NotFoundException('No se encontró un perfil de precios para este tipo de arte');
+  private async calculateProjectCost(project: any, dto: any) {
+    const pricingProfile = project.user.pricingProfiles[0];
+    const basePrice = this.calculateBasePrice(project, pricingProfile, dto);
+
+    // Usa los porcentajes personalizados si existen, si no, usa los del perfil
+    const commercialPercentage = dto.commercialPercentage !== undefined
+      ? Number(dto.commercialPercentage)
+      : pricingProfile.defaultCommercialLicensePercentage;
+
+    const urgencyPercentage = dto.rapidDeliveryPercentage !== undefined
+      ? Number(dto.rapidDeliveryPercentage)
+      : pricingProfile.defaultUrgencyPercentage;
+
+    const commercialFee = dto.isCommercial
+      ? basePrice * (commercialPercentage / 100)
+      : 0;
+
+    const urgencyFee = dto.rapidDelivery
+      ? basePrice * (urgencyPercentage / 100)
+      : 0;
+
+    const isDigital = project.artType.id === ART_TYPE.DIGITAL_ILLUSTRATION || 
+                  project.artType.id === ART_TYPE.VIDEO_EDITING;
+    const isTraditional = project.artType.id === ART_TYPE.PAINTING || 
+                          project.artType.id === ART_TYPE.DRAWING;
+
+    // Estos costos NO se incluyen en el subtotal, solo se almacenan
+    let materialsCost = 0;
+    let toolsCost = 0;
+    
+    if (isTraditional) {
+      materialsCost = DEFAULT_MATERIAL_COST;
+      toolsCost = DEFAULT_TOOL_COST;
+    } else if (isDigital) {
+      // Para arte digital también registramos costos pero son más bajos
+      toolsCost = DEFAULT_TOOL_COST * 0.5; // Ejemplo de cómo podrías ajustar
     }
 
-    const pricingProfile = project.user.pricingProfiles[0];
-    if (!pricingProfile) {
-      throw new NotFoundException('El usuario no tiene un perfil de precios configurado');
-    }
-    
-    // 1. Obtener costos de materiales y herramientas
-    const [materialsCost, toolsCost] = await Promise.all([
-      this.getMaterialsCost(project.id),
-      this.getToolsCost(project.id)
-    ]);
-  
-    // 2. Calcular precio base según tipo de arte
-    let basePrice = project.hoursWorked * pricingProfile.standardHourlyRate;  
-    
-    // 3. Aplicar multiplicador de técnica si existe
-    if (project.artTechnique) {
-      basePrice *= project.artTechnique.priceMultiplier;
-    }
-  
-    // 4. Calcular extras
-    const commercialFee = project.isCommercial
-      ? basePrice * (pricingProfile.defaultCommercialLicensePercentage / 100)
-      : 0;
-    const urgencyFee = project.rapidDelivery
-      ? basePrice * (pricingProfile.defaultUrgencyPercentage / 100)
-      : 0;
-  
-    // 5. Total
-    const subtotal = basePrice + commercialFee + urgencyFee + materialsCost + toolsCost;
-  
     return {
       basePrice,
       commercialFee,
       urgencyFee,
       materialsCost,
-      toolsCost,
-      finalPrice: subtotal
+      toolsCost
     };
   }
-  
-  private async getMaterialsCost(projectId: number): Promise<number> {
-    const materials = await this.prisma.projectTraditionalMaterial.findMany({
-      where: { projectId },
-      include: { material: true }
-    });
-  
-    return materials.reduce((sum, pm) => sum + (pm.material.averageCost * pm.quantity), 0);
-  }
-  
-  private async getToolsCost(projectId: number): Promise<number> {
-    const tools = await this.prisma.projectDigitalTool.findMany({
-      where: { projectId },
-      include: { digitalTool: true }
-    });
-  
-    // Costo amortizado (costo total / vida útil en proyectos)
-    return tools.reduce((sum, pt) => sum + (pt.digitalTool.averageCost / pt.digitalTool.averageLifespan), 0);
+
+  private calculateBasePrice(project: any, pricingProfile: any, dto: any): number {
+    let basePrice = 0;
+    const modificationExtra = dto.customModificationExtra !== undefined
+      ? Number(dto.customModificationExtra)
+      : pricingProfile.modificationExtra || 10;
+
+    switch (project.artType.id) {
+      case ART_TYPE.DIGITAL_ILLUSTRATION: {
+        // Usa los insumos seleccionados, no los defaults
+        const softwareCost = dto.softwareCost || 0;
+        const digitalToolsCost = dto.digitalToolsCost || 0;
+        const projectsPerMonth = pricingProfile.projectsPerMonth || 1;
+
+        let baseSinDetalle = dto.hoursWorked * pricingProfile.standardHourlyRate +
+          (softwareCost + digitalToolsCost) / projectsPerMonth;
+        let incrementoDetalle = baseSinDetalle * (dto.detailLevel * 0.05);
+        basePrice = baseSinDetalle + incrementoDetalle +
+          (dto.additionalModifications * modificationExtra);
+        break;
+      }
+      
+      case ART_TYPE.VIDEO_EDITING:
+        basePrice = dto.duration * pricingProfile.complexityFactor * pricingProfile.baseRatePerMinute;
+        basePrice += dto.hoursWorked * pricingProfile.standardHourlyRate;
+        basePrice += DEFAULT_SOFTWARE_COST / pricingProfile.projectsPerMonth;
+        basePrice += pricingProfile.assetCost || 0;
+        basePrice += dto.additionalModifications * modificationExtra;
+        break;
+
+      case ART_TYPE.PAINTING:
+      case ART_TYPE.DRAWING:
+        basePrice = parseFloat(dto.size || 0) * pricingProfile.techniqueFactor;
+        basePrice += dto.hoursWorked * pricingProfile.standardHourlyRate;
+        // Importante: incluir estos cargos en el precio base para arte tradicional
+        basePrice += pricingProfile.shippingFee || 20;
+        basePrice += pricingProfile.certificateFee || 30;
+        basePrice += dto.additionalModifications * modificationExtra;
+        break;
+    }
+
+    return basePrice;
   }
 
   private generateShareableLink(): string {

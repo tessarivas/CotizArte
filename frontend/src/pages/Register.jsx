@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from "lucide-react";
 import useRegisterForm from "@/hooks/useRegisterForm";
+import { SparklesText } from "@/components/magicui/sparkles-text";
 
 export default function Register() {
   const {
@@ -20,24 +21,26 @@ export default function Register() {
     showPassword,
     showConfirmPassword,
     fileInputRef,
-    
+
     // Funciones
     handleFileChange,
     handleRemoveImage,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
-    handleSubmit
+    handleSubmit,
   } = useRegisterForm();
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-b from-teal-200 via-pink-200 to-orange-200 py-8">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-box px-8 py-8 max-w-md w-[20vw] overflow-y-auto max-h-[90vh] mt-10"
+        className="bg-white shadow-lg rounded-box px-8 py-8 max-w-md w-[22vw] overflow-y-auto max-h-[90vh] mt-20"
       >
-        <h1 className="text-4xl font-title-text text-center text-neutral mb-4">
-          Registrate
-        </h1>
+        {/* Título con efecto */}
+        <SparklesText
+          className={"text-center mb-6 text-5xl"}
+          text="Registrarse"
+        />
 
         {/* Nombre */}
         <div className="mb-3">

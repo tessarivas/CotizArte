@@ -47,7 +47,7 @@ const ActionCards = () => {
     {
       title: "Perfiles de Precios",
       subtitle: "Define tarifas y ajustes de cotización",
-      href: "/pricing-profiles",
+      href: "/pricing-profile",
       Icon: CircleDollarSignIcon,
       gradient: "from-gray-500 to-gray-700",
       hoverColor: "text-gray-300",

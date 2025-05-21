@@ -153,7 +153,7 @@ export default function Clients() {
               <select
                 value={rowsPerPage}
                 onChange={(e) => setRowsPerPage(Number(e.target.value))}
-                className="select select-secondary w-20 text-sm font-bold font-regular-text"
+                className="select select-secondary w-20 text-sm font-bold font-regular-text cursor-pointer"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -174,7 +174,7 @@ export default function Clients() {
 
         {/* Tabla de clientes - Modificado el contenedor para controlar el overflow */}
         <div className="w-full">
-          <div className="overflow-x-auto rounded-lg">
+          <div className="overflow-x-auto rounded-lg shadow-sm">
             <table className="w-full divide-y divide-gray-200 shadow-lg rounded-lg">
               <thead className="bg-gradient-to-r from-teal-300 via-pink-300 to-orange-300 text-neutral">
                 <tr>
@@ -239,19 +239,19 @@ export default function Clients() {
                           {/* Botón Editar */}
                           <button
                             onClick={() => openModal(client)}
-                            className="flex items-center gap-1 cursor-pointer bg-[#f28da9] text-white font-bold font-regular-text px-3 py-1 rounded-lg shadow-md hover:bg-[#ff7497] transition"
+                            className="flex items-center gap-1 cursor-pointer btn btn-secondary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <Edit2Icon className="w-4 h-4" /> Editar
                           </button>
                           {/* Botón Ver Cotizaciones */}
                           <button
                             onClick={() => handleViewQuotes(client)}
-                            className="flex items-center gap-1 cursor-pointer bg-purple-400 text-white font-bold font-regular-text px-3 py-1 rounded-lg shadow-md hover:bg-purple-600 transition"
+                            className="flex items-center gap-1 cursor-pointer btn btn-primary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <EyeIcon className="w-4 h-4" /> Cotizaciones
                           </button>
                           {/* Botón Eliminar */}
-                          <DeleteButton onConfirm={() => handleDelete(client.id)} />
+                          <DeleteButton onConfirm={() => handleDelete(client.id)} className="btn-sm font-bold font-regular-text rounded-lg shadow-md" />
                         </div>
                       </td>
                     </tr>
@@ -289,7 +289,7 @@ export default function Clients() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-1 py-1 rounded-md text-sm font-medium transition ${
+                className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
                   currentPage === 1
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white text-gray-700 hover:bg-gray-50"
@@ -312,7 +312,7 @@ export default function Clients() {
                     <button
                       key={pageNumber}
                       onClick={() => paginate(pageNumber)}
-                      className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                      className={`cursor-pointer px-3 py-1 rounded-md text-sm font-medium transition ${
                         currentPage === pageNumber
                           ? "bg-primary text-white"
                           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -339,7 +339,7 @@ export default function Clients() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className={`px-1 py-1 rounded-md text-sm font-medium transition ${
+                className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
                   currentPage === totalPages || totalPages === 0
                     ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                     : "bg-white text-gray-700 hover:bg-gray-50"

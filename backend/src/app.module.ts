@@ -13,7 +13,9 @@ import { ProjectsModule } from './projects/projects.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { ArtTechniquesModule } from './art-techniques/art-techniques.module';
 import { SoftwareModule } from './software/software.module';
-import { UserSoftwareModule } from './user-software/user-software.module';
+import { DigitalToolsModule } from './digital-tools/digital-tools.module';
+import { TraditionalMaterialsModule } from './traditional-materials/traditional-materials.module';	
+import { TraditionalToolsModule } from './traditional-tools/traditional-tools.module';
 import { ClientsModule } from './clients/clients.module';
 import { PricingProfilesModule } from './pricing-profiles/pricing-profiles.module';
 import { CommercialLicenseModule } from './commercial-licence/commercial-license.module';
@@ -32,7 +34,9 @@ import { DiscountsModule } from './discoutns/discount.module';
     ArtTypesModule,
     ArtTechniquesModule,
     SoftwareModule,
-    UserSoftwareModule,
+    DigitalToolsModule,
+    TraditionalMaterialsModule,
+    TraditionalToolsModule,
     ProjectsModule,
     PricingProfilesModule,
     QuotesModule,

@@ -28,7 +28,7 @@ export const ProjectSelectors = ({
         ))}
       </select>
       
-      <label className="block text-sm font-bold mb-2">Técnica (opcional):</label>
+      <label className="block text-sm font-bold mb-2">Técnica (Opcional):</label>
       <select
         value={selectedTechnique}
         onChange={(e) => setSelectedTechnique(e.target.value)}
@@ -38,20 +38,6 @@ export const ProjectSelectors = ({
         {techniques.map((tech) => (
           <option key={tech.id} value={tech.id}>
             {tech.name}
-          </option>
-        ))}
-      </select>
-      
-      <label className="block text-sm font-bold mb-2">Cliente (opcional):</label>
-      <select
-        value={selectedClient}
-        onChange={(e) => setSelectedClient(e.target.value)}
-        className="select select-bordered w-full mb-3"
-      >
-        <option value="">Selecciona un cliente</option>
-        {clients.map((client) => (
-          <option key={client.id} value={client.id}>
-            {client.name}
           </option>
         ))}
       </select>
