@@ -35,6 +35,7 @@ const DeleteButton = ({
   return (
     <>
       <button
+        type="button"
         onClick={() => {
           console.log("Showing confirmation toast");
           setShowToast("confirm");
@@ -42,7 +43,7 @@ const DeleteButton = ({
         className={`flex items-center gap-1 cursor-pointer btn btn-error text-white font-bold ${className}`}
       >
         <Trash2Icon className="w-4 h-4" /> Eliminar
-                </button>
+      </button>
 
       {showToast === "confirm" && (
         <div className="fixed top-4 right-4 z-50">
@@ -59,7 +60,7 @@ const DeleteButton = ({
                 >
                   Sí, eliminar
                 </button>
-        </div>
+              </div>
             </div>
           </div>
         </div>

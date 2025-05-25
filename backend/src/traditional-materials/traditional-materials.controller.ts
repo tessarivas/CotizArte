@@ -11,7 +11,7 @@ export class TraditionalMaterialsController {
 
   @Post()
   create(@Body() dto: CreateTraditionalMaterialDto, @Req() req: any) {
-    return this.materialsService.create(dto, req.user.id);
+    return this.materialsService.create(dto, req.user.userId);
   }
 
   @Get()

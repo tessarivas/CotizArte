@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "@/api/axios";
 import { SparklesText } from "@/components/magicui/sparkles-text-variant";
 import { useQuotes } from "@/hooks/useQuotes";
 import {
@@ -25,6 +26,35 @@ export default function Quotes() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState(null);
+  const [pricingProfile, setPricingProfile] = useState(null);
+
+  useEffect(() => {
+    async function fetchPricingProfile() {
+      const token = localStorage.getItem("access_token");
+      try {
+        const response = await api.get("/pricing-profiles", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Si la respuesta es un arreglo, selecciona el primer elemento (o el que corresponda)
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setPricingProfile(response.data[0]);
+        } else {
+          setPricingProfile({
+            defaultCommercialLicensePercentage: 0,
+            defaultUrgencyPercentage: 0,
+          });
+        }
+      } catch (error) {
+        console.error("Error al cargar pricing profile:", error);
+        // Asigna valores por defecto si no se pudo cargar
+        setPricingProfile({
+          defaultCommercialLicensePercentage: 0,
+          defaultUrgencyPercentage: 0,
+        });
+      }
+    }
+    fetchPricingProfile();
+  }, []);
 
   const {
     // Estados
@@ -54,11 +84,12 @@ export default function Quotes() {
     handleDelete,
     handlePrintQuote,
     handleShareQuote,
+    handleDeleteQuote,
+    handleSaveQuote,
 
     // Funciones de formateo y utilidades
     formatCurrency,
     formatDate,
-    getBadgeClass,
   } = useQuotes();
 
   // Función para manejar la selección de un proyecto en el modal
@@ -67,6 +98,33 @@ export default function Quotes() {
     // Pasamos el ID del proyecto seleccionado a la función handleCreateQuote
     if (project && project.id) {
       handleCreateQuote(project.id);
+    }
+  };
+
+  const translateStatus = (status) => {
+    if (!status) return "SIN ESTADO";
+    switch (status.toUpperCase()) {
+      case "APPROVED":
+        return "APROBADA";
+      case "PENDING":
+        return "PENDIENTE";
+      case "REJECTED":
+        return "RECHAZADA";
+      default:
+        return status;
+    }
+  };
+
+  const getBadgeClass = (status) => {
+    switch ((status || "").toUpperCase()) {
+      case "APPROVED":
+        return "alert alert-success"; // Aquí usarías las clases de tu framework o Tailwind
+      case "PENDING":
+        return "alert alert-warning";
+      case "REJECTED":
+        return "alert alert-error text-white";
+      default:
+        return "alert alert-info";
     }
   };
 
@@ -194,10 +252,9 @@ export default function Quotes() {
             <FilePenIcon className="w-6 h-6 mr-2" /> Nueva Cotización
           </button>
         </div>
-
         {/* Tabla de cotizaciones */}
         <div className="w-full">
-          <div className="overflow-x-auto rounded-lg shadow-sm">
+          <div className="overflow-x-auto rounded-lg shadow-sm font-regular-text">
             <table className="w-full divide-y divide-gray-200 shadow-lg rounded-lg">
               <thead className="bg-gradient-to-r from-teal-300 via-pink-300 to-orange-300 text-neutral">
                 <tr>
@@ -249,13 +306,13 @@ export default function Quotes() {
                 ) : currentQuotes.length > 0 ? (
                   currentQuotes.map((quote) => (
                     <tr key={quote.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-md font-semibold text-gray-900">
                         {quote.project?.title || "Sin título"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {quote.client?.name || "N/A"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-md text-gray-900">
                         {formatCurrency(quote.finalPriceAfterDiscount || 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
@@ -263,17 +320,17 @@ export default function Quotes() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getBadgeClass(
+                          className={`px-2 py-1 inline-flex text-sm leading-5 font-bold rounded-full ${getBadgeClass(
                             quote.status
                           )}`}
                         >
-                          {quote.status || "Sin estado"}
+                          {translateStatus(quote.status)}
                         </span>
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         {/* Botones de acciones en la misma fila - MODIFICADO (Quitado botón "Nueva") */}
                         <div className="flex flex-wrap gap-2 justify-center">
-                          {/* Botón Ver Detalles */}
                           <button
                             onClick={() => {
                               setSelectedQuote(quote);
@@ -403,15 +460,16 @@ export default function Quotes() {
           onClose={() => setShowDetailsModal(false)}
           quote={selectedQuote}
         />
-        <QuoteEditModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          quote={selectedQuote}
-          onSave={(updatedFields) => {
-            // Aquí haces el PATCH/PUT y actualizas la lista si quieres
-            setShowEditModal(false);
-          }}
-        />
+        {showEditModal && selectedQuote && pricingProfile && (
+          <QuoteEditModal
+            isOpen={showEditModal}
+            onClose={() => setShowEditModal(false)}
+            quote={selectedQuote}
+            onSave={handleSaveQuote} // Tu función de actualización
+            onDelete={handleDeleteQuote} // Tu función de eliminación
+            pricingProfile={pricingProfile}
+          />
+        )}
       </div>
     </div>
   );

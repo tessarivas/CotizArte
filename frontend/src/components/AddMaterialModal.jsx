@@ -25,31 +25,118 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
     category: "",
     subCategory: "",
     quality: "",
+    averageCost: 0,
     unit: "",
+    containerSize: 0, // Nuevo campo
   });
 
   // Maneja cambios en los campos del formulario
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    // Si es un checkbox, usar el valor de checked
-    const finalValue = type === "checkbox" ? checked : value;
+    let finalValue;
+
+    if (type === "checkbox") {
+      finalValue = checked;
+    } else if (type === "number") {
+      finalValue = value === "" ? 0 : Number(value);
+    } else {
+      finalValue = value;
+    }
+
     setFormData({ ...formData, [name]: finalValue });
   };
 
   // Maneja el envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData, selectedType);
+
+    let payload = {};
+
+    switch (selectedType) {
+      case "software":
+        // Calcula el costo mensual para software anual
+        let finalMonthlyCost = formData.monthlyCost;
+        if (formData.version === "annual") {
+          finalMonthlyCost = Number(formData.annualCost) / 12;
+        }
+
+        payload = {
+          name: formData.name,
+          version: formData.version,
+          monthlyCost:
+            formData.version === "monthly"
+              ? Number(formData.monthlyCost)
+              : formData.version === "annual"
+              ? finalMonthlyCost
+              : 0,
+          annualCost:
+            formData.version === "annual" ? Number(formData.annualCost) : 0,
+          hasFreeVersion: formData.version === "free",
+        };
+        break;
+
+      case "digitalTool":
+        payload = {
+          name: formData.name,
+          averageCost: Number(formData.averageCost),
+          averageLifespan: Number(formData.averageLifespan),
+        };
+        break;
+
+      // En el mismo archivo, dentro del case "traditionalMaterial" del handleSubmit
+      case "traditionalMaterial":
+        payload = {
+          name: String(formData.name).trim(),
+          category: String(formData.category).trim(),
+          subCategory: String(formData.subCategory).trim(),
+          quality: String(formData.quality).trim(),
+          averageCost: Number(formData.averageCost) || 0,
+          unit: String(formData.unit).trim(),
+          containerSize:
+            formData.unit === "ml" ? Number(formData.containerSize) : null,
+        };
+        break;
+        
+      case "traditionalTool":
+        payload = {
+          name: formData.name,
+          category: formData.category,
+          averageCost: Number(formData.averageCost),
+          averageLifespan: Number(formData.averageLifespan),
+        };
+        break;
+
+      default:
+        console.error("Tipo de material no reconocido");
+        return;
+    }
+
+    // Verifica que todos los campos requeridos tengan valor
+    const hasEmptyFields = Object.values(payload).some(
+      (value) => value === "" || value === undefined || value === null
+    );
+
+    if (hasEmptyFields) {
+      alert("Por favor completa todos los campos requeridos");
+      return;
+    }
+
+    onSave(payload, selectedType);
   };
 
   // Renderiza el título correcto según el tipo seleccionado
   const getModalTitle = () => {
     switch (selectedType) {
-      case "software": return "Agregar Software";
-      case "digitalTool": return "Agregar Herramienta Digital";
-      case "traditionalMaterial": return "Agregar Material Tradicional";
-      case "traditionalTool": return "Agregar Herramienta Tradicional";
-      default: return "Seleccionar Tipo de Material";
+      case "software":
+        return "Agregar Software";
+      case "digitalTool":
+        return "Agregar Herramienta Digital";
+      case "traditionalMaterial":
+        return "Agregar Material Tradicional";
+      case "traditionalTool":
+        return "Agregar Herramienta Tradicional";
+      default:
+        return "Seleccionar Tipo de Material";
     }
   };
 
@@ -80,7 +167,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
                 />
                 <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
               </div>
-              
+
               <div className="mb-3">
                 <p className="text-sm font-semibold mb-2">Tipo de Licencia</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -179,10 +266,10 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
                   type="number"
                   min="0"
                   step="0.01"
-                  value={formData.averageCost}
+                  value={formData.averageCost || 0} // Aseguramos que nunca sea undefined o null
                   onChange={handleInputChange}
                   className="input input-bordered w-full mb-3 pr-10"
-                  placeholder="Costo Promedio (USD)"
+                  placeholder="Costo del Material (USD)"
                   required
                 />
                 <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
@@ -221,28 +308,60 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
               </div>
 
               <div className="relative">
-                <input
+                <select
                   name="category"
-                  type="text"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="input input-bordered w-full mb-3 pr-10"
-                  placeholder="Categoría"
+                  className="select select-bordered w-full mb-3 pr-10"
                   required
-                />
-                <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
+                >
+                  <option value="">Seleccionar categoría</option>
+                  <option value="Papel">Papel</option>
+                  <option value="Lienzo">Lienzo</option>
+                  <option value="Pintura">Pintura</option>
+                  <option value="Lápices">Lápices</option>
+                  <option value="Otros">Otros</option>
+                </select>
               </div>
 
               <div className="relative">
-                <input
+                <select
                   name="subCategory"
-                  type="text"
                   value={formData.subCategory}
                   onChange={handleInputChange}
-                  className="input input-bordered w-full mb-3 pr-10"
-                  placeholder="Subcategoría"
-                />
-                <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
+                  className="select select-bordered w-full mb-3 pr-10"
+                  required
+                >
+                  <option value="">Seleccionar subcategoría</option>
+                  {formData.category === "Papel" && (
+                    <>
+                      <option value="Acuarela">Acuarela</option>
+                      <option value="Carboncillo">Carboncillo</option>
+                      <option value="Dibujo">Dibujo</option>
+                    </>
+                  )}
+                  {formData.category === "Lienzo" && (
+                    <>
+                      <option value="Algodón">Algodón</option>
+                      <option value="Lino">Lino</option>
+                      <option value="Sintético">Sintético</option>
+                    </>
+                  )}
+                  {formData.category === "Pintura" && (
+                    <>
+                      <option value="Acrílico">Acrílico</option>
+                      <option value="Óleo">Óleo</option>
+                      <option value="Acuarela">Acuarela</option>
+                    </>
+                  )}
+                  {formData.category === "Lápices" && (
+                    <>
+                      <option value="Grafito">Grafito</option>
+                      <option value="Color">Color</option>
+                      <option value="Carboncillo">Carboncillo</option>
+                    </>
+                  )}
+                </select>
               </div>
 
               <div className="relative">
@@ -251,14 +370,13 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
                   value={formData.quality}
                   onChange={handleInputChange}
                   className="select select-bordered w-full mb-3 pr-10"
+                  required
                 >
                   <option value="">Seleccionar calidad</option>
-                  <option value="Económico">Económico</option>
-                  <option value="Estándar">Estándar</option>
+                  <option value="Estudiante">Estudiante</option>
                   <option value="Profesional">Profesional</option>
                   <option value="Premium">Premium</option>
                 </select>
-                <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
               </div>
 
               <div className="relative">
@@ -270,24 +388,87 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
                   value={formData.averageCost}
                   onChange={handleInputChange}
                   className="input input-bordered w-full mb-3 pr-10"
-                  placeholder="Costo Promedio (USD)"
+                  placeholder="Costo del Material (USD)"
                   required
                 />
-                <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
               </div>
 
               <div className="relative">
-                <input
+                <select
                   name="unit"
-                  type="text"
                   value={formData.unit}
                   onChange={handleInputChange}
-                  className="input input-bordered w-full mb-3 pr-10"
-                  placeholder="Unidad (ej: unidad, metro, litro)"
+                  className="select select-bordered w-full mb-3 pr-10"
+                  required
+                >
+                  <option value="">Seleccionar unidad</option>
+                  <option value="unidad">Unidad</option>
+                  <option value="set">Set</option>
+                  <option value="metro">Metro</option>
+                  <option value="pliego">Pliego</option>
+                  <option value="ml">Mililitro</option>
+                </select>
+              </div>
+
+              {/* Campo containerSize para ml con mejor explicación */}
+              {formData.unit === "ml" && (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <input
+                      name="containerSize"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={formData.containerSize || ""}
+                      onChange={handleInputChange}
+                      className="input input-bordered w-full mb-1 pr-10"
+                      placeholder="Mililitros por contenedor"
+                      required
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                      ml
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>
+                      📝 Este campo indica cuántos mililitros contiene el
+                      producto completo.
+                    </p>
+                    <p className="text-xs">
+                      Ejemplo:
+                      <ul className="list-disc list-inside ml-2">
+                        <li>120 para un tubo de óleo de 120ml</li>
+                        <li>500 para una botella de acrílico de 500ml</li>
+                      </ul>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Campo de precio con indicación de la unidad */}
+              <div className="relative">
+                <input
+                  name="averageCost"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.averageCost}
+                  onChange={handleInputChange}
+                  className="input input-bordered w-full mb-1 pr-24"
+                  placeholder="Precio"
                   required
                 />
-                <PencilIcon className="w-5 h-5 text-error absolute right-4 top-5 transform -translate-y-1/2" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  USD/{formData.unit || "unidad"}
+                </span>
               </div>
+              <p className="text-xs text-gray-500 mb-3">
+                {formData.unit === "ml"
+                  ? `Precio por contenedor completo de ${
+                      formData.containerSize || "0"
+                    }ml`
+                  : "Precio por unidad"}
+              </p>
             </>
           )}
 
@@ -360,10 +541,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
             >
               Cancelar
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
+            <button type="submit" className="btn btn-primary">
               Guardar
             </button>
           </div>

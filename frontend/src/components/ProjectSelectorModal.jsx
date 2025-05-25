@@ -58,7 +58,7 @@ const ProjectSelectorModal = ({ isOpen, onClose, onSelectProject }) => {
         <div className="relative mb-4">
           <input
             type="text"
-            placeholder="Buscar por nombre de proyecto o cliente..."
+            placeholder="Buscar por nombre de proyecto"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="input input-bordered input-primary w-full pl-10"
@@ -85,10 +85,6 @@ const ProjectSelectorModal = ({ isOpen, onClose, onSelectProject }) => {
                       <h3 className="font-bold text-gray-900">
                         {project.title}
                       </h3>
-                      <p className="text-sm text-gray-500">
-                        Cliente:{" "}
-                        {project.client?.name || "Sin cliente asignado"}
-                      </p>
                       {project.description && (
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                           {project.description}

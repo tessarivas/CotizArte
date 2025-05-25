@@ -1,5 +1,6 @@
 import api from "@/api/axios";
 import { useState, useEffect } from "react";
+import { useQuotePreview } from "./useQuotePreview"; // Importar el hook de cálculo
 
 export function useQuoteForm(projectId, navigate) {
   // Estado para los campos comunes de la cotización
@@ -11,18 +12,14 @@ export function useQuoteForm(projectId, navigate) {
   // Estado para los datos específicos según el tipo de arte
   const [specializedData, setSpecializedData] = useState({
     hoursWorked: 0,
-    detailLevel: 1,
-    duration: 0,
-    complexityFactor: 1,
+    width: "",
+    height: "",
+    technique: "",
     additionalModifications: 0,
-    size: 0,
-    materialsCost: 0,
-    toolsCost: 0,
     isCommercial: false,
-    commercialPercentage: "", // <--- AGREGA ESTO
+    commercialPercentage: "",
     rapidDelivery: false,
-    rapidDeliveryPercentage: "", // <--- Y ESTO
-    customModificationExtra: "",
+    rapidDeliveryPercentage: "",
   });
 
   const [selectedArtType, setSelectedArtType] = useState("");
@@ -31,6 +28,26 @@ export function useQuoteForm(projectId, navigate) {
   const [pricingProfiles, setPricingProfiles] = useState([]);
   const [selectedPricingProfile, setSelectedPricingProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Estados para selección de insumos - los agregamos aquí para tenerlos disponibles
+  const [selectedSoftware, setSelectedSoftware] = useState([]);
+  const [selectedDigitalTools, setSelectedDigitalTools] = useState([]);
+  const [selectedTraditionalMaterials, setSelectedTraditionalMaterials] = useState([]);
+  const [selectedTraditionalTools, setSelectedTraditionalTools] = useState([]);
+
+  // Usar el hook de preview para obtener los cálculos
+  const breakdown = useQuotePreview({
+    quoteData,
+    specializedData,
+    selectedArtType,
+    project,
+    pricingProfile,
+    selectedPricingProfile,
+    selectedSoftware,
+    selectedDigitalTools,
+    selectedTraditionalMaterials,
+    selectedTraditionalTools,
+  });
 
   // Fetch de proyecto y perfiles de precios
   useEffect(() => {
@@ -123,7 +140,7 @@ export function useQuoteForm(projectId, navigate) {
     if (name in specializedData) {
       setSpecializedData((prev) => ({
         ...prev,
-        [name]: type === "checkbox" ? checked : value, // SIEMPRE string
+        [name]: type === "checkbox" ? checked : value,
       }));
     } else {
       setQuoteData((prev) => ({
@@ -185,12 +202,12 @@ export function useQuoteForm(projectId, navigate) {
     return Object.keys(errors).length === 0;
   };
 
-  // Submit
+  // Submit - ACTUALIZADO para enviar valores calculados
   const handleSubmit = async ({
-    selectedSoftware,
-    selectedDigitalTools,
-    selectedTraditionalMaterials,
-    selectedTraditionalTools,
+    selectedSoftware: supplySelectedSoftware,
+    selectedDigitalTools: supplySelectedDigitalTools,
+    selectedTraditionalMaterials: supplySelectedTraditionalMaterials,
+    selectedTraditionalTools: supplySelectedTraditionalTools,
   }) => {
     if (!validateForm()) {
       alert("Por favor completa todos los campos requeridos");
@@ -200,20 +217,21 @@ export function useQuoteForm(projectId, navigate) {
     if (!token) return alert("Debes iniciar sesión");
 
     try {
+      // Usar los valores calculados del breakdown
       const dataToSend = {
         projectId: parseInt(projectId, 10),
         artTypeId: parseInt(selectedArtType, 10),
         pricingProfileId: selectedPricingProfile?.id,
         discountPercentage: parseFloat(quoteData.discountPercentage) || 0,
         notes: quoteData.notes,
+        
+        // Valores originales del formulario (para referencia/auditoría)
         hoursWorked: parseFloat(specializedData.hoursWorked) || 0,
         detailLevel: parseFloat(specializedData.detailLevel) || 1,
-        additionalModifications:
-          parseFloat(specializedData.additionalModifications) || 0,
+        additionalModifications: parseFloat(specializedData.additionalModifications) || 0,
         duration: parseFloat(specializedData.duration) || 0,
         isCommercial: specializedData.isCommercial,
         rapidDelivery: specializedData.rapidDelivery,
-        // AGREGA ESTOS CAMPOS:
         commercialPercentage:
           specializedData.commercialPercentage !== ""
             ? parseFloat(specializedData.commercialPercentage)
@@ -226,21 +244,38 @@ export function useQuoteForm(projectId, navigate) {
           specializedData.customModificationExtra !== ""
             ? parseFloat(specializedData.customModificationExtra)
             : undefined,
-        selectedSoftwareIds: selectedSoftware.map((sw) => sw.id),
-        selectedDigitalToolIds: selectedDigitalTools.map((dt) => dt.id),
-        selectedTraditionalMaterialIds: selectedTraditionalMaterials.map(
-          (tm) => tm.id
-        ),
-        selectedTraditionalToolIds: selectedTraditionalTools.map((tt) => tt.id),
+
+        // VALORES CALCULADOS DEL BREAKDOWN - ESTOS SON LOS IMPORTANTES
+        basePrice: breakdown.basePrice,
+        commercialFee: breakdown.commercialFee,
+        urgencyFee: breakdown.urgencyFee,
+        materialsCost: breakdown.materialsCost,
+        toolsCost: breakdown.toolsCost,
+        shippingFee: breakdown.shippingFee,
+        certificateFee: breakdown.certificateFee,
+        subtotal: breakdown.subtotal,
+        total: breakdown.total,
+
+        // IDs de insumos seleccionados
+        selectedSoftwareIds: (supplySelectedSoftware || selectedSoftware).map((sw) => sw.id),
+        selectedDigitalToolIds: (supplySelectedDigitalTools || selectedDigitalTools).map((dt) => dt.id),
+        selectedTraditionalMaterialIds: (supplySelectedTraditionalMaterials || selectedTraditionalMaterials).map((tm) => tm.id),
+        selectedTraditionalToolIds: (supplySelectedTraditionalTools || selectedTraditionalTools).map((tt) => tt.id),
+        
         clientId: !projectHasClient && quoteClient ? quoteClient.id : undefined,
       };
+
+      console.log("Datos enviados al backend:", dataToSend);
+
       const response = await api.post("/quotes", dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       navigate("/quotes", {
         state: { success: true, quoteId: response.data.id },
       });
     } catch (error) {
+      console.error("Error completo:", error);
       alert(
         "Error al crear la cotización: " +
           (error.response?.data?.message || error.message)
@@ -275,5 +310,15 @@ export function useQuoteForm(projectId, navigate) {
     projectHasClient,
     validateForm,
     handleSubmit,
+    breakdown, // Exponemos el breakdown para uso en otros componentes
+    // Estados de insumos
+    selectedSoftware,
+    setSelectedSoftware,
+    selectedDigitalTools,
+    setSelectedDigitalTools,
+    selectedTraditionalMaterials,
+    setSelectedTraditionalMaterials,
+    selectedTraditionalTools,
+    setSelectedTraditionalTools,
   };
 }

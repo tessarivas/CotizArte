@@ -64,11 +64,11 @@ export const useQuotes = () => {
 
     // Filtro por estado
     let typeMatch = true;
-    if (filterType === "PENDING") {
+    if (filterType === "pendiente") {
       typeMatch = quote.status === "Pendiente";
-    } else if (filterType === "approved") {
+    } else if (filterType === "aprobada") {
       typeMatch = quote.status === "Aprobada";
-    } else if (filterType === "rejected") {
+    } else if (filterType === "rechazada") {
       typeMatch = quote.status === "Rechazada";
     }
 
@@ -117,10 +117,56 @@ export const useQuotes = () => {
       await api.delete(`/quotes/${quoteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Actualizar el estado después de eliminar
-      setQuotes(quotes.filter((quote) => quote.id !== quoteId));
+      // Usar la actualización funcional para que React tenga el estado actual
+      setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quoteId));
     } catch (error) {
       console.error("Error al eliminar la cotización:", error);
+    }
+  };
+
+  const handleSaveQuote = async (quoteId, updateData) => {
+    // Filtrar valores undefined
+    const sanitizedData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    );
+
+    // Extraer forceRecalculate (u otros campos extra) si no se quieren enviar
+    const { forceRecalculate, ...dataToSend } = sanitizedData;
+
+    try {
+      const token = localStorage.getItem("access_token");
+      console.log("Datos enviados al backend:", updateData);
+      console.log("Datos limpiados antes de enviar:", dataToSend);
+
+      const response = await api.put(`/quotes/${quoteId}`, dataToSend, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Respuesta de actualización:", response.data);
+
+      // Actualiza el estado local reemplazando la cotización editada
+      setQuotes((prevQuotes) =>
+        prevQuotes.map((q) => (q.id === response.data.id ? response.data : q))
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al actualizar:", error.response?.data || error);
+    }
+  };
+
+  const handleDeleteQuote = async (quoteId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      await api.delete(`/quotes/${quoteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update local state to remove the deleted quote
+      setQuotes((prevQuotes) => prevQuotes.filter((q) => q.id !== quoteId));
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      throw error;
     }
   };
 
@@ -152,20 +198,6 @@ export const useQuotes = () => {
       month: "short",
       day: "numeric",
     }).format(date);
-  };
-
-  // Estado del badge según el status
-  const getBadgeClass = (status) => {
-    switch (status?.toLowerCase()) {
-      case "aprobada":
-        return "bg-green-100 text-green-800 border border-green-200";
-      case "rechazada":
-        return "bg-red-100 text-red-800 border border-red-200";
-      case "pendiente":
-        return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-800 border border-gray-200";
-    }
   };
 
   // Para modal si se implementa
@@ -209,6 +241,8 @@ export const useQuotes = () => {
     handleEdit,
     handleCreateQuote,
     handleDelete,
+    handleDeleteQuote,
+    handleSaveQuote,
     handlePrintQuote,
     handleShareQuote,
     openModal,
@@ -217,6 +251,5 @@ export const useQuotes = () => {
     // Funciones de formateo y utilidades
     formatCurrency,
     formatDate,
-    getBadgeClass,
   };
 };

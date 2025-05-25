@@ -8,7 +8,16 @@ export class TraditionalMaterialsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateTraditionalMaterialDto, userId: number) {
-    return this.prisma.traditionalMaterial.create({ data: { ...dto, userId } });
+    return this.prisma.traditionalMaterial.create({
+      data: {
+        ...dto,
+        user: {
+          connect: {
+            id: userId
+          }
+        }
+      }
+    });
   }
 
   async findAll(userId: number) {

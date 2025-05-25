@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { QuoteProgressBar } from "@/components/Quotes/QuoteProgressBar";
@@ -45,20 +45,23 @@ export default function CreateQuote() {
     setQuoteClient,
     projectHasClient,
     handleSubmit,
+    breakdown,
+    // Estados de insumos desde el hook
+    selectedSoftware,
+    setSelectedSoftware,
+    selectedDigitalTools,
+    setSelectedDigitalTools,
+    selectedTraditionalMaterials,
+    setSelectedTraditionalMaterials,
+    selectedTraditionalTools,
+    setSelectedTraditionalTools,
   } = useQuoteForm(projectId, navigate);
-
-  // Estados para selección de insumos
-  const [selectedSoftware, setSelectedSoftware] = useState([]);
-  const [selectedDigitalTools, setSelectedDigitalTools] = useState([]);
-  const [selectedTraditionalMaterials, setSelectedTraditionalMaterials] =
-    useState([]);
-  const [selectedTraditionalTools, setSelectedTraditionalTools] = useState([]);
 
   const renderSpecializedForm = () => {
     if (!selectedArtType) return null;
     const commonProps = {
       data: specializedData,
-      handleChange: handleQuoteFieldChange, // <--- usa handleQuoteFieldChange aquí
+      handleChange: handleQuoteFieldChange,
       handleQuoteFieldChange: handleQuoteFieldChange,
       errors: formErrors,
     };
@@ -112,9 +115,13 @@ export default function CreateQuote() {
         return (
           <SupplySelectionSection
             selectedArtType={selectedArtType}
+            selectedSoftware={selectedSoftware}
             setSelectedSoftware={setSelectedSoftware}
+            selectedDigitalTools={selectedDigitalTools}
             setSelectedDigitalTools={setSelectedDigitalTools}
+            selectedTraditionalMaterials={selectedTraditionalMaterials}
             setSelectedTraditionalMaterials={setSelectedTraditionalMaterials}
+            selectedTraditionalTools={selectedTraditionalTools}
             setSelectedTraditionalTools={setSelectedTraditionalTools}
           />
         );
@@ -131,6 +138,7 @@ export default function CreateQuote() {
             selectedDigitalTools={selectedDigitalTools}
             selectedTraditionalMaterials={selectedTraditionalMaterials}
             selectedTraditionalTools={selectedTraditionalTools}
+            breakdown={breakdown} // Pasamos el breakdown calculado
           />
         );
       default:
@@ -165,6 +173,7 @@ export default function CreateQuote() {
   }
 
   console.log("Paso actual:", currentStep);
+  console.log("Breakdown actual:", breakdown);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-primary via-secondary to-accent">

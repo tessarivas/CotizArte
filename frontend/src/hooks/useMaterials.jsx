@@ -129,6 +129,7 @@ export function useMaterials() {
           averageLifespan: Number(formData.averageLifespan),
         };
         break;
+      // En el switch case de traditionalMaterial dentro de handleSave
       case "traditionalMaterial":
         url = "/traditional-materials";
         payload = {
@@ -138,6 +139,8 @@ export function useMaterials() {
           quality: formData.quality,
           averageCost: Number(formData.averageCost),
           unit: formData.unit,
+          containerSize:
+            formData.unit === "ml" ? Number(formData.containerSize) : null,
         };
         break;
       case "traditionalTool":
