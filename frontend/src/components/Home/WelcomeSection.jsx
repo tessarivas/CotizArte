@@ -20,19 +20,19 @@ export const WelcomeSection = () => {
 
         {/* Imágenes de acuarela */}
         <img
-          src="/Acuarela Azul.png"
+          src="/Acuarela Azul.webp"
           alt="Acuarela Azul"
           className="absolute top-[-20vh] left-[32vw] w-[30vw] rotate-180 opacity-100 mix-blend-darken z-0"
         />
 
         <img
-          src="/Acuarela Naranja.png"
+          src="/Acuarela Naranja.webp"
           alt="Acuarela Naranja"
           className="absolute top-1/2 right-[-5vw] w-[30vw] opacity-100 mix-blend-darken z-0"
         />
 
         <img
-          src="/Acuarela Rosa.png"
+          src="/Acuarela Rosa.webp"
           alt="Acuarela Rosa"
           className="absolute top-1/4 left-[-5vw] w-[30vw] opacity-100 mix-blend-darken z-0"
         />
@@ -89,7 +89,7 @@ export const WelcomeSection = () => {
 
             {/* Imagen CotizArte */}
             <img
-              src="/CotizArte_Logo.png"
+              src="/CotizArte_Logo.webp"
               alt="CotizArte Logo"
               className="mx-auto w-62 md:w-78 lg:w-94 opacity-100 rotate-5"
             />
