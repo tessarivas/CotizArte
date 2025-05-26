@@ -107,11 +107,37 @@ export function useQuoteForm(projectId, navigate) {
   // Sincroniza datos del proyecto con el formulario
   useEffect(() => {
     if (project) {
-      setSpecializedData((prev) => ({
-        ...prev,
-        hoursWorked: project.hoursWorked || 0,
-        detailLevel: project.detailLevel || 1,
-      }));
+      // Cargar la técnica completa desde el backend usando el artTechniqueId del proyecto
+      const loadProjectTechnique = async () => {
+        if (project.artTechniqueId) {
+          try {
+            const token = localStorage.getItem("access_token");
+            const response = await api.get(
+              `/art-techniques/${project.artTechniqueId}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+
+            setSpecializedData((prev) => ({
+              ...prev,
+              selectedTechnique: response.data, // Guardar objeto completo con priceMultiplier
+              hoursWorked: project.hoursWorked || 0,
+              detailLevel: project.detailLevel || 1,
+            }));
+          } catch (error) {
+            console.error("Error al cargar técnica del proyecto:", error);
+          }
+        } else {
+          setSpecializedData((prev) => ({
+            ...prev,
+            hoursWorked: project.hoursWorked || 0,
+            detailLevel: project.detailLevel || 1,
+          }));
+        }
+      };
+
+      loadProjectTechnique();
     }
   }, [project]);
 
@@ -137,6 +163,15 @@ export function useQuoteForm(projectId, navigate) {
   // Manejo de cambios en los campos del formulario
   const handleQuoteFieldChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === 'duration' || name === 'customModificationExtra') {
+    setSpecializedData(prev => ({
+      ...prev,
+      [name]: value === '' ? '' : Number(value)
+    }));
+    return;
+  }
+  
     if (name in specializedData) {
       setSpecializedData((prev) => ({
         ...prev,

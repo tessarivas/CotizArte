@@ -1,12 +1,10 @@
 import React from "react";
 import { Paintbrush2Icon } from "lucide-react";
 
-export const PaintingQuoteForm = ({
-  data,
+export const PaintingQuoteForm = ({ 
+  data, 
   handleChange,
-  selectedTraditionalMaterials = [],
-  selectedTraditionalTools = [],
-  errors = {},
+  errors = {} 
 }) => (
   <div className="p-4 bg-gray-50 rounded-xl font-regular-text">
     <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
@@ -14,8 +12,8 @@ export const PaintingQuoteForm = ({
       Cotización para Pintura
     </h3>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Columna 1: Detalles técnicos */}
       <div>
-        {/* Columna 1: Detalles técnicos */}
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
             Horas trabajadas:
@@ -36,33 +34,60 @@ export const PaintingQuoteForm = ({
 
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
-            Tamaño de la obra:
+            Nivel de Detalle:
+          </label>
+          <select
+            name="detailLevel"
+            value={data.detailLevel || ""}
+            onChange={handleChange}
+            className={`select select-bordered w-full ${
+              errors.detailLevel ? "border-red-500" : ""
+            }`}
+          >
+            <option value="">Seleccione...</option>
+            <option value="1">Simple (+0%)</option>
+            <option value="2">Básico (+25%)</option>
+            <option value="3">Estándar (+50%)</option>
+            <option value="4">Detallado (+75%)</option>
+            <option value="5">Premium (+100%)</option>
+          </select>
+          {errors.detailLevel && (
+            <p className="text-red-500 text-xs mt-1">{errors.detailLevel}</p>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-sm font-bold mb-1">
+            Dimensiones:
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <input
-              name="width"
-              type="number"
-              min="0"
-              value={data.width || ""}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              placeholder="Ancho (cm)"
-              required
-            />
-            <input
-              name="height"
-              type="number"
-              min="0"
-              value={data.height || ""}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              placeholder="Alto (cm)"
-              required
-            />
+            <div>
+              <input
+                name="width"
+                type="number"
+                min="0"
+                value={data.width || ""}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+                placeholder="Ancho (cm)"
+                required
+              />
+            </div>
+            <div>
+              <input
+                name="height"
+                type="number"
+                min="0"
+                value={data.height || ""}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+                placeholder="Alto (cm)"
+                required
+              />
+            </div>
           </div>
-          <span className="text-xs text-gray-500">
-            Área total: {((data.width || 0) * (data.height || 0)).toFixed(2)}{" "}
-            cm²
+          <span className="text-xs text-gray-500 mt-1 block">
+            Área total: {((data.width || 0) * (data.height || 0)).toFixed(2)} cm²
           </span>
         </div>
 
@@ -70,27 +95,20 @@ export const PaintingQuoteForm = ({
           <label className="block text-sm font-bold mb-1">
             Técnica de pintura:
           </label>
-          <select
-            name="technique"
-            value={data.technique || ""}
-            onChange={handleChange}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Seleccionar técnica</option>
-            <option value="oleo">Óleo</option>
-            <option value="acrilico">Acrílico</option>
-            <option value="acuarela">Acuarela</option>
-            <option value="mixta">Técnica mixta</option>
-          </select>
+          <div className="bg-gray-100 p-3 rounded border text-sm">
+            {data.selectedTechnique?.name || "No especificada"}
+          </div>
+          <span className="text-xs text-gray-500">
+            La técnica se seleccionó al crear el proyecto
+          </span>
         </div>
       </div>
 
+      {/* Columna 2: Opciones adicionales */}
       <div>
-        {/* Columna 2: Opciones adicionales */}
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
-            Número de revisiones adicionales:
+            Revisiones adicionales:
           </label>
           <input
             name="additionalModifications"
@@ -115,7 +133,7 @@ export const PaintingQuoteForm = ({
             {data.isCommercial && (
               <>
                 <label className="text-xs font-semibold ml-2">
-                  Modificar porcentaje:
+                  Porcentaje extra:
                 </label>
                 <input
                   type="number"
@@ -146,7 +164,7 @@ export const PaintingQuoteForm = ({
             {data.rapidDelivery && (
               <>
                 <label className="text-xs font-semibold ml-2">
-                  Modificar porcentaje:
+                  Porcentaje extra:
                 </label>
                 <input
                   type="number"

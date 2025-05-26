@@ -44,17 +44,41 @@ export function useProjects() {
     setSelectedProject((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (projectId, updatedData) => {
     try {
+      // Get token from localStorage
       const token = localStorage.getItem("access_token");
-      if (!token) return console.error("No hay token disponible.");
-      await api.put(`/projects/${selectedProject.id}`, selectedProject, {
+      if (!token) {
+        throw new Error("No hay token disponible");
+      }
+
+      console.log("Sending update data:", {
+        projectId,
+        updatedData,
+      });
+
+      // Ensure we have valid data before making the request
+      if (!projectId || !updatedData) {
+        throw new Error("Missing required data for update");
+      }
+
+      // Include the authorization header in the request
+      const response = await api.put(`/projects/${projectId}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchProjects();
+
+      // Update local state after successful update
+      setProjects((prev) =>
+        prev.map((p) => (p.id === projectId ? response.data : p))
+      );
+
+      // Close modal after successful update
       closeModal();
+
+      return response.data;
     } catch (error) {
-      console.error("Error al guardar el proyecto:", error);
+      console.error("Error details:", error.response?.data);
+      throw error;
     }
   };
 

@@ -25,7 +25,6 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
     category: "",
     subCategory: "",
     quality: "",
-    averageCost: 0,
     unit: "",
     containerSize: 0, // Nuevo campo
   });
@@ -83,7 +82,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
         };
         break;
 
-      // En el mismo archivo, dentro del case "traditionalMaterial" del handleSubmit
+      // En el case "traditionalMaterial" del handleSubmit
       case "traditionalMaterial":
         payload = {
           name: String(formData.name).trim(),
@@ -95,8 +94,30 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
           containerSize:
             formData.unit === "ml" ? Number(formData.containerSize) : null,
         };
+
+        // Verificar campos requeridos según la unidad
+        const requiredFields = [
+          "name",
+          "category",
+          "subCategory",
+          "quality",
+          "averageCost",
+          "unit",
+        ];
+        const hasEmptyRequiredFields = requiredFields.some(
+          (field) => !payload[field] || payload[field] === ""
+        );
+
+        // Verificar containerSize solo si la unidad es ml
+        const needsContainerSize =
+          payload.unit === "ml" && !payload.containerSize;
+
+        if (hasEmptyRequiredFields || needsContainerSize) {
+          alert("Por favor completa todos los campos requeridos");
+          return;
+        }
         break;
-        
+
       case "traditionalTool":
         payload = {
           name: formData.name,
@@ -111,12 +132,36 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
         return;
     }
 
-    // Verifica que todos los campos requeridos tengan valor
-    const hasEmptyFields = Object.values(payload).some(
-      (value) => value === "" || value === undefined || value === null
-    );
+    // Modificar la verificación de campos vacíos
+    const hasEmptyFields = (payload, type) => {
+      if (type === "traditionalMaterial") {
+        const requiredFields = [
+          "name",
+          "category",
+          "subCategory",
+          "quality",
+          "averageCost",
+          "unit",
+        ];
+        const hasEmpty = requiredFields.some(
+          (field) => !payload[field] || payload[field] === ""
+        );
 
-    if (hasEmptyFields) {
+        // Solo verificar containerSize si la unidad es ml
+        if (payload.unit === "ml" && !payload.containerSize) {
+          return true;
+        }
+        return hasEmpty;
+      }
+
+      // Para otros tipos de materiales
+      return Object.entries(payload).some(
+        ([key, value]) => value === "" || value === undefined || value === null
+      );
+    };
+
+    // Y usar esta función antes de onSave
+    if (hasEmptyFields(payload, selectedType)) {
       alert("Por favor completa todos los campos requeridos");
       return;
     }

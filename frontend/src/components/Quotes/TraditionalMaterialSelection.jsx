@@ -97,13 +97,21 @@ export default function TraditionalMaterialSelection({ onSelect }) {
   // Actualizar updateSelectedMaterials para usar los valores más recientes
   const updateSelectedMaterials = () => {
     const updatedMaterials = selectedMaterials.map((material) => {
-      const quantity = quantities[material.id] || 0;
-      const partialUse = partialAmounts[material.id] || 0;
+      // For non-ml materials like pencils, use quantity = 1
+      if (material.unit !== "ml") {
+        return {
+          ...material,
+          quantity: 1, // Always 1 for non-ml materials
+          partialUse: 0,
+          containerSize: null,
+        };
+      }
 
+      // For ml materials (paints), use both quantities and partial amounts
       return {
         ...material,
-        quantity,
-        partialUse,
+        quantity: quantities[material.id] || 0,
+        partialUse: partialAmounts[material.id] || 0,
         containerSize: Number(material.containerSize),
       };
     });
@@ -115,8 +123,9 @@ export default function TraditionalMaterialSelection({ onSelect }) {
   const toggleMaterial = (material) => {
     let updated;
     if (selectedMaterials.some((m) => m.id === material.id)) {
+      // Deseleccionar material
       updated = selectedMaterials.filter((m) => m.id !== material.id);
-      // Limpiar cantidades al deseleccionar
+      // Limpiar cantidades
       setQuantities((prev) => {
         const newQuantities = { ...prev };
         delete newQuantities[material.id];
@@ -128,11 +137,54 @@ export default function TraditionalMaterialSelection({ onSelect }) {
         return newAmounts;
       });
     } else {
+      // Seleccionar material
       updated = [...selectedMaterials, material];
+
+      // Establecer valores iniciales según el tipo de material
+      if (material.unit === "ml") {
+        // Para materiales en ml (pinturas), inicializar en 0
+        setQuantities((prev) => ({
+          ...prev,
+          [material.id]: 0,
+        }));
+        setPartialAmounts((prev) => ({
+          ...prev,
+          [material.id]: 0,
+        }));
+      } else {
+        // Para otros materiales (lápices, etc), establecer cantidad = 1
+        setQuantities((prev) => ({
+          ...prev,
+          [material.id]: 1,
+        }));
+      }
     }
 
     setSelectedMaterials(updated);
-    updateSelectedMaterials();
+
+    // Actualizar los materiales después del cambio de estado
+    setTimeout(() => {
+      const updatedMaterials = updated.map((mat) => {
+        if (mat.unit === "ml") {
+          return {
+            ...mat,
+            quantity: quantities[mat.id] || 0,
+            partialUse: partialAmounts[mat.id] || 0,
+            containerSize: Number(mat.containerSize),
+          };
+        } else {
+          return {
+            ...mat,
+            quantity: 1,
+            partialUse: 0,
+            containerSize: null,
+          };
+        }
+      });
+
+      console.log("Materiales actualizados:", updatedMaterials);
+      onSelect(updatedMaterials);
+    }, 0);
   };
 
   return (
@@ -215,26 +267,7 @@ export default function TraditionalMaterialSelection({ onSelect }) {
                       <span className="text-sm">ml</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium">Cantidad:</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={
-                        quantities[material.id] === undefined
-                          ? ""
-                          : quantities[material.id]
-                      }
-                      onChange={(e) =>
-                        handleQuantityChange(material.id, e.target.value)
-                      }
-                      className="input input-bordered input-sm w-20 text-center"
-                      step="1"
-                    />
-                    <span className="text-sm">{material.unit}</span>
-                  </div>
-                )}
+                ) : null /* No mostrar nada para materiales que no son pinturas */}
               </div>
             )}
           </div>

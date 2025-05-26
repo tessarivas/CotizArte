@@ -34,6 +34,30 @@ export const DrawingQuoteForm = ({
 
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
+            Nivel de Detalle:
+          </label>
+          <select
+            name="detailLevel"
+            value={data.detailLevel || ""}
+            onChange={handleChange}
+            className={`select select-bordered w-full ${
+              errors.detailLevel ? "border-red-500" : ""
+            }`}
+          >
+            <option value="">Seleccione...</option>
+            <option value="1">Simple (+0%)</option>
+            <option value="2">Básico (+25%)</option>
+            <option value="3">Estándar (+50%)</option>
+            <option value="4">Detallado (+75%)</option>
+            <option value="5">Premium (+100%)</option>
+          </select>
+          {errors.detailLevel && (
+            <p className="text-red-500 text-xs mt-1">{errors.detailLevel}</p>
+          )}
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-sm font-bold mb-1">
             Dimensiones:
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -69,22 +93,14 @@ export const DrawingQuoteForm = ({
 
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
-            Técnica:
+            Técnica de dibujo:
           </label>
-          <select
-            name="technique"
-            value={data.technique || ""}
-            onChange={handleChange}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Seleccionar técnica</option>
-            <option value="lapiz">Lápiz grafito</option>
-            <option value="carbon">Carboncillo</option>
-            <option value="lapices-color">Lápices de color</option>
-            <option value="tinta">Tinta</option>
-            <option value="mixta">Técnica mixta</option>
-          </select>
+          <div className="bg-gray-100 p-3 rounded border text-sm">
+            {data.selectedTechnique?.name || "No especificada"}
+          </div>
+          <span className="text-xs text-gray-500">
+            La técnica se seleccionó al crear el proyecto
+          </span>
         </div>
       </div>
 

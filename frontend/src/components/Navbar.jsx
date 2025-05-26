@@ -53,9 +53,9 @@ export default function Navbar() {
   const navLinks = [
     { name: "Cotizaciones", path: "/quotes" },
     { name: "Proyectos", path: "/projects" },
-    { name: "Mercado", path: "/market" },
     { name: "Clientes", path: "/clients" },
-    { name: "Panel", path: "/dashboard" },
+    { name: "Materiales", path: "/materials" },
+    { name: "Precios", path: "/pricing-profile" },
   ];
 
   // Ajustar la clase del contenedor principal según la página
@@ -97,7 +97,7 @@ export default function Navbar() {
         <div className="absolute right-0 top-0 pointer-events-auto">
           {user ? (
             <button
-              onClick={() => navigate("/account")}
+              onClick={() => navigate("/dashboard")}
               className="flex items-center gap-3 bg-primary font-bold text-primary-content hover:text-white font-regular-text px-6 py-3 rounded-full shadow-md hover:bg-primary-content transition-transform hover:scale-105 cursor-pointer"
             >
               <img

@@ -3,6 +3,20 @@ import GradientText from "../blocks/TextAnimations/GradientText/GradientText";
 import DeleteButton from "@/components/DeleteButton";
 
 const EditProjectModal = ({ project, onFieldChange, onClose, onSave }) => {
+  const handleSave = () => {
+    // Prepare the update data from the current project state
+    const updateData = {
+      title: project.title,
+      artTypeId: Number(project.artType?.id),
+      detailLevel: Number(project.detailLevel),
+      hoursWorked: Number(project.hoursWorked),
+      description: project.description,
+    };
+
+    // Call onSave with the project ID and update data
+    onSave(project.id, updateData);
+  };
+
   return (
     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm z-50 font-regular-text">
       <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg p-7 w-[600px] max-h-[90vh] overflow-y-auto">
@@ -111,7 +125,7 @@ const EditProjectModal = ({ project, onFieldChange, onClose, onSave }) => {
             <button onClick={onClose} className="btn btn-secondary">
               Cancelar
             </button>
-            <button onClick={onSave} className="btn btn-primary">
+            <button onClick={handleSave} className="btn btn-primary">
               Guardar Cambios
             </button>
           </div>

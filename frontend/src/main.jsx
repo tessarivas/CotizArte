@@ -17,6 +17,7 @@ import AddClient from './pages/AddClient';
 import Materials from './pages/Materials';
 import Market from './pages/Market.jsx';
 import PricingProfile from './pages/PricingProfile';
+import SharedQuote from './pages/SharedQuote'; 
 
 const root = document.getElementById("root");
 
@@ -39,6 +40,7 @@ createRoot(root).render(
           <Route path="materials" element={<Materials />} />
           <Route path="market" element={<Market />} />
           <Route path="pricing-profile" element={<PricingProfile />} />
+          <Route path="shared-quote/:shareableId" element={<SharedQuote />} />
         </Route>
       </Routes>
     </BrowserRouter>

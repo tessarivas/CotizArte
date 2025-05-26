@@ -37,20 +37,14 @@ export class ArtTechniquesService {
   }
 
   async findOne(id: number) {
-    const technique = await this.prisma.artTechnique.findUnique({
+    return this.prisma.artTechnique.findUnique({
       where: { id },
       include: {
         artType: true,
       },
     });
-
-    if (!technique) {
-      throw new NotFoundException(`Técnica con ID ${id} no encontrada`);
-    }
-
-    return technique;
   }
-
+  
   async update(id: number, updateArtTechniqueDto: UpdateArtTechniqueDto) {
     try {
       return await this.prisma.artTechnique.update({
@@ -73,12 +67,17 @@ export class ArtTechniquesService {
   }
 
   // Método adicional: Buscar técnicas por tipo de arte
+  // En art-techniques.service.ts
   async findByArtType(artTypeId: number) {
     return this.prisma.artTechnique.findMany({
-      where: { artTypeId },
-      include: {
-        artType: true,
-      },
+        where: { artTypeId },
+        select: {
+            id: true,
+            name: true,
+            description: true,
+            priceMultiplier: true, // Asegúrate de que esté incluido
+            artType: true,
+        },
     });
   }
 }

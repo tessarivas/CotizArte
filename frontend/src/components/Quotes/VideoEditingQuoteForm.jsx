@@ -80,7 +80,7 @@ export const VideoEditingQuoteForm = ({
                   min="0"
                   max="100"
                   value={data.commercialPercentage ?? ""}
-                  onChange={handleQuoteFieldChange}
+                  onChange={handleChange}
                   className="input input-bordered input-xs w-20"
                   placeholder="Ej: 30"
                 />

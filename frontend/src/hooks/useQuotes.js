@@ -1,6 +1,8 @@
 // src/hooks/useQuotes.js
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { generateQuotePDF } from '@/services/pdfService';
+
 import api from "@/api/axios";
 
 export const useQuotes = () => {
@@ -20,6 +22,13 @@ export const useQuotes = () => {
   // Estado para modal (si decides implementarlo)
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ✅ AGREGAR ESTADO PARA PRICING PROFILE
+  const [pricingProfile, setPricingProfile] = useState(null);
+
+  // ✅ AGREGAR ESTADOS PARA EL MODAL DE COMPARTIR
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedQuoteForShare, setSelectedQuoteForShare] = useState(null);
 
   // Cargar cotizaciones
   useEffect(() => {
@@ -42,6 +51,26 @@ export const useQuotes = () => {
       console.error("Error al cargar cotizaciones:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ CARGAR PRICING PROFILE
+  useEffect(() => {
+    fetchPricingProfile();
+  }, []);
+
+  const fetchPricingProfile = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await api.get("/pricing-profiles", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        setPricingProfile(response.data[0]);
+      }
+    } catch (error) {
+      console.error("Error al cargar pricing profile:", error);
     }
   };
 
@@ -170,15 +199,16 @@ export const useQuotes = () => {
     }
   };
 
-  const handlePrintQuote = (quote) => {
-    // Implementación de impresión
-    window.open(`/print-quote/${quote.id}`, "_blank");
+  // ✅ CAMBIAR handlePrintQuote por handleShareQuote
+  const handleShareQuote = (quote) => {
+    setSelectedQuoteForShare(quote);
+    setShowShareModal(true);
   };
 
-  const handleShareQuote = (quote) => {
-    // Implementación para compartir cotización
-    // Podría abrir un modal con opciones para compartir
-    console.log("Compartir cotización:", quote.id);
+  // ✅ FUNCIÓN PARA CERRAR MODAL
+  const closeShareModal = () => {
+    setShowShareModal(false);
+    setSelectedQuoteForShare(null);
   };
 
   // Formatear dinero
@@ -209,6 +239,18 @@ export const useQuotes = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedQuote(null);
+  };
+
+  // MANTENER handlePrintQuote SEPARADO (por si lo necesitas)
+  const handlePrintQuote = async (quote) => {
+    try {
+      console.log('Generando PDF para:', quote);
+      const pdf = generateQuotePDF(quote, pricingProfile);
+      pdf.download(`Cotización_${quote.project?.title || quote.id}_${new Date().getFullYear()}.pdf`);
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      alert('Error al generar el PDF. Verifica la consola para más detalles.');
+    }
   };
 
   return {
@@ -251,5 +293,11 @@ export const useQuotes = () => {
     // Funciones de formateo y utilidades
     formatCurrency,
     formatDate,
+
+    // NUEVOS ESTADOS Y FUNCIONES PARA EL MODAL DE COMPARTIR
+    showShareModal,
+    selectedQuoteForShare,
+    pricingProfile,
+    closeShareModal,
   };
 };

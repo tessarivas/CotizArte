@@ -2,6 +2,7 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateProjectCompleteDto } from "./dto/create-project.dto";
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { Prisma } from "@prisma/client";
 
 @Injectable()
@@ -119,6 +120,68 @@ export class ProjectsService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new BadRequestException("Error en los datos proporcionados");
+      }
+      throw error;
+    }
+  }
+
+  async update(userId: number, id: number, dto: UpdateProjectDto) {
+    try {
+      // Log the incoming data
+      console.log('Update DTO:', dto);
+
+      // Verify project exists and belongs to user
+      const project = await this.prisma.project.findFirst({
+        where: { id, userId },
+      });
+
+      if (!project) {
+        throw new NotFoundException('Proyecto no encontrado');
+      }
+
+      // Validate numeric fields
+      if (dto.detailLevel && (isNaN(Number(dto.detailLevel)) || Number(dto.detailLevel) < 1 || Number(dto.detailLevel) > 5)) {
+        throw new BadRequestException('Nivel de detalle debe ser un número entre 1 y 5');
+      }
+
+      if (dto.hoursWorked && (isNaN(Number(dto.hoursWorked)) || Number(dto.hoursWorked) < 0)) {
+        throw new BadRequestException('Horas trabajadas debe ser un número positivo');
+      }
+
+      // Clean up undefined values
+      const cleanDto = Object.fromEntries(
+        Object.entries(dto).filter(([_, v]) => v !== undefined)
+      );
+
+      // Validate relationships if being updated
+      if (cleanDto.artTypeId || cleanDto.artTechniqueId || cleanDto.clientId) {
+        await this.validateRelations(userId, cleanDto as CreateProjectCompleteDto);
+      }
+
+      // Update project
+      const updated = await this.prisma.project.update({
+        where: { id },
+        data: {
+          ...cleanDto,
+          detailLevel: cleanDto.detailLevel ? Number(cleanDto.detailLevel) : undefined,
+          hoursWorked: cleanDto.hoursWorked ? Number(cleanDto.hoursWorked) : undefined,
+        },
+        include: {
+          artType: true,
+          artTechnique: true,
+          client: true,
+          digitalIllustration: true,
+          videoEditing: true,
+          painting: true,
+          drawing: true,
+        },
+      });
+
+      return updated;
+    } catch (error) {
+      console.error('Update error:', error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new BadRequestException(`Error al actualizar el proyecto: ${error.message}`);
       }
       throw error;
     }

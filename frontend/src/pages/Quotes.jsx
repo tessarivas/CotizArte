@@ -15,11 +15,12 @@ import {
   CalendarIcon,
   CheckIcon,
   TagIcon,
-  PrinterIcon,
+  ShareIcon,
 } from "lucide-react";
 import ProjectSelectorModal from "@/components/ProjectSelectorModal";
 import { QuoteDetailsModal } from "@/components/QuoteDetailsModal";
 import { QuoteEditModal } from "@/components/QuoteEditModal";
+import { ShareQuoteModal } from "@/components/ShareQuoteModal";
 
 export default function Quotes() {
   const [isProjectSelectorOpen, setIsProjectSelectorOpen] = useState(false);
@@ -90,6 +91,9 @@ export default function Quotes() {
     // Funciones de formateo y utilidades
     formatCurrency,
     formatDate,
+    showShareModal,
+    selectedQuoteForShare,
+    closeShareModal,
   } = useQuotes();
 
   // Función para manejar la selección de un proyecto en el modal
@@ -352,10 +356,10 @@ export default function Quotes() {
                           </button>
                           {/* Botón Imprimir */}
                           <button
-                            onClick={() => handlePrintQuote(quote)}
+                            onClick={() => handleShareQuote(quote)} // ✅ CAMBIAR A handleShareQuote
                             className="flex items-center gap-1 cursor-pointer btn btn-primary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
-                            <PrinterIcon className="w-4 h-4" /> Imprimir
+                            <ShareIcon className="w-4 h-4" /> Compartir
                           </button>
                         </div>
                       </td>
@@ -470,6 +474,12 @@ export default function Quotes() {
             pricingProfile={pricingProfile}
           />
         )}
+        <ShareQuoteModal
+          isOpen={showShareModal}
+          onClose={closeShareModal}
+          quote={selectedQuoteForShare}
+          pricingProfile={pricingProfile}
+        />
       </div>
     </div>
   );

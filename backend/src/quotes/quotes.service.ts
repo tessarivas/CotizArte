@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateQuoteDto } from './dto/create-quote.dto';
 import { UpdateQuoteDto } from './dto/update-quote.dto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class QuotesService {
@@ -47,7 +48,7 @@ export class QuotesService {
         
         status: 'PENDING',
         notes: dto.notes,
-        shareableLink: this.generateShareableLink()
+        shareableLink: this.generateShareableLink() // ✅ GENERAR SOLO ID ÚNICO
       },
       include: {
         client: true,
@@ -173,7 +174,38 @@ export class QuotesService {
     });
   }
 
+  // ✅ AGREGAR ENDPOINT PARA COTIZACIONES COMPARTIDAS
+  async findByShareableLink(shareableLink: string) {
+    const quote = await this.prisma.quote.findFirst({
+      where: {
+        shareableLink: shareableLink
+      },
+      include: {
+        client: true,
+        project: {
+          include: {
+            artType: true,
+            artTechnique: true,
+            client: true,
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!quote) {
+      throw new NotFoundException('Cotización no encontrada');
+    }
+
+    return quote;
+  }
+
+  // ✅ MÉTODO CORREGIDO PARA GENERAR SOLO ID ÚNICO
   private generateShareableLink(): string {
-    return `https://cotizarte.com/quote/${Math.random().toString(36).substring(2, 15)}`;
+    // Opción 1: Usando crypto (más seguro)
+    return randomBytes(16).toString('hex').substring(0, 12);
+    
+    // Opción 2: Alternativa sin crypto
+    // return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
   }
 }

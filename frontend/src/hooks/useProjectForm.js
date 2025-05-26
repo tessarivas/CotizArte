@@ -64,6 +64,25 @@ export function useProjectForm() {
     setFormData((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
+  // Agregar función para manejar selección de técnica
+  const handleTechniqueChange = (techniqueId) => {
+    setSelectedTechnique(techniqueId);
+    
+    // Buscar la técnica completa y guardarla en specializedData
+    const selectedTechniqueObject = techniques.find(
+      tech => tech.id === parseInt(techniqueId)
+    );
+    
+    if (selectedTechniqueObject) {
+      setSpecializedData(prev => ({
+        ...prev,
+        selectedTechnique: selectedTechniqueObject // Guardar objeto completo
+      }));
+    }
+    
+    console.log('Técnica seleccionada:', selectedTechniqueObject);
+  };
+
   // Validación solo de los campos generales
   const validateProjectData = (data) => {
     if (!data.title.trim()) return "El título es obligatorio.";
@@ -106,5 +125,6 @@ export function useProjectForm() {
     handleCommonChange,
     validateProjectData,
     formatDataToSend,
+    handleTechniqueChange, // Nueva función
   };
 }

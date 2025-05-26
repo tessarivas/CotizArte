@@ -29,8 +29,8 @@ import {
       return this.artTechniquesService.findAll();
     }
   
-    @Get(':id')
-    findOne(@Param('id') id: string) {
+   @Get(':id')
+    async findOne(@Param('id') id: string) {
       return this.artTechniquesService.findOne(+id);
     }
   
