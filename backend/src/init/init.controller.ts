@@ -371,4 +371,21 @@ export class InitController {
       };
     }
   }
+
+  @Get('test-quotes')
+  async testQuotes() {
+    try {
+      const quoteCount = await this.prisma.quote.count();
+      return {
+        success: true,
+        message: 'Módulo de quotes funcionando',
+        quoteCount
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
