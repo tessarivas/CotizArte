@@ -20,6 +20,7 @@ import { ClientsModule } from './clients/clients.module';
 import { PricingProfilesModule } from './pricing-profiles/pricing-profiles.module';
 import { CommercialLicenseModule } from './commercial-licence/commercial-license.module';
 import { DiscountsModule } from './discoutns/discount.module';
+import { InitController } from './init/init.controller'; // ✅ AGREGAR
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { DiscountsModule } from './discoutns/discount.module';
     CommercialLicenseModule,
     DiscountsModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, InitController], // ✅ AGREGAR InitController
   providers: [AppService],
 })
 export class AppModule {}
