@@ -150,4 +150,225 @@ export class InitController {
       };
     }
   }
+
+  @Get('seed-my-data')
+  async seedMyOriginalData() {
+    try {
+      console.log('🔄 Cargando MIS datos originales de localhost...');
+      
+      // 1. ART CATEGORIES (exactamente como los tenías)
+      const categories = [
+        {
+          id: 1,
+          name: "Arte Tradicional", 
+          description: "Pintura y Dibujo"
+        },
+        {
+          id: 2,
+          name: "Arte Digital", 
+          description: "Ilustración digital y Edición de Video"
+        }
+      ];
+
+      for (const category of categories) {
+        await this.prisma.artCategory.upsert({
+          where: { id: category.id },
+          update: {
+            name: category.name,
+            description: category.description
+          },
+          create: category
+        });
+      }
+
+      // 2. ART TYPES (exactamente como los tenías)
+      const artTypes = [
+        {
+          id: 1,
+          categoryId: 2,
+          name: "Ilustración Digital",
+          description: "Obras de arte realizadas por medios digitales",
+          baseFormula: "(Horas trabajadas × Tarifa por hora) + (Costo de software + herramientas / Obras por mes) + Extra (modificaciones, urgencia, licencia comercial) + (Factor de nivel de detalle × Porcentaje adicional)"
+        },
+        {
+          id: 2,
+          categoryId: 2,
+          name: "Edición de Video",
+          description: "Producto realizado para proporsitos artisticos o comerciales.",
+          baseFormula: "(Horas trabajadas × Tarifa por hora) + (Costo de software + herramientas / Obras por mes) + Extra (modificaciones, urgencia, licencia comercial) + (Factor de nivel de detalle × Porcentaje adicional)"
+        },
+        {
+          id: 3,
+          categoryId: 1,
+          name: "Pintura",
+          description: "Obras de arte por medios artisticos tradicionales.",
+          baseFormula: "(Tamaño en cm² × Factor por técnica) + (Horas trabajadas × Tarifa por hora) + Costo de materiales + (Costo de herramientas / Obras por mes) + Extras (envío, urgencia)"
+        },
+        {
+          id: 4,
+          categoryId: 1,
+          name: "Dibujo",
+          description: "Obras de arte por medio tradicional en gráfito.",
+          baseFormula: "(Tamaño en cm² × Factor por técnica) + (Horas trabajadas × Tarifa por hora) + Costo de materiales + (Costo de herramientas / Obras por mes) + Extras (envío, urgencia)"
+        }
+      ];
+
+      for (const artType of artTypes) {
+        await this.prisma.artType.upsert({
+          where: { id: artType.id },
+          update: {
+            categoryId: artType.categoryId,
+            name: artType.name,
+            description: artType.description,
+            baseFormula: artType.baseFormula
+          },
+          create: artType
+        });
+      }
+
+      // 3. ART TECHNIQUES (todas las técnicas que tenías)
+      const techniques = [
+        // Ilustración Digital
+        {
+          id: 1,
+          artTypeId: 1,
+          name: "Pixel Art",
+          description: "Ilustración digital creada por medio de pixeles.",
+          priceMultiplier: 1.2
+        },
+        {
+          id: 2,
+          artTypeId: 1,
+          name: "Anime",
+          description: "Ilustración digital basada en el estilo japonés.",
+          priceMultiplier: 1.4
+        },
+        {
+          id: 3,
+          artTypeId: 1,
+          name: "Vectorial",
+          description: "Ilustración con curvas y escalado sin pérdida (Ej: Adobe Illustrator).",
+          priceMultiplier: 1.3
+        },
+        {
+          id: 4,
+          artTypeId: 1,
+          name: "Pintura digital",
+          description: "Imitación de técnicas tradicionales con pinceles digitales (Ej: Photoshop).",
+          priceMultiplier: 1.5
+        },
+        // Edición de Video
+        {
+          id: 5,
+          artTypeId: 2,
+          name: "Montaje lineal",
+          description: "Edición básica de secuencias y transiciones.",
+          priceMultiplier: 1.2
+        },
+        {
+          id: 6,
+          artTypeId: 2,
+          name: "Motion Graphics",
+          description: "Animación de gráficos 2D/3D (Ej: After Effects).",
+          priceMultiplier: 1.8
+        },
+        {
+          id: 7,
+          artTypeId: 2,
+          name: "Corrección de color",
+          description: "Ajuste profesional de tonos y gamas cromáticas.",
+          priceMultiplier: 1.4
+        },
+        {
+          id: 8,
+          artTypeId: 2,
+          name: "Short Video",
+          description: "Video corto para redes sociales",
+          priceMultiplier: 1.4
+        },
+        // Pintura
+        {
+          id: 9,
+          artTypeId: 3,
+          name: "Óleo",
+          description: "Pigmentos mezclados con aceites, secado lento. Alta durabilidad.",
+          priceMultiplier: 1.4
+        },
+        {
+          id: 10,
+          artTypeId: 3,
+          name: "Acrílico",
+          description: "Pigmentos en emulsión acrílica. Secado rápido y versátil.",
+          priceMultiplier: 1.2
+        },
+        {
+          id: 11,
+          artTypeId: 3,
+          name: "Acuarela",
+          description: "Pigmentos diluidos en agua. Efectos translúcidos.",
+          priceMultiplier: 1.3
+        },
+        // Dibujo
+        {
+          id: 12,
+          artTypeId: 4,
+          name: "Lápiz grafito",
+          description: "Técnica clásica con gradientes de grises.",
+          priceMultiplier: 1.1
+        },
+        {
+          id: 13,
+          artTypeId: 4,
+          name: "Carboncillo",
+          description: "Líneas intensas y sombreados dramáticos.",
+          priceMultiplier: 1.2
+        },
+        {
+          id: 14,
+          artTypeId: 4,
+          name: "Tinta china",
+          description: "Trazos definidos con tinta indeleble.",
+          priceMultiplier: 1.3
+        },
+        {
+          id: 15,
+          artTypeId: 4,
+          name: "Pastel",
+          description: "Colores vibrantes con barras de pigmento en polvo.",
+          priceMultiplier: 1.4
+        }
+      ];
+
+      for (const technique of techniques) {
+        await this.prisma.artTechnique.upsert({
+          where: { id: technique.id },
+          update: {
+            artTypeId: technique.artTypeId,
+            name: technique.name,
+            description: technique.description,
+            priceMultiplier: technique.priceMultiplier
+          },
+          create: technique
+        });
+      }
+
+      console.log('✅ TODOS los datos originales cargados correctamente');
+      
+      return {
+        success: true,
+        message: '¡Datos originales de localhost restaurados! 🎉',
+        data: {
+          categories: categories.length,
+          artTypes: artTypes.length,
+          techniques: techniques.length
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error al cargar datos originales:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
