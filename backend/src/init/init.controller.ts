@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'; // Asegúrate de que la ruta sea correcta
+import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('init')
 export class InitController {
@@ -42,7 +42,6 @@ export class InitController {
     try {
       console.log('🔄 Aplicando schema con db push...');
       
-      // Esta es una alternativa más directa
       const { exec } = require('child_process');
       
       return new Promise((resolve) => {
@@ -64,6 +63,86 @@ export class InitController {
           }
         });
       });
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  @Get('create-test-user')
+  async createTestUser() {
+    try {
+      console.log('🔄 Creando usuario de prueba...');
+      
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('123456', 10);
+      
+      // Verificar si el usuario ya existe
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: 'test@test.com' }
+      });
+
+      if (existingUser) {
+        return {
+          success: true,
+          message: 'Usuario de prueba ya existe',
+          user: {
+            email: 'test@test.com',
+            password: '123456'
+          }
+        };
+      }
+      
+      const testUser = await this.prisma.user.create({
+        data: {
+          email: 'test@test.com',
+          password: hashedPassword,
+          name: 'Usuario',
+        }
+      });
+      
+      console.log('✅ Usuario de prueba creado');
+      
+      return {
+        success: true,
+        message: 'Usuario de prueba creado correctamente',
+        user: {
+          email: 'test@test.com',
+          password: '123456'
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error al crear usuario:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  @Get('logs')
+  async checkTables() {
+    try {
+      console.log('🔍 Verificando tablas...');
+      
+      // Verificar qué tablas existen
+      const tables = await this.prisma.$queryRaw`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+      `;
+      
+      // Contar usuarios
+      const userCount = await this.prisma.user.count();
+      
+      return {
+        success: true,
+        tables,
+        userCount,
+        message: 'Información de la base de datos'
+      };
     } catch (error) {
       return {
         success: false,
