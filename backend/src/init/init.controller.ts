@@ -388,4 +388,30 @@ export class InitController {
       };
     }
   }
+
+  @Get('test-quotes-create')
+  async testQuotesCreate() {
+    try {
+      // Simular creación de quote sin auth
+      const testQuote = {
+        projectId: 1,
+        basePrice: 100,
+        finalPrice: 120,
+        finalPriceAfterDiscount: 120,
+        userId: 1,
+        status: 'PENDING'
+      };
+      
+      return {
+        success: true,
+        message: 'Estructura de quote válida',
+        testData: testQuote
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }

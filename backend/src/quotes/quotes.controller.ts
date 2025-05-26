@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 @Controller('quotes')
 export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
-
+  
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Request() req, @Body() createQuoteDto: CreateQuoteDto) {
