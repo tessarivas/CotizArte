@@ -5,21 +5,23 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // ✅ CONFIGURAR CORS PARA PRODUCCIÓN
+  // ✅ CONFIGURAR CORS PARA VERCEL
   app.enableCors({
     origin: [
       'http://localhost:5173',
       'http://localhost:3000',
-      process.env.FRONTEND_URL || 'https://tu-app.vercel.app', // ✅ CAMBIARÁS ESTO DESPUÉS
+      'https://cotiz-arte.vercel.app', // ✅ TU URL DE VERCEL
+      'https://*.vercel.app', // ✅ CUALQUIER SUBDOMINIO DE VERCEL
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.useGlobalPipes(new ValidationPipe());
   
-  // ✅ USAR PUERTO DE RENDER O 3000
   const port = process.env.PORT || 3000;
-  await app.listen(port, '0.0.0.0'); // ✅ IMPORTANTE: 0.0.0.0 para Render
+  await app.listen(port, '0.0.0.0');
   
   console.log(`🚀 Aplicación corriendo en puerto ${port}`);
 }

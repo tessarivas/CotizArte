@@ -1,10 +1,28 @@
 import axios from 'axios';
-import { API_URL } from '../config/apiConfig';
+
+// ✅ USAR VARIABLE DE ENTORNO
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+console.log('🔍 API_URL:', API_URL); // ✅ PARA DEBUG
 
 const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true, // Si usas cookies o JWT
+  baseURL: `${API_URL}`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Interceptor para agregar el token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;
 
