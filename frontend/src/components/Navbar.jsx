@@ -25,7 +25,7 @@ export default function Navbar() {
       const rawProfileImageUrl = localStorage.getItem("profileImageUrl");
       const fullProfileImageUrl = rawProfileImageUrl
         ? `http://localhost:3000${rawProfileImageUrl}`
-        : "src/assets/images/default-profile.jpg";
+        : "/default-profile.jpg";
 
       // Arma el objeto usuario con los datos disponibles.
       const name = localStorage.getItem("user") || "Usuario";
@@ -67,7 +67,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="pointer-events-auto">
           <img
-            src="/src/assets/images/CotizArte_Logo_Chico.png"
+            src="/CotizArte_Logo_Chico.png"
             alt="CotizArte Logo"
             className="w-10 h-auto cursor-pointer transition-transform hover:scale-105 absolute left-0 top-0"
           />

@@ -20,25 +20,25 @@ export const WelcomeSection = () => {
 
         {/* Imágenes de acuarela */}
         <img
-          src="/src/assets/images/Acuarela Azul.png"
+          src="/Acuarela Azul.png"
           alt="Acuarela Azul"
           className="absolute top-[-20vh] left-[32vw] w-[30vw] rotate-180 opacity-100 mix-blend-darken z-0"
         />
 
         <img
-          src="/src/assets/images/Acuarela Naranja.png"
+          src="/Acuarela Naranja.png"
           alt="Acuarela Naranja"
           className="absolute top-1/2 right-[-5vw] w-[30vw] opacity-100 mix-blend-darken z-0"
         />
 
         <img
-          src="/src/assets/images/Acuarela Rosa.png"
+          src="/Acuarela Rosa.png"
           alt="Acuarela Rosa"
           className="absolute top-1/4 left-[-5vw] w-[30vw] opacity-100 mix-blend-darken z-0"
         />
 
         <img
-          src="/src/assets/svg/QueEsCotizArte.svg"
+          src="/QueEsCotizArte.svg"
           alt="Que es CotizArte"
           className="absolute top-[23vh] left-[63vw] w-[18vw] opacity-100 rotate-6 z-20"
         />
@@ -48,31 +48,31 @@ export const WelcomeSection = () => {
             <div className="relative w-[90vw] h-[90vh] overflow-hidden">
               {/* Estrellas animadas */}
               <img
-                src="/src/assets/svg/Sparkle.svg"
+                src="/Sparkle.svg"
                 alt="Efecto de Brillo"
                 className="absolute top-[15%] left-[25%] w-6 h-6 opacity-80 animate-sparkle"
               />
 
               <img
-                src="/src/assets/svg/Sparkle.svg"
+                src="/Sparkle.svg"
                 alt="Efecto de Brillo"
                 className="absolute top-[35%] right-[10%] w-8 h-8 opacity-80 animate-sparkle"
               />
 
               <img
-                src="/src/assets/svg/Sparkle.svg"
+                src="/Sparkle.svg"
                 alt="Efecto de Brillo"
                 className="absolute top-[50%] left-[10%] w-5 h-5 opacity-80 animate-sparkle"
               />
 
               <img
-                src="/src/assets/svg/Sparkle.svg"
+                src="/Sparkle.svg"
                 alt="Efecto de Brillo"
                 className="absolute top-[65%] right-[30%] w-7 h-7 opacity-80 animate-sparkle"
               />
 
               <img
-                src="/src/assets/svg/Sparkle.svg"
+                src="/Sparkle.svg"
                 alt="Efecto de Brillo"
                 className="absolute top-[90%] right-[70%] w-5 h-5 opacity-80 animate-sparkle"
               />
@@ -89,7 +89,7 @@ export const WelcomeSection = () => {
 
             {/* Imagen CotizArte */}
             <img
-              src="/src/assets/images/CotizArte_Logo.png"
+              src="/CotizArte_Logo.png"
               alt="CotizArte Logo"
               className="mx-auto w-62 md:w-78 lg:w-94 opacity-100 rotate-5"
             />

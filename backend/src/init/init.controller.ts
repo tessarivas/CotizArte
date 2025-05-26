@@ -443,4 +443,35 @@ export class InitController {
       };
     }
   }
+
+  @Get('create-uploads')
+  async createUploadsFolder() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      const uploadsPath = path.join(__dirname, '..', '..', 'uploads');
+      
+      // Crear la carpeta si no existe
+      if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+        console.log('✅ Carpeta uploads creada');
+      }
+      
+      // Crear un archivo de ejemplo
+      const testImagePath = path.join(uploadsPath, 'test-image.txt');
+      fs.writeFileSync(testImagePath, 'Archivo de prueba para verificar uploads');
+      
+      return {
+        success: true,
+        message: 'Carpeta uploads creada correctamente',
+        path: uploadsPath
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
