@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.0.1",
   "scripts": {
-    "build": "npx @nestjs/cli build",
+    "build": "npx @nestjs/cli build && mkdir -p dist/uploads && cp -r uploads/* dist/uploads/ 2>/dev/null || true",
     "start:prod": "node dist/src/main.js"
   },
   "dependencies": {

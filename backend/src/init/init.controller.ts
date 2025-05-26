@@ -414,4 +414,33 @@ export class InitController {
       };
     }
   }
+
+  @Get('test-static')
+  async testStaticFiles() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      const uploadsPath = path.join(__dirname, '..', '..', 'uploads');
+      const exists = fs.existsSync(uploadsPath);
+      
+      let files = [];
+      if (exists) {
+        files = fs.readdirSync(uploadsPath);
+      }
+      
+      return {
+        success: true,
+        uploadsPath,
+        exists,
+        files: files.slice(0, 10), // Primeros 10 archivos
+        message: 'Información de archivos estáticos'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
