@@ -5,13 +5,21 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService, // Asegúrate de importar JwtModule en auth.module.ts
-  ) {}
+  ) {
+    // Configurar Cloudinary
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+  }
 
   async login(loginDto: LoginDto) {
     // 1. Buscar usuario en la base de datos
@@ -50,7 +58,16 @@ export class AuthService {
       }
   
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-      const imageUrl = file ? `/uploads/${file.filename}` : null; // ✅ Guarda imagen si existe
+      
+      // ✅ Subir imagen a Cloudinary si existe
+      let imageUrl = null;
+      if (file) {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: 'cotizarte/profiles',
+          resource_type: 'image'
+        });
+        imageUrl = result.secure_url;
+      }
   
       const user = await this.prisma.user.create({
         data: {
@@ -58,7 +75,7 @@ export class AuthService {
           email: registerDto.email,
           password: hashedPassword,
           bio: registerDto.bio,
-          profileImageUrl: imageUrl, // ✅ Ahora guarda la imagen correctamente
+          profileImageUrl: imageUrl, // ✅ URL de Cloudinary
         },
       });
   

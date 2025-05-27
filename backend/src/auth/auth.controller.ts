@@ -13,9 +13,16 @@ export class AuthController {
   @Post('register')
   @UseInterceptors(FileInterceptor('profileImage', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: '/tmp', // ✅ Usar directorio temporal
       filename: (req, file, cb) => {
-        cb(null, `${Date.now()}${extname(file.originalname)}`);
+        const fileExt = extname(file.originalname);
+        const allowedTypes = ['.png', '.jpg', '.jpeg'];
+        
+        if (!allowedTypes.includes(fileExt)) {
+          return cb(new Error('Formato de imagen no permitido'), '');
+        }
+        
+        cb(null, `${Date.now()}${fileExt}`);
       },
     }),
   }))
