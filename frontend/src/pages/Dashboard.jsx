@@ -18,14 +18,4 @@ function Dashboard() {
   );
 }
 
-/*
-<GradientText
-  colors={["#44EBD2", "#FF7497", "#FFAE74", "#FF7497", "#44EBD2"]}
-  animationSpeed={8}
-  className="text-6xl font-bold text-center font-handwriting-text"
->
-  Acciones que puedes realizar
-</GradientText>
-*/
-
 export default Dashboard;

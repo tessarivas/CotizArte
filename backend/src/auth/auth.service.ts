@@ -85,4 +85,18 @@ export class AuthService {
       throw new InternalServerErrorException("Error al registrar usuario");
     }
   }  
+
+  async getAllUsers() {
+    return await this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        profileImageUrl: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
 }
