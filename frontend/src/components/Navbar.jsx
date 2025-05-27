@@ -22,18 +22,27 @@ export default function Navbar() {
         setUser(null);
         return;
       }
-      // Obtiene la imagen de perfil almacenada; si no existe, usa un fallback.
+      
       const rawProfileImageUrl = localStorage.getItem("profileImageUrl");
-      const fullProfileImageUrl = rawProfileImageUrl
-        ? `https://cotizarte-backend.onrender.com${rawProfileImageUrl}` // ✅ URL DE PRODUCCIÓN
-        : "/default-profile.webp";
+      // ✅ Mejorar la lógica para URLs de Cloudinary
+      let fullProfileImageUrl;
+      
+      if (!rawProfileImageUrl || rawProfileImageUrl === 'null') {
+        fullProfileImageUrl = "/default-profile.webp";
+      } else if (rawProfileImageUrl.startsWith('http')) {
+        // Ya es una URL completa de Cloudinary
+        fullProfileImageUrl = rawProfileImageUrl;
+      } else {
+        // URL relativa del servidor
+        fullProfileImageUrl = `https://cotizarte-backend.onrender.com${rawProfileImageUrl}`;
+      }
 
-      // Arma el objeto usuario con los datos disponibles.
-      const name = localStorage.getItem("user") || "Usuario";
-      const email = localStorage.getItem("email") || "No disponible";
-      const bio = localStorage.getItem("bio") || "Sin biografía";
-
-      setUser({ name, email, bio, profileImageUrl: fullProfileImageUrl });
+      setUser({
+        name: localStorage.getItem("user") || "Usuario",
+        email: localStorage.getItem("email") || "No disponible", 
+        bio: localStorage.getItem("bio") || "Sin biografía disponible",
+        profileImageUrl: fullProfileImageUrl,
+      });
     };
 
     updateUserState();
