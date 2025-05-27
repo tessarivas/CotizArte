@@ -11,7 +11,7 @@ function Home() {
   }, []);
 
   return (
-    <div className="h-screen w-full overflow-y-scroll overflow-x-hidden snap-y snap-mandatory scrollbar-hide">
+    <div className="h-screen w-full overflow-y-scroll overflow-x-hidden snap-y snap-mandatory">
       <WelcomeSection />
       <FuncionalitiesSection />
       <GoalsSection />

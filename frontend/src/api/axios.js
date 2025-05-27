@@ -3,8 +3,6 @@ import axios from 'axios';
 // ✅ USAR VARIABLE DE ENTORNO
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-console.log('🔍 API_URL:', API_URL); // ✅ PARA DEBUG
-
 const api = axios.create({
   baseURL: `${API_URL}`,
   headers: {
