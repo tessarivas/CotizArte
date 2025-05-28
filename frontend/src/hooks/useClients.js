@@ -3,198 +3,246 @@ import { useState, useEffect } from "react";
 import api from "@/api/axios";
 
 export const useClients = () => {
-  // Estado original
+  // Estados existentes...
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editSuccessMessage, setEditSuccessMessage] = useState("");
 
-  // Estado para paginación, búsqueda y filtros
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  // ✅ Estados para el modal de cotizaciones
+  const [showQuotesModal, setShowQuotesModal] = useState(false);
+  const [selectedClientForQuotes, setSelectedClientForQuotes] = useState(null);
+
+  // Estados para búsqueda, filtros y paginación
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Función para obtener la lista de clientes
+  // Cargar clientes al inicializar
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  // Función para obtener clientes
   const fetchClients = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        console.error("No hay token disponible.");
-        return;
-      }
+      if (!token) return;
+
       const response = await api.get("/clients", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setClients(response.data);
+
+      // Ordenar clientes por fecha de creación (más reciente primero)
+      const sortedClients = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setClients(sortedClients);
     } catch (error) {
       console.error("Error al obtener clientes:", error);
     }
   };
 
-  // Se llama una vez al montar el componente
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  // Reset de página cuando cambian los filtros
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filterType, rowsPerPage]);
-
-  // Función para filtrar clientes
-  const getFilteredClients = () => {
-    return clients.filter((client) => {
-      const matchesSearch =
-        client.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      if (filterType === "all") return matchesSearch;
-      if (filterType === "withCompany")
-        return matchesSearch && client.company && client.company.trim() !== "";
-      if (filterType === "withoutCompany")
-        return (
-          matchesSearch && (!client.company || client.company.trim() === "")
-        );
-      if (filterType === "withNotes")
-        return matchesSearch && client.notes && client.notes.trim() !== "";
-
-      return matchesSearch;
-    });
-  };
-
-  // Obtener los clientes filtrados
-  const filteredClients = getFilteredClients();
-
-  // Obtener los clientes para la página actual
-  const getCurrentPageClients = () => {
-    const indexOfLastClient = currentPage * rowsPerPage;
-    const indexOfFirstClient = indexOfLastClient - rowsPerPage;
-    return filteredClients.slice(indexOfFirstClient, indexOfLastClient);
-  };
-
-  // Calcular los clientes de la página actual y el total de páginas
-  const currentClients = getCurrentPageClients();
-  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
-
-  // Cálculos para la información de paginación
-  const indexOfLastClient = currentPage * rowsPerPage;
-  const indexOfFirstClient = indexOfLastClient - rowsPerPage;
-
-  // Función para abrir el modal de edición y asignar el cliente seleccionado
+  // Funciones para el modal de edición
   const openModal = (client) => {
     setSelectedClient(client);
     setIsModalOpen(true);
+    setEditSuccessMessage("");
   };
 
-  // Función para cerrar el modal y limpiar el cliente seleccionado
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedClient(null);
+    setEditSuccessMessage("");
   };
 
-  // Actualizar un campo del cliente seleccionado
-  const handleFieldChange = (field, value) => {
-    setSelectedClient((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // Guardar los cambios en el cliente (petición PUT)
-  const handleSave = async () => {
+  // Función para actualizar cliente
+  const handleSave = async (clientId, clientData) => {
     try {
+      setEditSuccessMessage("");
+      
       const token = localStorage.getItem("access_token");
       if (!token) {
-        console.error("No hay token disponible.");
-        return;
+        throw new Error("No hay token disponible");
       }
-      await api.patch(`/clients/${selectedClient.id}`, selectedClient, {
-        headers: { Authorization: `Bearer ${token}` }
+
+      const response = await api.patch(`/clients/${clientId}`, clientData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Cliente actualizado:", selectedClient);
+
+      // Actualizar el cliente en el estado
       setClients((prevClients) =>
-        prevClients.map((c) =>
-          c.id === selectedClient.id ? selectedClient : c
+        prevClients.map((client) =>
+          client.id === clientId ? response.data : client
         )
       );
-      closeModal();
+
+      setEditSuccessMessage("Cliente actualizado correctamente");
+      
+      setTimeout(() => {
+        closeModal();
+      }, 1500);
+
+      return response.data;
     } catch (error) {
       console.error("Error al actualizar cliente:", error);
+      throw error;
     }
   };
 
-  // Eliminar un cliente usando directamente el clientId
+  // Función para eliminar cliente
   const handleDelete = async (clientId) => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        console.error("No hay token disponible.");
-        return;
-      }
+      if (!token) return;
 
       await api.delete(`/clients/${clientId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setClients((prevClients) => prevClients.filter((c) => c.id !== clientId));
+      setClients((prevClients) =>
+        prevClients.filter((client) => client.id !== clientId)
+      );
     } catch (error) {
       console.error("Error al eliminar cliente:", error);
     }
   };
 
-  // Función para ver cotizaciones (placeholder)
+  // Funciones para el modal de agregar
+  const openAddModal = () => {
+    setShowAddModal(true);
+  };
+
+  const closeAddModal = () => {
+    setShowAddModal(false);
+  };
+
+  const handleAddClient = async (clientData) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No hay token disponible");
+      }
+
+      const response = await api.post("/clients", clientData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Agregar el nuevo cliente al principio de la lista
+      setClients((prevClients) => [response.data, ...prevClients]);
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error al agregar cliente:", error);
+      throw error;
+    }
+  };
+
+  // ✅ Funciones para el modal de cotizaciones
   const handleViewQuotes = (client) => {
-    // Implementar redirección o lógica para ver cotizaciones
-    console.log("Ver cotizaciones para:", client);
-    // Por ejemplo: navigate(`/quotes/${client.id}`);
+    setSelectedClientForQuotes(client);
+    setShowQuotesModal(true);
   };
 
-  // Función para cambiar de página
-  const paginate = (pageNumber) => {
-    if (pageNumber < 1) pageNumber = 1;
-    if (pageNumber > totalPages) pageNumber = totalPages;
-    setCurrentPage(pageNumber);
+  const closeQuotesModal = () => {
+    setShowQuotesModal(false);
+    setSelectedClientForQuotes(null);
   };
 
-  // Función para alternar la visibilidad de los filtros
+  // Función para cambio de campos (compatibilidad)
+  const handleFieldChange = (field, value) => {
+    setSelectedClient((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Función para alternar filtros
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
 
+  // Filtrar clientes
+  const filteredClients = clients.filter((client) => {
+    const matchesSearch = 
+      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (client.phone && client.phone.includes(searchTerm));
+
+    const matchesFilter = 
+      filterType === "all" ? true :
+      filterType === "withCompany" ? client.company :
+      filterType === "withoutCompany" ? !client.company :
+      filterType === "withNotes" ? client.notes :
+      true;
+
+    return matchesSearch && matchesFilter;
+  });
+
+  // Paginación
+  const indexOfLastClient = currentPage * rowsPerPage;
+  const indexOfFirstClient = indexOfLastClient - rowsPerPage;
+  const currentClients = filteredClients.slice(
+    indexOfFirstClient,
+    indexOfLastClient
+  );
+  const totalPages = Math.ceil(filteredClients.length / rowsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   return {
-    // Datos y estado original
+    // Estados principales
     clients,
     selectedClient,
     isModalOpen,
-
-    // Funciones CRUD originales
+    
+    // Funciones CRUD
     openModal,
     closeModal,
     handleFieldChange,
     handleSave,
     handleDelete,
     fetchClients,
+    
+    // Modal de agregar
+    showAddModal,
+    openAddModal,
+    closeAddModal,
+    handleAddClient,
+    
+    // Modal de edición
+    editSuccessMessage,
+    
+    // ✅ Modal de cotizaciones
     handleViewQuotes,
-
-    // Estado y funciones para paginación
-    currentPage,
-    setCurrentPage,
-    rowsPerPage,
-    setRowsPerPage,
-    paginate,
-    totalPages,
-    currentClients,
-    filteredClients,
-    indexOfFirstClient,
-    indexOfLastClient,
-
-    // Estado y funciones para búsqueda y filtros
+    showQuotesModal,
+    selectedClientForQuotes,
+    closeQuotesModal,
+    
+    // Búsqueda, filtros y paginación
     searchTerm,
     setSearchTerm,
     filterType,
     setFilterType,
     showFilters,
     toggleFilters,
+    currentPage,
+    setCurrentPage,
+    rowsPerPage,
+    setRowsPerPage,
+    filteredClients,
+    currentClients,
+    totalPages,
+    indexOfFirstClient,
+    indexOfLastClient,
+    paginate,
   };
 };

@@ -13,9 +13,7 @@ import Projects from './pages/Projects';
 import CreateProject from './pages/CreateProject.jsx';
 import CreateQuote from './pages/CreateQuote';
 import Clients from './pages/Clients.jsx';
-import AddClient from './pages/AddClient';
 import Materials from './pages/Materials';
-import Market from './pages/Market.jsx';
 import PricingProfile from './pages/PricingProfile';
 import SharedQuote from './pages/SharedQuote'; 
 
@@ -36,9 +34,7 @@ createRoot(root).render(
           <Route path="create-project" element={<CreateProject />} />
           <Route path="create-quote/:projectId" element={<CreateQuote />} />
           <Route path="clients" element={<Clients />} />
-          <Route path="add-client" element={<AddClient />} />
           <Route path="materials" element={<Materials />} />
-          <Route path="market" element={<Market />} />
           <Route path="pricing-profile" element={<PricingProfile />} />
           <Route path="shared-quote/:shareableId" element={<SharedQuote />} />
         </Route>

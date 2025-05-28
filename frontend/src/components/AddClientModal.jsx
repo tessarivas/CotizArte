@@ -1,24 +1,14 @@
-import React, { useState, useEffect } from "react";
-import {
-  UserIcon,
-  MailIcon,
-  PhoneIcon,
-  BuildingIcon,
-  FileTextIcon,
-  SparklesIcon,
-} from "lucide-react";
+import React, { useState } from "react";
+import { UserPlusIcon, MailIcon, PhoneIcon, BuildingIcon, FileTextIcon, SparklesIcon } from "lucide-react";
 import GradientText from "../blocks/TextAnimations/GradientText/GradientText";
 
 /**
- * Modal para editar clientes existentes
+ * Modal para agregar nuevos clientes
  * @param {Object} props Propiedades del componente
- * @param {Object} props.client Cliente a editar
  * @param {Function} props.onClose Función para cerrar el modal
- * @param {Function} props.onSave Función para guardar los cambios
- * @param {string} props.successMessage Mensaje de éxito (opcional)
+ * @param {Function} props.onSave Función para guardar el nuevo cliente
  */
-const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
-  // Estados del formulario
+const AddClientModal = ({ onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,19 +19,7 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Inicializar el formulario con los datos del cliente
-  useEffect(() => {
-    if (client) {
-      setFormData({
-        name: client.name || "",
-        email: client.email || "",
-        phone: client.phone || "",
-        company: client.company || "",
-        notes: client.notes || "",
-      });
-    }
-  }, [client]);
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Función de validación
   const validateForm = () => {
@@ -55,8 +33,7 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
     } else if (formData.name.trim().length > 30) {
       newErrors.name = "El nombre no puede tener más de 30 caracteres";
     } else if (!/^[A-Za-z][A-Za-z0-9\s\-]*$/.test(formData.name.trim())) {
-      newErrors.name =
-        "El nombre solo puede contener letras, números, espacios y guiones";
+      newErrors.name = "El nombre solo puede contener letras, números, espacios y guiones";
     }
 
     // Validar email
@@ -107,15 +84,17 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
     };
 
     try {
-      await onSave(client.id, cleanedData);
-      // ✅ No reset isSubmitting aquí, se maneja desde el padre
+      await onSave(cleanedData);
+      setSuccessMessage("Cliente agregado exitosamente");
+      
+      // Cerrar modal después de un breve delay
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
-      console.error("Error al actualizar cliente:", error);
-      setErrors({
-        general:
-          error.response?.data?.message || "Error al actualizar el cliente",
-      });
-      setIsSubmitting(false); // ✅ Solo reset isSubmitting en caso de error
+      console.error("Error al agregar cliente:", error);
+      setErrors({ general: error.response?.data?.message || "Error al agregar el cliente" });
+      setIsSubmitting(false);
     }
   };
 
@@ -124,11 +103,8 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
       <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-7 w-[600px] max-h-[90vh] overflow-y-auto">
         {/* Título */}
         <div className="text-center mb-6">
-          <div className="text-2xl font-bold text-base-content mb-2">
-            Editar
-          </div>
-          <GradientText className="text-4xl font-logo-text">
-            Cliente
+          <GradientText className="text-5xl font-logo-text">
+            Nuevo Cliente
           </GradientText>
         </div>
 
@@ -140,15 +116,13 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
               *Nombre:
             </label>
             <div className="relative">
-              <UserIcon className="w-5 h-5 text-neutral-400 absolute left-3 top-1/2 transform -translate-y-1/2 z-10" />
+              <UserPlusIcon className="w-5 h-5 text-neutral-400 absolute left-3 top-1/2 transform -translate-y-1/2 z-10" />
               <input
                 name="name"
                 type="text"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`input validator input-bordered w-full pl-10 ${
-                  errors.name ? "border-error" : ""
-                }`}
+                className={`input validator input-bordered w-full pl-10 ${errors.name ? "border-error" : ""}`}
                 placeholder="Ej: Juan Pérez"
                 required
               />
@@ -170,9 +144,7 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`input validator input-bordered w-full pl-10 ${
-                  errors.email ? "border-error" : ""
-                }`}
+                className={`input validator input-bordered w-full pl-10 ${errors.email ? "border-error" : ""}`}
                 placeholder="correo@ejemplo.com"
                 required
               />
@@ -194,9 +166,7 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
                 type="tel"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className={`input validator tabular-nums input-bordered w-full pl-10 ${
-                  errors.phone ? "border-error" : ""
-                }`}
+                className={`input validator tabular-nums input-bordered w-full pl-10 ${errors.phone ? "border-error" : ""}`}
                 placeholder="5512345678"
                 pattern="[0-9]*"
                 maxLength="10"
@@ -252,14 +222,12 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
             </div>
           )}
 
-          {/* ✅ Mensaje de éxito */}
+          {/* Mensaje de éxito */}
           {successMessage && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <div className="flex items-center gap-2">
                 <SparklesIcon className="w-5 h-5 text-green-500" />
-                <p className="text-green-800 text-sm font-medium">
-                  {successMessage}
-                </p>
+                <p className="text-green-800 text-sm font-medium">{successMessage}</p>
               </div>
             </div>
           )}
@@ -274,16 +242,16 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
             >
               {successMessage ? "Cerrando..." : "Cancelar"}
             </button>
-            <button
-              type="submit"
+            <button 
+              type="submit" 
               className="btn btn-primary"
               disabled={isSubmitting || successMessage}
             >
-              {successMessage
-                ? "¡Actualizado!"
-                : isSubmitting
-                ? "Actualizando..."
-                : "Guardar Cambios"}
+              {successMessage 
+                ? "¡Agregado!" 
+                : isSubmitting 
+                  ? "Agregando..." 
+                  : "Agregar Cliente"}
             </button>
           </div>
         </form>
@@ -292,4 +260,4 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
   );
 };
 
-export default EditClientModal;
+export default AddClientModal;

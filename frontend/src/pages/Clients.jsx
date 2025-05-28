@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { SparklesText } from "@/components/magicui/sparkles-text-variant";
 import { useClients } from "@/hooks/useClients";
 import {
@@ -15,16 +14,16 @@ import {
   FilterIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  UserRoundPlusIcon,
   UserPlusIcon,
 } from "lucide-react";
 import EditClientModal from "@/components/EditClientModal";
+import AddClientModal from "@/components/AddClientModal";
+import ClientQuotesModal from "@/components/ClientsQuotesModal"; // ✅ Importar el nuevo modal
 import DeleteButton from "@/components/DeleteButton";
 
 export default function Clients() {
-  const navigate = useNavigate();
   const {
-    // Estados y funciones CRUD
+    // Estados y funciones CRUD existentes
     selectedClient,
     isModalOpen,
     openModal,
@@ -33,6 +32,7 @@ export default function Clients() {
     handleSave,
     handleDelete,
     handleViewQuotes,
+    editSuccessMessage, // ✅ Agregar mensaje de éxito
 
     // Estados y funciones de paginación
     currentPage,
@@ -52,6 +52,17 @@ export default function Clients() {
     setFilterType,
     showFilters,
     toggleFilters,
+
+    // ✅ Nuevos estados y funciones para agregar cliente
+    showAddModal,
+    openAddModal,
+    closeAddModal,
+    handleAddClient,
+
+    // ✅ Estados y funciones para el modal de cotizaciones
+    showQuotesModal,
+    selectedClientForQuotes,
+    closeQuotesModal,
   } = useClients();
 
   return (
@@ -63,11 +74,11 @@ export default function Clients() {
         </div>
       </div>
 
-      {/* Contenedor principal - Modificado para usar flex-1 y auto-height */}
+      {/* Contenedor principal */}
       <div className="w-[80vw] mx-auto p-8 flex-1 overflow-visible">
         {/* Barra superior: búsqueda, filtros y botón de agregar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          {/* Búsqueda y filtros (lado izquierdo) */}
+          {/* Búsqueda y filtros (lado izquierdo) - mantener igual */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:w-auto">
             {/* Campo de búsqueda */}
             <div className="relative w-full sm:w-120">
@@ -163,52 +174,46 @@ export default function Clients() {
             </div>
           </div>
 
-          {/* Botón para agregar un nuevo cliente (lado derecho) */}
+          {/* ✅ Botón actualizado para abrir modal en lugar de navegar */}
           <button
-            onClick={() => navigate("/add-client")}
+            onClick={openAddModal}
             className="cursor-pointer border-2 border-white bg-gradient-to-br from-[#f28da9] to-[#f2b78d] font-bold font-regular-text text-white px-4 py-3 rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center"
           >
             <UserPlusIcon className="w-6 h-6 mr-2" /> Agregar Cliente
           </button>
         </div>
 
-        {/* Tabla de clientes - Modificado el contenedor para controlar el overflow */}
+        {/* Tabla de clientes - mantener igual */}
         <div className="w-full">
           <div className="overflow-x-auto rounded-lg shadow-sm">
             <table className="w-full divide-y divide-gray-200 shadow-lg rounded-lg">
               <thead className="bg-gradient-to-r from-teal-300 via-pink-300 to-orange-300 text-neutral">
                 <tr>
-                  {/* Columna Nombre con UserIcon */}
                   <th className="px-6 py-3 text-left text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <UserIcon className="w-5 h-5" /> Nombre
                     </div>
                   </th>
-                  {/* Columna Email con MailIcon */}
                   <th className="px-6 py-3 text-left text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <MailIcon className="w-5 h-5" /> Email
                     </div>
                   </th>
-                  {/* Columna Teléfono con PhoneIcon */}
                   <th className="px-6 py-3 text-left text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <PhoneIcon className="w-5 h-5" /> Teléfono
                     </div>
                   </th>
-                  {/* Columna Empresa con BuildingIcon */}
                   <th className="px-6 py-3 text-left text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <BuildingIcon className="w-5 h-5" /> Empresa
                     </div>
                   </th>
-                  {/* Columna Notas con FileTextIcon */}
                   <th className="px-6 py-3 text-left text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-1">
                       <FileTextIcon className="w-5 h-5" /> Notas
                     </div>
                   </th>
-                  {/* Columna Acciones */}
                   <th className="px-6 py-3 text-center text-xl font-bold font-title-text uppercase tracking-wider">
                     Acciones
                   </th>
@@ -234,23 +239,19 @@ export default function Clients() {
                         {client.notes || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        {/* Botones de acciones en la misma fila */}
                         <div className="flex flex-wrap gap-2 justify-center">
-                          {/* Botón Editar */}
                           <button
                             onClick={() => openModal(client)}
                             className="flex items-center gap-1 cursor-pointer btn btn-secondary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <Edit2Icon className="w-4 h-4" /> Editar
                           </button>
-                          {/* Botón Ver Cotizaciones */}
                           <button
                             onClick={() => handleViewQuotes(client)}
                             className="flex items-center gap-1 cursor-pointer btn btn-primary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <EyeIcon className="w-4 h-4" /> Cotizaciones
                           </button>
-                          {/* Botón Eliminar */}
                           <DeleteButton onConfirm={() => handleDelete(client.id)} className="btn-sm font-bold font-regular-text rounded-lg shadow-md" />
                         </div>
                       </td>
@@ -259,7 +260,7 @@ export default function Clients() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="6"
                       className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
                     >
                       {filteredClients.length === 0
@@ -273,19 +274,16 @@ export default function Clients() {
           </div>
         </div>
 
-        {/* Paginación */}
+        {/* Paginación - mantener igual */}
         {filteredClients.length > 0 && (
           <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            {/* Información de paginación */}
             <div className="text-sm text-gray-500 font-regular-text font-semibold">
               Mostrando {indexOfFirstClient + 1} -{" "}
               {Math.min(indexOfLastClient, filteredClients.length)} de{" "}
               {filteredClients.length} clientes
             </div>
 
-            {/* Controles de paginación */}
             <div className="flex items-center space-x-2">
-              {/* Botón anterior */}
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -298,7 +296,6 @@ export default function Clients() {
                 <ChevronLeftIcon className="w-5 h-5" />
               </button>
 
-              {/* Números de página */}
               {Array.from({ length: totalPages }).map((_, index) => {
                 const pageNumber = index + 1;
 
@@ -335,7 +332,6 @@ export default function Clients() {
                 return null;
               })}
 
-              {/* Botón siguiente */}
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages || totalPages === 0}
@@ -356,9 +352,25 @@ export default function Clients() {
       {isModalOpen && selectedClient && (
         <EditClientModal
           client={selectedClient}
-          onFieldChange={handleFieldChange}
           onClose={closeModal}
           onSave={handleSave}
+          successMessage={editSuccessMessage} // ✅ Pasar mensaje de éxito
+        />
+      )}
+
+      {/* Modal para agregar cliente */}
+      {showAddModal && (
+        <AddClientModal
+          onClose={closeAddModal}
+          onSave={handleAddClient}
+        />
+      )}
+
+      {/* ✅ Modal para ver cotizaciones del cliente */}
+      {showQuotesModal && selectedClientForQuotes && (
+        <ClientQuotesModal
+          client={selectedClientForQuotes}
+          onClose={closeQuotesModal}
         />
       )}
     </div>
