@@ -7,6 +7,12 @@ import { CheckSquareIcon } from "lucide-react";
 
 export const SupplySelectionSection = ({
   selectedArtType,
+  // ✅ Props de estado actual
+  selectedSoftware = [],
+  selectedDigitalTools = [],
+  selectedTraditionalMaterials = [],
+  selectedTraditionalTools = [],
+  // ✅ Setters
   setSelectedSoftware,
   setSelectedDigitalTools,
   setSelectedTraditionalMaterials,
@@ -19,14 +25,28 @@ export const SupplySelectionSection = ({
     </h3>
     {([1, 2].includes(Number(selectedArtType))) && (
       <>
-        <SoftwareSelection onSelect={setSelectedSoftware} />
-        <DigitalToolSelection onSelect={setSelectedDigitalTools} />
+        {/* ✅ Pasar selectedItems como prop */}
+        <SoftwareSelection 
+          onSelect={setSelectedSoftware}
+          selectedItems={selectedSoftware} 
+        />
+        <DigitalToolSelection 
+          onSelect={setSelectedDigitalTools}
+          selectedItems={selectedDigitalTools}
+        />
       </>
     )}
     {([3, 4].includes(Number(selectedArtType))) && (
       <>
-        <TraditionalMaterialSelection onSelect={setSelectedTraditionalMaterials} />
-        <TraditionalToolSelection onSelect={setSelectedTraditionalTools} />
+        {/* ✅ Pasar selectedItems como prop */}
+        <TraditionalMaterialSelection 
+          onSelect={setSelectedTraditionalMaterials}
+          selectedItems={selectedTraditionalMaterials}
+        />
+        <TraditionalToolSelection 
+          onSelect={setSelectedTraditionalTools}
+          selectedItems={selectedTraditionalTools}
+        />
       </>
     )}
   </div>

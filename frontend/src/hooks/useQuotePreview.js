@@ -38,8 +38,11 @@ export function useQuotePreview({
       Number(effectivePricingProfile?.standardHourlyRate) || 0;
     const detail = Number(specializedData.detailLevel) || 0;
     const modsCount = Number(specializedData.additionalModifications) || 0;
-    const modificationExtra =
-      Number(effectivePricingProfile?.modificationExtra) || 10;
+    const modificationExtra = (specializedData.customModificationExtra !== undefined &&
+      specializedData.customModificationExtra !== null &&
+      specializedData.customModificationExtra !== ""
+        ? Number(specializedData.customModificationExtra)
+        : Number(effectivePricingProfile?.modificationExtra)) || 10;
     const projectsPerMonth =
       Number(effectivePricingProfile?.projectsPerMonth) || 1;
     const duration = Number(specializedData.duration) || 0;

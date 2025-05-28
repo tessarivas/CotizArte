@@ -19,7 +19,7 @@ import {
 import EditProjectModal from "@/components/EditProjectModal";
 
 export default function Projects() {
-    const {
+  const {
     currentProjects,
     filteredProjects,
     totalPages,
@@ -28,10 +28,8 @@ export default function Projects() {
     setRowsPerPage,
     searchTerm,
     setSearchTerm,
-    filterType,
-    setFilterType,
-    artTypeFilter,
-    setArtTypeFilter,
+    artTypeFilter, // ✅ Agregar este estado
+    setArtTypeFilter, // ✅ Agregar esta función
     paginate,
     selectedProject,
     isModalOpen,
@@ -49,7 +47,7 @@ export default function Projects() {
   const indexOfFirstProject = indexOfLastProject - rowsPerPage;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen font-regular-text">
       {/* Page Header */}
       <div className="bg-gradient-to-r from-primary via-secondary to-accent h-[30vh] flex items-center justify-center relative">
         <div className="mt-22">
@@ -73,38 +71,80 @@ export default function Projects() {
               <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            {/* Art Type Filters */}
-            <div className="flex items-center gap-2">
-              <button
-                className={`btn ${artTypeFilter === "all" ? "btn-secondary" : "btn-gost"}`}
-                onClick={() => setArtTypeFilter("all")}
+            {/* ✅ Dropdown de filtros por tipo de arte */}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                className="flex items-center gap-1 bg-pink-300 hover:bg-pink-400 cursor-pointer px-4 py-2 rounded-lg text-white font-bold font-regular-text transition m-1"
               >
-                Todos
-              </button>
-              <button
-                className={`btn ${artTypeFilter === "Pintura" ? "btn-primary" : "btn-gost"}`}
-                onClick={() => setArtTypeFilter("Pintura")}
+                <FilterIcon className="w-4 h-4" />
+                Filtros
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
               >
-                Pintura
-              </button>
-              <button
-                className={`btn ${artTypeFilter === "Dibujo" ? "btn-primary" : "btn-gost"}`}
-                onClick={() => setArtTypeFilter("Dibujo")}
-              >
-                Dibujo
-              </button>
-              <button
-                className={`btn ${artTypeFilter === "Ilustración" ? "btn-primary" : "btn-gost"}`}
-                onClick={() => setArtTypeFilter("Ilustración")}
-              >
-                Ilustración
-              </button>
-              <button
-                className={`btn ${artTypeFilter === "Edición de Video" ? "btn-primary" : "btn-gost"}`}
-                onClick={() => setArtTypeFilter("Edición de Video")}
-              >
-                Edición
-              </button>
+                <li>
+                  <a
+                    className={
+                      artTypeFilter === "all"
+                        ? "active bg-pink-500 text-white"
+                        : ""
+                    }
+                    onClick={() => setArtTypeFilter("all")}
+                  >
+                    Todos los tipos
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={
+                      artTypeFilter === "1"
+                        ? "active bg-pink-500 text-white"
+                        : ""
+                    }
+                    onClick={() => setArtTypeFilter("1")}
+                  >
+                    Ilustración Digital
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={
+                      artTypeFilter === "2"
+                        ? "active bg-pink-500 text-white"
+                        : ""
+                    }
+                    onClick={() => setArtTypeFilter("2")}
+                  >
+                    Edición de Video
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={
+                      artTypeFilter === "3"
+                        ? "active bg-pink-500 text-white"
+                        : ""
+                    }
+                    onClick={() => setArtTypeFilter("3")}
+                  >
+                    Pintura
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className={
+                      artTypeFilter === "4"
+                        ? "active bg-pink-500 text-white"
+                        : ""
+                    }
+                    onClick={() => setArtTypeFilter("4")}
+                  >
+                    Dibujo
+                  </a>
+                </li>
+              </ul>
             </div>
 
             {/* Rows per Page Selector */}
@@ -133,7 +173,26 @@ export default function Projects() {
           </button>
         </div>
 
-        {/* Projects Grid */}
+        {/* ✅ Indicador de filtro activo (opcional) */}
+        {artTypeFilter !== "all" && (
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-sm text-gray-600">Filtrando por:</span>
+            <span className="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-sm font-medium">
+              {artTypeFilter === "1" && "Ilustración Digital"}
+              {artTypeFilter === "2" && "Edición de Video"}
+              {artTypeFilter === "3" && "Pintura"}
+              {artTypeFilter === "4" && "Dibujo"}
+            </span>
+            <button
+              onClick={() => setArtTypeFilter("all")}
+              className="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              Limpiar filtro
+            </button>
+          </div>
+        )}
+
+        {/* Projects Grid - resto del código igual */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {currentProjects.length > 0 ? (
             currentProjects.map((project) => (
@@ -205,7 +264,7 @@ export default function Projects() {
           )}
         </div>
 
-        {/* Pagination */}
+        {/* Pagination - resto igual */}
         {filteredProjects.length > 0 && (
           <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             {/* Pagination Info */}

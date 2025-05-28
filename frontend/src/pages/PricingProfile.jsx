@@ -148,52 +148,6 @@ export default function PricingProfile() {
               <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            {/* Art Type Filters */}
-            <div className="flex items-center gap-2">
-              <button
-                className={`btn ${
-                  artTypeFilter === "all" ? "btn-secondary" : "btn-gost"
-                }`}
-                onClick={() => setArtTypeFilter("all")}
-              >
-                Todos
-              </button>
-              <button
-                className={`btn ${
-                  artTypeFilter === "Pintura" ? "btn-primary" : "btn-gost"
-                }`}
-                onClick={() => setArtTypeFilter("Pintura")}
-              >
-                Pintura
-              </button>
-              <button
-                className={`btn ${
-                  artTypeFilter === "Dibujo" ? "btn-primary" : "btn-gost"
-                }`}
-                onClick={() => setArtTypeFilter("Dibujo")}
-              >
-                Dibujo
-              </button>
-              <button
-                className={`btn ${
-                  artTypeFilter === "Ilustración Digital" ? "btn-primary" : "btn-gost"
-                }`}
-                onClick={() => setArtTypeFilter("Ilustración Digital")}
-              >
-                Ilustración
-              </button>
-              <button
-                className={`btn ${
-                  artTypeFilter === "Edición de Video"
-                    ? "btn-primary"
-                    : "btn-gost"
-                }`}
-                onClick={() => setArtTypeFilter("Edición de Video")}
-              >
-                Edición
-              </button>
-            </div>
-
             {/* Dropdown de filtros adicionales */}
             <div className="dropdown dropdown-end">
               <div

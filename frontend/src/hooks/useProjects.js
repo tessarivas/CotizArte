@@ -118,13 +118,18 @@ export function useProjects() {
   );
 
   // Filtering logic (solo búsqueda y tipo de arte)
-  const filteredProjects = sortedProjects.filter((project) => {
+  const filteredProjects = projects.filter((project) => {
+    // Filtro de búsqueda por nombre
     const matchesSearch = project.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    if (artTypeFilter === "all") return matchesSearch;
-    return matchesSearch && project.artType.name === artTypeFilter;
+    // ✅ Filtro por tipo de arte
+    const matchesArtType =
+      artTypeFilter === "all" ||
+      project.artType.id.toString() === artTypeFilter;
+
+    return matchesSearch && matchesArtType;
   });
 
   // Pagination logic

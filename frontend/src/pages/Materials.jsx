@@ -103,7 +103,7 @@ export default function Materials() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen font-regular-text">
       {/* Encabezado de la página */}
       <div className="bg-gradient-to-r from-primary via-secondary to-accent h-[30vh] flex items-center justify-center relative">
         <div className="mt-22">

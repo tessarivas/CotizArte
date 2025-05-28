@@ -58,27 +58,47 @@ export default function CreateQuote() {
   } = useQuoteForm(projectId, navigate);
 
   const renderSpecializedForm = () => {
-    if (!selectedArtType) return null;
-    const commonProps = {
-      data: specializedData,
-      handleChange: handleQuoteFieldChange,
-      handleQuoteFieldChange: handleQuoteFieldChange,
-      errors: formErrors,
-    };
     switch (selectedArtType) {
-      case "1":
+      case "1": // Ilustración Digital
         return (
           <DigitalIllustrationQuoteForm
-            {...commonProps}
-            pricingProfile={pricingProfile}
+            data={specializedData}
+            handleChange={handleQuoteFieldChange}
+            handleQuoteFieldChange={handleQuoteFieldChange}
+            errors={formErrors}
+            pricingProfile={selectedPricingProfile}
           />
         );
-      case "2":
-        return <VideoEditingQuoteForm {...commonProps} />;
-      case "3":
-        return <PaintingQuoteForm {...commonProps} />;
-      case "4":
-        return <DrawingQuoteForm {...commonProps} />;
+      case "2": // Edición de Video
+        return (
+          <VideoEditingQuoteForm
+            data={specializedData}
+            handleChange={handleQuoteFieldChange}
+            handleQuoteFieldChange={handleQuoteFieldChange}
+            errors={formErrors}
+            pricingProfile={selectedPricingProfile}
+          />
+        );
+      case "3": // ✅ Pintura - AGREGAR ESTE CASO
+        return (
+          <PaintingQuoteForm
+            data={specializedData}
+            handleChange={handleQuoteFieldChange}
+            handleQuoteFieldChange={handleQuoteFieldChange} // ✅ Agregar esta prop
+            errors={formErrors}
+            pricingProfile={selectedPricingProfile} // ✅ Agregar esta prop
+          />
+        );
+      case "4": // Dibujo
+        return (
+          <DrawingQuoteForm
+            data={specializedData}
+            handleChange={handleQuoteFieldChange}
+            handleQuoteFieldChange={handleQuoteFieldChange}
+            errors={formErrors}
+            pricingProfile={selectedPricingProfile}
+          />
+        );
       default:
         return null;
     }
@@ -107,6 +127,7 @@ export default function CreateQuote() {
             selectedClient={quoteClient}
             setSelectedClient={setQuoteClient}
             projectHasClient={projectHasClient}
+            selectedArtType={selectedArtType} // ✅ Pasar selectedArtType
           />
         );
       case 2:
@@ -138,7 +159,7 @@ export default function CreateQuote() {
             selectedDigitalTools={selectedDigitalTools}
             selectedTraditionalMaterials={selectedTraditionalMaterials}
             selectedTraditionalTools={selectedTraditionalTools}
-            breakdown={breakdown} // Pasamos el breakdown calculado
+            breakdown={breakdown}
           />
         );
       default:
@@ -223,6 +244,8 @@ export default function CreateQuote() {
             >
               Anterior
             </button>
+
+            {/* ✅ Simplificar la lógica de botones */}
             {currentStep < steps.length - 1 ? (
               <button
                 type="button"
@@ -233,18 +256,11 @@ export default function CreateQuote() {
               >
                 Siguiente
               </button>
-            ) : !confirming ? (
-              <button
-                type="button"
-                className="btn btn-success text-white"
-                onClick={() => setConfirming(true)}
-              >
-                Confirmar datos
-              </button>
             ) : (
+              /* ✅ Un solo botón de confirmación */
               <button
                 type="button"
-                className="btn btn-success text-white"
+                className="btn btn-success text-white font-bold"
                 onClick={() =>
                   handleSubmit({
                     selectedSoftware,

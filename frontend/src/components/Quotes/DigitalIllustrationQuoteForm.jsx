@@ -6,7 +6,7 @@ export const DigitalIllustrationQuoteForm = ({
   handleChange,
   handleQuoteFieldChange,
   errors = {},
-  pricingProfile, // <-- AGREGA ESTO EN LOS PROPS
+  pricingProfile,
 }) => {
   return (
     <div className="p-4 bg-gray-50 rounded-xl font-regular-text">
@@ -31,11 +31,13 @@ export const DigitalIllustrationQuoteForm = ({
               className={`input input-bordered w-full ${
                 errors.hoursWorked ? "border-red-500" : ""
               }`}
+              required
             />
             {errors.hoursWorked && (
               <p className="text-red-500 text-xs mt-1">{errors.hoursWorked}</p>
             )}
           </div>
+
           <div className="mb-3">
             <label className="block text-sm font-bold mb-1">
               Nivel de Detalle:
@@ -47,6 +49,7 @@ export const DigitalIllustrationQuoteForm = ({
               className={`select select-bordered w-full ${
                 errors.detailLevel ? "border-red-500" : ""
               }`}
+              required
             >
               <option value="">Seleccione...</option>
               <option value="1">Simple (+0%)</option>
@@ -59,50 +62,24 @@ export const DigitalIllustrationQuoteForm = ({
               <p className="text-red-500 text-xs mt-1">{errors.detailLevel}</p>
             )}
           </div>
+
+          {/* ✅ Agregar técnica de ilustración */}
           <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="isCommercial"
-                checked={data.isCommercial || false}
-                onChange={handleChange}
-                className="checkbox checkbox-primary"
-              />
-              <span>Uso comercial</span>
-              {data.isCommercial && (
-                <>
-                  <label className="text-xs font-semibold ml-2">
-                    Modificar porcentaje:
-                  </label>
-                  <input
-                    type="number"
-                    name="commercialPercentage"
-                    min="0"
-                    max="100"
-                    value={
-                      data.commercialPercentage === undefined ||
-                      data.commercialPercentage === null
-                        ? ""
-                        : data.commercialPercentage
-                    }
-                    onChange={handleQuoteFieldChange}
-                    className="input input-bordered input-xs w-20"
-                    placeholder="Ej: 30"
-                  />
-                  <span className="text-xs">%</span>
-                </>
-              )}
+            <label className="block text-sm font-bold mb-1">
+              Técnica de ilustración:
+            </label>
+            <div className="flex items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg">
+              <PaintbrushVerticalIcon className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+              <span className="text-sm font-medium">
+                {data.selectedTechnique?.name || "No especificada"}
+              </span>
             </div>
-              {/* Muestra el valor por defecto del perfil */}
-              {pricingProfile && (
-                <span className="text-xs text-gray-500 ml-2">
-                  (No lo modifiques si deseas uasar el valor del perfil:{" "}
-                  {pricingProfile.defaultCommercialLicensePercentage ?? 30}
-                  %)
-                </span>
-              )}
+            <span className="text-xs text-gray-500 mt-1 block">
+              La técnica se seleccionó al crear el proyecto
+            </span>
           </div>
         </div>
+
         {/* Columna 2 */}
         <div>
           <div className="mb-3">
@@ -116,8 +93,10 @@ export const DigitalIllustrationQuoteForm = ({
               value={data.additionalModifications || 0}
               onChange={handleChange}
               className="input input-bordered w-full"
+              placeholder="Número de modificaciones"
             />
           </div>
+
           <div className="mb-3">
             <label className="block text-sm font-bold mb-1">
               Costo por modificación (opcional):
@@ -131,7 +110,15 @@ export const DigitalIllustrationQuoteForm = ({
               className="input input-bordered w-full"
               placeholder="Usar valor del perfil si se deja vacío"
             />
+            {/* ✅ Agregar valor del perfil como referencia */}
+            {pricingProfile && (
+              <span className="text-xs text-gray-500 mt-1 block">
+                Valor del perfil: ${pricingProfile.modificationExtra || 0} por
+                modificación
+              </span>
+            )}
           </div>
+
           <div className="mb-3">
             <div className="flex items-center gap-2">
               <input
@@ -166,12 +153,56 @@ export const DigitalIllustrationQuoteForm = ({
                 </>
               )}
             </div>
-              {/* Muestra el valor por defecto del perfil */}
-              {pricingProfile && (
-                <span className="text-xs text-gray-500 ml-2">
-                  (No lo modifiques si deseas uasar el valor del perfil: {pricingProfile.defaultUrgencyPercentage ?? 20}%)
-                </span>
+            {/* ✅ Corregir "uasar" por "usar" */}
+            {pricingProfile && (
+              <span className="text-xs text-gray-500 ml-2 block">
+                (No lo modifiques si deseas usar el valor del perfil:{" "}
+                {pricingProfile.defaultUrgencyPercentage ?? 20}%)
+              </span>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="isCommercial"
+                checked={data.isCommercial || false}
+                onChange={handleChange}
+                className="checkbox checkbox-primary"
+              />
+              <span>Uso comercial</span>
+              {data.isCommercial && (
+                <>
+                  <label className="text-xs font-semibold ml-2">
+                    Modificar porcentaje:
+                  </label>
+                  <input
+                    type="number"
+                    name="commercialPercentage"
+                    min="0"
+                    max="100"
+                    value={
+                      data.commercialPercentage === undefined ||
+                      data.commercialPercentage === null
+                        ? ""
+                        : data.commercialPercentage
+                    }
+                    onChange={handleQuoteFieldChange}
+                    className="input input-bordered input-xs w-20"
+                    placeholder="Ej: 30"
+                  />
+                  <span className="text-xs">%</span>
+                </>
               )}
+            </div>
+            {/* ✅ Corregir "uasar" por "usar" */}
+            {pricingProfile && (
+              <span className="text-xs text-gray-500 ml-2 block">
+                (No lo modifiques si deseas usar el valor del perfil:{" "}
+                {pricingProfile.defaultCommercialLicensePercentage ?? 30}%)
+              </span>
+            )}
           </div>
         </div>
       </div>

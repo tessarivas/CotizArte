@@ -123,12 +123,9 @@ const EditClientModal = ({ client, onClose, onSave, successMessage = "" }) => {
     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm z-50 font-regular-text">
       <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-7 w-[600px] max-h-[90vh] overflow-y-auto">
         {/* Título */}
-        <div className="text-center mb-6">
-          <div className="text-2xl font-bold text-base-content mb-2">
-            Editar
-          </div>
-          <GradientText className="text-4xl font-logo-text">
-            Cliente
+        <div className="text-center my-4">
+          <GradientText className="text-5xl font-logo-text">
+            Editar Cliente
           </GradientText>
         </div>
 

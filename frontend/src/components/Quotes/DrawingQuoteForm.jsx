@@ -4,7 +4,9 @@ import { PencilIcon } from "lucide-react";
 export const DrawingQuoteForm = ({ 
   data, 
   handleChange,
-  errors = {} 
+  handleQuoteFieldChange,
+  errors = {},
+  pricingProfile // ✅ Agregar esta prop
 }) => (
   <div className="p-4 bg-gray-50 rounded-xl font-regular-text">
     <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
@@ -30,6 +32,9 @@ export const DrawingQuoteForm = ({
             }`}
             required
           />
+          {errors.hoursWorked && (
+            <p className="text-red-500 text-xs mt-1">{errors.hoursWorked}</p>
+          )}
         </div>
 
         <div className="mb-3">
@@ -43,6 +48,7 @@ export const DrawingQuoteForm = ({
             className={`select select-bordered w-full ${
               errors.detailLevel ? "border-red-500" : ""
             }`}
+            required
           >
             <option value="">Seleccione...</option>
             <option value="1">Simple (+0%)</option>
@@ -91,14 +97,18 @@ export const DrawingQuoteForm = ({
           </span>
         </div>
 
+        {/* ✅ Técnica de dibujo mejorada */}
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
             Técnica de dibujo:
           </label>
-          <div className="bg-gray-100 p-3 rounded border text-sm">
-            {data.selectedTechnique?.name || "No especificada"}
+          <div className="flex items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg">
+            <PencilIcon className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-sm font-medium">
+              {data.selectedTechnique?.name || "No especificada"}
+            </span>
           </div>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 mt-1 block">
             La técnica se seleccionó al crear el proyecto
           </span>
         </div>
@@ -106,20 +116,44 @@ export const DrawingQuoteForm = ({
 
       {/* Columna 2: Opciones adicionales */}
       <div>
+        {/* ✅ Modificaciones adicionales mejoradas */}
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
-            Revisiones adicionales:
+            Modificaciones adicionales:
           </label>
           <input
             name="additionalModifications"
             type="number"
             min="0"
-            value={data.additionalModifications || ""}
+            value={data.additionalModifications || 0}
             onChange={handleChange}
             className="input input-bordered w-full"
+            placeholder="Número de modificaciones"
           />
         </div>
 
+        <div className="mb-3">
+          <label className="block text-sm font-bold mb-1">
+            Costo por modificación (opcional):
+          </label>
+          <input
+            name="customModificationExtra"
+            type="number"
+            min="0"
+            value={data.customModificationExtra || ""}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Usar valor del perfil si se deja vacío"
+          />
+          {/* ✅ Mostrar valor del perfil como referencia */}
+          {pricingProfile && (
+            <span className="text-xs text-gray-500 mt-1 block">
+              Valor del perfil: ${pricingProfile.modificationExtra || 0} por modificación
+            </span>
+          )}
+        </div>
+
+        {/* ✅ Uso comercial mejorado */}
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <input
@@ -133,15 +167,20 @@ export const DrawingQuoteForm = ({
             {data.isCommercial && (
               <>
                 <label className="text-xs font-semibold ml-2">
-                  Porcentaje extra:
+                  Modificar porcentaje:
                 </label>
                 <input
                   type="number"
                   name="commercialPercentage"
                   min="0"
                   max="100"
-                  value={data.commercialPercentage ?? ""}
-                  onChange={handleChange}
+                  value={
+                    data.commercialPercentage === undefined ||
+                    data.commercialPercentage === null
+                      ? ""
+                      : data.commercialPercentage
+                  }
+                  onChange={handleQuoteFieldChange}
                   className="input input-bordered input-xs w-20"
                   placeholder="Ej: 30"
                 />
@@ -149,8 +188,16 @@ export const DrawingQuoteForm = ({
               </>
             )}
           </div>
+          {/* ✅ Mostrar valor por defecto del perfil */}
+          {pricingProfile && (
+            <span className="text-xs text-gray-500 ml-2 block">
+              (No lo modifiques si deseas usar el valor del perfil:{" "}
+              {pricingProfile.defaultCommercialLicensePercentage ?? 30}%)
+            </span>
+          )}
         </div>
 
+        {/* ✅ Entrega urgente mejorada */}
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <input
@@ -164,15 +211,20 @@ export const DrawingQuoteForm = ({
             {data.rapidDelivery && (
               <>
                 <label className="text-xs font-semibold ml-2">
-                  Porcentaje extra:
+                  Modificar porcentaje:
                 </label>
                 <input
                   type="number"
                   name="rapidDeliveryPercentage"
                   min="0"
                   max="100"
-                  value={data.rapidDeliveryPercentage ?? ""}
-                  onChange={handleChange}
+                  value={
+                    data.rapidDeliveryPercentage === undefined ||
+                    data.rapidDeliveryPercentage === null
+                      ? ""
+                      : data.rapidDeliveryPercentage
+                  }
+                  onChange={handleQuoteFieldChange}
                   className="input input-bordered input-xs w-20"
                   placeholder="Ej: 20"
                 />
@@ -180,6 +232,12 @@ export const DrawingQuoteForm = ({
               </>
             )}
           </div>
+          {/* ✅ Mostrar valor por defecto del perfil */}
+          {pricingProfile && (
+            <span className="text-xs text-gray-500 ml-2 block">
+              (No lo modifiques si deseas usar el valor del perfil: {pricingProfile.defaultUrgencyPercentage ?? 20}%)
+            </span>
+          )}
         </div>
       </div>
     </div>

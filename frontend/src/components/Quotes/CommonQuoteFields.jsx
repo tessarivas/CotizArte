@@ -12,7 +12,17 @@ export const CommonQuoteFields = ({
   selectedClient,
   setSelectedClient,
   projectHasClient,
+  selectedArtType, // ✅ Agregar esta prop
 }) => {
+  // ✅ Filtrar perfiles de precios por tipo de arte
+  const filteredPricingProfiles = pricingProfiles.filter((profile) => {
+    // Si no hay tipo de arte seleccionado, mostrar todos
+    if (!selectedArtType) return true;
+
+    // Filtrar por artTypeId que coincida con el selectedArtType
+    return profile.artTypeId === parseInt(selectedArtType);
+  });
+
   return (
     <div className="p-4 bg-gray-50 rounded-xl font-regular-text">
       <h3 className="font-bold text-xl mb-2 flex items-center gap-2">
@@ -51,22 +61,33 @@ export const CommonQuoteFields = ({
           <div className="mb-2">
             <label className="block text-sm font-bold mb-2">
               Perfil de Precios
+              {/* ✅ Mostrar información sobre el filtro */}
+              {selectedArtType && (
+                <span className="text-xs text-gray-500 ml-2">
+                  (Solo perfiles para este tipo de arte)
+                </span>
+              )}
             </label>
             <select
               name="pricingProfileId"
               value={selectedPricingProfile ? selectedPricingProfile.id : ""}
               onChange={(e) => {
                 const profileId = Number(e.target.value);
-                const profile = pricingProfiles.find((p) => p.id === profileId);
+                // ✅ Buscar en los perfiles filtrados
+                const profile = filteredPricingProfiles.find((p) => p.id === profileId);
                 setSelectedPricingProfile(profile);
               }}
               required
               className="select select-bordered w-full"
             >
               <option value="">
-                Seleccione un perfil con tárifas preajustadas
+                {filteredPricingProfiles.length > 0 
+                  ? "Seleccione un perfil con tárifas preajustadas"
+                  : "No hay perfiles disponibles para este tipo de arte"
+                }
               </option>
-              {pricingProfiles.map((profile) => (
+              {/* ✅ Usar perfiles filtrados */}
+              {filteredPricingProfiles.map((profile) => (
                 <option key={profile.id} value={profile.id}>
                   {profile.artType?.name}: Tarifa x Hora{" "}
                   {profile.standardHourlyRate} - Proyectos x Mes{" "}
@@ -76,9 +97,24 @@ export const CommonQuoteFields = ({
             </select>
             <div className="text-xs pt-3 pl-1 italic text-[#a4a4a4]">
               <p>
-                Si aún no has agregado un perfil de precios personalizado accede
-                a tu panel y crea un nuevo perfil de precios para el tipo de
-                arte que necesites.
+                {filteredPricingProfiles.length === 0 ? (
+                  <>
+                    No tienes perfiles de precios para este tipo de arte. 
+                    Accede a tu panel y crea un nuevo perfil de precios para{" "}
+                    <strong>
+                      {selectedArtType === "1" && "Ilustración Digital"}
+                      {selectedArtType === "2" && "Edición de Video"}
+                      {selectedArtType === "3" && "Pintura"}
+                      {selectedArtType === "4" && "Dibujo"}
+                    </strong>.
+                  </>
+                ) : (
+                  <>
+                    Si aún no has agregado un perfil de precios personalizado accede
+                    a tu panel y crea un nuevo perfil de precios para el tipo de
+                    arte que necesites.
+                  </>
+                )}
               </p>
             </div>
           </div>

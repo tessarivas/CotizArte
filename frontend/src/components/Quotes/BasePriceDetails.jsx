@@ -272,7 +272,11 @@ export const BasePriceDetail = (props) => {
     const hw = Number(specializedData.hoursWorked) || 0;
     const standardHourlyRate = Number(effectivePricingProfile?.standardHourlyRate) || 0;
     const modsCount = Number(specializedData.additionalModifications) || 0;
-    const modificationExtra = Number(effectivePricingProfile?.modificationExtra) || 10;
+    const modificationExtra = (specializedData.customModificationExtra !== undefined &&
+      specializedData.customModificationExtra !== null &&
+      specializedData.customModificationExtra !== ""
+        ? Number(specializedData.customModificationExtra)
+        : Number(effectivePricingProfile?.modificationExtra)) || 10;
     const width = Number(specializedData.width) || 0;
     const height = Number(specializedData.height) || 0;
     const area = width * height;

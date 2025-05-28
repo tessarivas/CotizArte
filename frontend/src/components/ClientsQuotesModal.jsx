@@ -143,10 +143,10 @@ const ClientQuotesModal = ({ client, onClose }) => {
         {/* Encabezado del modal */}
         <div className="flex items-center justify-between mb-6">
           <div className="text-center flex-1">
-            <div className="text-2xl font-bold text-base-content mb-2">
+            <div className="text-3xl font-logo-text text-base-content mb-1">
               Cotizaciones de
             </div>
-            <GradientText className="text-3xl font-logo-text">
+            <GradientText className="text-4xl font-logo-text">
               {client?.name}
             </GradientText>
           </div>
@@ -196,7 +196,7 @@ const ClientQuotesModal = ({ client, onClose }) => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-1 md:grid-cols-3 text-sm text-gray-600">
                       {/* Precio */}
                       <div className="flex items-center gap-2">
                         <DollarSignIcon className="w-4 h-4 text-green-600" />
@@ -214,7 +214,7 @@ const ClientQuotesModal = ({ client, onClose }) => {
                       {/* Estado visual */}
                       <div className="flex items-center gap-2">
                         <CheckIcon className="w-4 h-4 text-purple-600" />
-                        <span>ID: {quote.id}</span>
+                        <span>Tipo: {quote.project?.artType?.name}</span>
                       </div>
                     </div>
                   </div>

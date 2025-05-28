@@ -66,7 +66,7 @@ export default function Clients() {
   } = useClients();
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen font-regular-text">
       {/* Encabezado de la página */}
       <div className="bg-gradient-to-r from-primary via-secondary to-accent h-[30vh] flex items-center justify-center relative">
         <div className="mt-22">
@@ -223,7 +223,7 @@ export default function Clients() {
                 {currentClients.length > 0 ? (
                   currentClients.map((client) => (
                     <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">
                         {client.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">

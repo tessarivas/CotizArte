@@ -90,6 +90,11 @@ const ProjectSelectorModal = ({ isOpen, onClose, onSelectProject }) => {
                           {project.description}
                         </p>
                       )}
+                      {project.artType?.name && (
+                        <p className="text-sm text-orange-300 font-bold mt-1">
+                          Tipo de Arte: {project.artType?.name}
+                        </p>
+                      )}
                     </div>
                     <ChevronRightIcon className="w-6 h-6 text-primary" />
                   </div>

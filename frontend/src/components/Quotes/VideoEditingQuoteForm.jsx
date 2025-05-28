@@ -30,6 +30,7 @@ export const VideoEditingQuoteForm = ({
             className={`input input-bordered w-full ${
               errors.hoursWorked ? "border-red-500" : ""
             }`}
+            required
           />
           {errors.hoursWorked && (
             <p className="text-red-500 text-xs mt-1">{errors.hoursWorked}</p>
@@ -47,6 +48,7 @@ export const VideoEditingQuoteForm = ({
             className={`select select-bordered w-full ${
               errors.detailLevel ? "border-red-500" : ""
             }`}
+            required
           >
             <option value="">Seleccione...</option>
             <option value="1">Simple (+0%)</option>
@@ -59,6 +61,23 @@ export const VideoEditingQuoteForm = ({
             <p className="text-red-500 text-xs mt-1">{errors.detailLevel}</p>
           )}
         </div>
+
+        {/* ✅ Agregar técnica de edición */}
+        <div className="mb-3">
+          <label className="block text-sm font-bold mb-1">
+            Técnica de edición:
+          </label>
+          <div className="flex items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg">
+            <VideoIcon className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            <span className="text-sm font-medium">
+              {data.selectedTechnique?.name || "No especificada"}
+            </span>
+          </div>
+          <span className="text-xs text-gray-500 mt-1 block">
+            La técnica se seleccionó al crear el proyecto
+          </span>
+        </div>
+
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <input
@@ -79,8 +98,13 @@ export const VideoEditingQuoteForm = ({
                   name="commercialPercentage"
                   min="0"
                   max="100"
-                  value={data.commercialPercentage ?? ""}
-                  onChange={handleChange}
+                  value={
+                    data.commercialPercentage === undefined ||
+                    data.commercialPercentage === null
+                      ? ""
+                      : data.commercialPercentage
+                  }
+                  onChange={handleQuoteFieldChange} // ✅ Corregir handler
                   className="input input-bordered input-xs w-20"
                   placeholder="Ej: 30"
                 />
@@ -89,8 +113,8 @@ export const VideoEditingQuoteForm = ({
             )}
           </div>
           {pricingProfile && (
-            <span className="text-xs text-gray-500 block mt-1">
-              (Valor del perfil:{" "}
+            <span className="text-xs text-gray-500 ml-2 block">
+              (No lo modifiques si deseas usar el valor del perfil:{" "}
               {pricingProfile.defaultCommercialLicensePercentage ?? 30}%)
             </span>
           )}
@@ -112,6 +136,7 @@ export const VideoEditingQuoteForm = ({
             className={`input input-bordered w-full ${
               errors.duration ? "border-red-500" : ""
             }`}
+            required
           />
           {errors.duration && (
             <p className="text-red-500 text-xs mt-1">{errors.duration}</p>
@@ -120,31 +145,36 @@ export const VideoEditingQuoteForm = ({
 
         <div className="mb-3">
           <label className="block text-sm font-bold mb-1">
-            Número de revisiones adicionales:
+            Modificaciones adicionales:
           </label>
-          <div className="flex gap-2">
-            <input
-              name="additionalModifications"
-              type="number"
-              min="0"
-              value={data.additionalModifications || ""}
-              onChange={handleChange}
-              className="input input-bordered w-24"
-            />
-            <input
-              name="customModificationExtra"
-              type="number"
-              min="0"
-              value={data.customModificationExtra || ""}
-              onChange={handleChange}
-              className="input input-bordered flex-1"
-              placeholder="Costo por revisión (opcional)"
-            />
-          </div>
+          <input
+            name="additionalModifications"
+            type="number"
+            min="0"
+            value={data.additionalModifications || 0}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Número de modificaciones"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="block text-sm font-bold mb-1">
+            Costo por modificación (opcional):
+          </label>
+          <input
+            name="customModificationExtra"
+            type="number"
+            min="0"
+            value={data.customModificationExtra || ""}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Usar valor del perfil si se deja vacío"
+          />
+          {/* ✅ Agregar valor del perfil como referencia */}
           {pricingProfile && (
-            <span className="text-xs text-gray-500 block mt-1">
-              (Valor del perfil: ${pricingProfile.modificationExtra ?? 10} por
-              revisión)
+            <span className="text-xs text-gray-500 mt-1 block">
+              Valor del perfil: ${pricingProfile.modificationExtra || 0} por modificación
             </span>
           )}
         </div>
@@ -169,7 +199,12 @@ export const VideoEditingQuoteForm = ({
                   name="rapidDeliveryPercentage"
                   min="0"
                   max="100"
-                  value={data.rapidDeliveryPercentage ?? ""}
+                  value={
+                    data.rapidDeliveryPercentage === undefined ||
+                    data.rapidDeliveryPercentage === null
+                      ? ""
+                      : data.rapidDeliveryPercentage
+                  }
                   onChange={handleQuoteFieldChange}
                   className="input input-bordered input-xs w-20"
                   placeholder="Ej: 20"
@@ -179,9 +214,8 @@ export const VideoEditingQuoteForm = ({
             )}
           </div>
           {pricingProfile && (
-            <span className="text-xs text-gray-500 block mt-1">
-              (Valor del perfil: {pricingProfile.defaultUrgencyPercentage ?? 20}
-              %)
+            <span className="text-xs text-gray-500 ml-2 block">
+              (No lo modifiques si deseas usar el valor del perfil: {pricingProfile.defaultUrgencyPercentage ?? 20}%)
             </span>
           )}
         </div>
