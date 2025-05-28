@@ -91,15 +91,16 @@ export const useQuotes = () => {
         quote.client?.name.toLowerCase().includes(searchLower)) ||
       quote.status?.toLowerCase().includes(searchLower);
 
-    // Filtro por estado
+    // ✅ CORREGIR: Filtro por estado usando los valores reales de la BD
     let typeMatch = true;
-    if (filterType === "pendiente") {
-      typeMatch = quote.status === "Pendiente";
-    } else if (filterType === "aprobada") {
-      typeMatch = quote.status === "Aprobada";
-    } else if (filterType === "rechazada") {
-      typeMatch = quote.status === "Rechazada";
+    if (filterType === "pending") {
+      typeMatch = quote.status === "PENDING";
+    } else if (filterType === "approved") {
+      typeMatch = quote.status === "APPROVED";
+    } else if (filterType === "rejected") {
+      typeMatch = quote.status === "REJECTED";
     }
+    // Si filterType === "all", typeMatch permanece true
 
     return searchMatch && typeMatch;
   });

@@ -65,11 +65,11 @@ export default function Navbar() {
 
   // Definir las opciones del menú con sus rutas
   const navLinks = [
-    { name: "Cotizaciones", path: "/quotes" },
-    { name: "Proyectos", path: "/projects" },
-    { name: "Clientes", path: "/clients" },
-    { name: "Materiales", path: "/materials" },
     { name: "Precios", path: "/pricing-profile" },
+    { name: "Materiales", path: "/materials" },
+    { name: "Clientes", path: "/clients" },
+    { name: "Proyectos", path: "/projects" },
+    { name: "Cotizaciones", path: "/quotes" },
   ];
 
   // Ajustar la clase del contenedor principal según la página
