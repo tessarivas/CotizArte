@@ -57,7 +57,11 @@ export default function Register() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className={`input input-bordered w-full ${
+            pattern="[A-Za-z][A-Za-z0-9\s\-]*"
+            minLength="3"
+            maxLength="30"
+            title="Solo se permiten letras y números. Mínimo 3 caracteres."
+            className={`input validator input-bordered w-full ${
               errorMessages.name ? "border-error" : ""
             }`}
           />
@@ -77,11 +81,11 @@ export default function Register() {
           <input
             id="email"
             type="email"
-            placeholder="Correo electrónico"
+            placeholder="correo@ejemplo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className={`input input-bordered w-full ${
+            className={`input validator input-bordered w-full ${
               errorMessages.email ? "border-error" : ""
             }`}
           />
@@ -103,6 +107,7 @@ export default function Register() {
             placeholder="Cuéntanos sobre ti..."
             value={bio}
             onChange={(e) => setBio(e.target.value)}
+            maxLength="500"
             className="textarea textarea-bordered w-full text-sm h-20"
           />
         </div>
@@ -119,6 +124,7 @@ export default function Register() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                accept="image/png,image/jpg,image/jpeg"
                 className="file-input file-input-secondary file-input-sm w-full"
               />
             </div>
@@ -158,8 +164,9 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
               required
               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+              minLength="8"
               title="Debe tener al menos 8 caracteres, incluyendo un número, una mayúscula y una minúscula."
-              className={`input input-bordered w-full pr-10 ${
+              className={`input validator input-bordered w-full pr-10 ${
                 errorMessages.password ? "border-error" : ""
               }`}
             />
@@ -196,7 +203,9 @@ export default function Register() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className={`input input-bordered w-full pr-10 ${
+              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+              minLength="8"
+              className={`input validator input-bordered w-full pr-10 ${
                 errorMessages.confirmPassword ? "border-error" : ""
               }`}
             />

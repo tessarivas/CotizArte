@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
-  PencilIcon, 
   DollarSignIcon, 
   PackageIcon, 
   CalendarIcon,
   TagIcon,
-  SparklesIcon 
+  SparklesIcon,
+  InfoIcon
 } from "lucide-react";
 import GradientText from "../blocks/TextAnimations/GradientText/GradientText";
 
 /**
- * Modal para agregar nuevos materiales al sistema
+ * Modal para editar materiales existentes
  * @param {Object} props Propiedades del componente
- * @param {string} props.selectedType Tipo de material a crear (software, digitalTool, traditionalMaterial, traditionalTool)
+ * @param {Object} props.material Material a editar
+ * @param {string} props.materialType Tipo de material (software, digitalTool, traditionalMaterial, traditionalTool)
  * @param {Function} props.onClose Función para cerrar el modal
- * @param {Function} props.onSave Función para guardar el nuevo material
+ * @param {Function} props.onSave Función para guardar los cambios
  */
-const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
+const EditMaterialModal = ({ material, materialType, onClose, onSave, successMessage = "" }) => {
   // Estados del formulario
   const [formData, setFormData] = useState({
     name: "",
@@ -40,6 +41,55 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Cargar datos del material al montar el componente
+  useEffect(() => {
+    if (material) {
+      const initialData = {
+        name: material.name || "",
+      };
+
+      // Cargar datos específicos según el tipo
+      switch (materialType) {
+        case "software":
+          // Determinar el tipo de versión basado en los datos existentes
+          let versionType = "free";
+          if (material.monthlyCost > 0 && material.annualCost === 0) {
+            versionType = "monthly";
+          } else if (material.annualCost > 0) {
+            versionType = "annual";
+          }
+
+          initialData.version = versionType;
+          initialData.monthlyCost = material.monthlyCost || "";
+          initialData.annualCost = material.annualCost || "";
+          initialData.hasFreeVersion = material.hasFreeVersion || false;
+          break;
+
+        case "digitalTool":
+          initialData.averageCost = material.averageCost || "";
+          initialData.averageLifespan = material.averageLifespan || "";
+          break;
+
+        case "traditionalMaterial":
+          initialData.category = material.category || "";
+          initialData.subCategory = material.subCategory || "";
+          initialData.quality = material.quality || "";
+          initialData.averageCost = material.averageCost || "";
+          initialData.unit = material.unit || "";
+          initialData.containerSize = material.containerSize || "";
+          break;
+
+        case "traditionalTool":
+          initialData.category = material.category || "";
+          initialData.averageCost = material.averageCost || "";
+          initialData.averageLifespan = material.averageLifespan || "";
+          break;
+      }
+
+      setFormData(initialData);
+    }
+  }, [material, materialType]);
+
   // Función de validación
   const validateForm = () => {
     const newErrors = {};
@@ -50,7 +100,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
     }
 
     // Validaciones específicas por tipo
-    switch (selectedType) {
+    switch (materialType) {
       case "software":
         if (!formData.version) {
           newErrors.version = "Selecciona un tipo de licencia";
@@ -144,7 +194,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
 
     let payload = {};
 
-    switch (selectedType) {
+    switch (materialType) {
       case "software":
         let finalMonthlyCost = Number(formData.monthlyCost) || 0;
         if (formData.version === "annual") {
@@ -197,18 +247,18 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
     }
 
     try {
-      await onSave(payload, selectedType);
+      await onSave(material.id, payload, materialType);
+      // ✅ No cerrar modal aquí, se maneja desde el padre
     } catch (error) {
-      console.error("Error al guardar:", error);
-      setErrors({ general: "Error al guardar el material. Inténtalo de nuevo." });
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error al actualizar:", error);
+      setErrors({ general: "Error al actualizar el material. Inténtalo de nuevo." });
+      setIsSubmitting(false); // ✅ Solo reset isSubmitting en caso de error
     }
   };
 
   // Renderiza el título correcto según el tipo seleccionado
   const getModalTitle = () => {
-    switch (selectedType) {
+    switch (materialType) {
       case "software":
         return "Software";
       case "digitalTool":
@@ -227,12 +277,22 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
       <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-7 w-[600px] max-h-[90vh] overflow-y-auto">
         {/* Título */}
         <div className="text-center mb-6">
-          <div className="text-4xl font-logo-text text-base-content mb-2">
-            - Nuevo -
+          <div className="text-2xl font-bold text-base-content mb-2">
+            Editar
           </div>
-          <GradientText className="text-5xl font-logo-text">
+          <GradientText className="text-4xl font-logo-text">
             {getModalTitle()}
           </GradientText>
+        </div>
+
+        {/* Información del material original */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-2">
+            <InfoIcon className="w-5 h-5 text-blue-500" />
+            <p className="text-sm font-medium text-blue-800">
+              Editando: <span className="font-bold">{material?.name}</span>
+            </p>
+          </div>
         </div>
 
         {/* Formulario */}
@@ -249,9 +309,9 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
               onChange={handleInputChange}
               className={`input validator input-bordered w-full ${errors.name ? "border-error" : ""}`}
               placeholder={`Ej: ${
-                selectedType === "software" ? "Adobe Photoshop" :
-                selectedType === "digitalTool" ? "Tableta Wacom" :
-                selectedType === "traditionalMaterial" ? "Pintura Acrílica Winsor" :
+                materialType === "software" ? "Adobe Photoshop" :
+                materialType === "digitalTool" ? "Tableta Wacom" :
+                materialType === "traditionalMaterial" ? "Pintura Acrílica Winsor" :
                 "Pincel Sable No. 8"
               }`}
               required
@@ -262,7 +322,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
           </div>
 
           {/* Formulario para Software */}
-          {selectedType === "software" && (
+          {materialType === "software" && (
             <>
               <div className="relative">
                 <label className="block text-base-content text-sm font-bold mb-1">
@@ -366,7 +426,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
           )}
 
           {/* Formulario para Herramienta Digital */}
-          {selectedType === "digitalTool" && (
+          {materialType === "digitalTool" && (
             <div className="grid grid-cols-2 gap-3">
               <div className="relative">
                 <label className="block text-base-content text-sm font-bold mb-1">
@@ -418,7 +478,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
           )}
 
           {/* Formulario para Material Tradicional */}
-          {selectedType === "traditionalMaterial" && (
+          {materialType === "traditionalMaterial" && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
@@ -611,7 +671,7 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
           )}
 
           {/* Formulario para Herramienta Tradicional */}
-          {selectedType === "traditionalTool" && (
+          {materialType === "traditionalTool" && (
             <>
               <div className="relative">
                 <label className="block text-base-content text-sm font-bold mb-1">
@@ -687,8 +747,18 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
 
           {/* Mensaje de error general */}
           {errors.general && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
               <p className="text-error text-sm">{errors.general}</p>
+            </div>
+          )}
+
+          {/* Mensaje de éxito */}
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="w-5 h-5 text-green-500" />
+                <p className="text-green-800 text-sm font-medium">{successMessage}</p>
+              </div>
             </div>
           )}
 
@@ -698,16 +768,21 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
               type="button"
               onClick={onClose}
               className="btn btn-secondary"
-              disabled={isSubmitting}
+              disabled={isSubmitting || successMessage}
             >
-              Cancelar
+              {successMessage ? "Cerrando..." : "Cancelar"}
             </button>
             <button 
               type="submit" 
               className="btn btn-primary"
-              disabled={isSubmitting}
+              disabled={isSubmitting || successMessage}
+              onClick={handleSubmit}
             >
-              {isSubmitting ? "Guardando..." : "Guardar Material"}
+              {successMessage 
+                ? "¡Actualizado!" 
+                : isSubmitting 
+                  ? "Actualizando..." 
+                  : "Guardar Cambios"}
             </button>
           </div>
         </form>
@@ -716,4 +791,4 @@ const AddMaterialModal = ({ selectedType, onClose, onSave }) => {
   );
 };
 
-export default AddMaterialModal;
+export default EditMaterialModal;

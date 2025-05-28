@@ -21,17 +21,14 @@ export class PricingProfilesService {
     });
     if (!artTypeExists) throw new NotFoundException('Tipo de arte no encontrado');
 
-    // Asegúrate de que projectsPerMonth tenga un valor
-    const projectsPerMonth = dto.projectsPerMonth ?? 0;
-
     return this.prisma.pricingProfile.create({
       data: {
         standardHourlyRate: dto.standardHourlyRate,
         preferredHourlyRate: dto.preferredHourlyRate,
-        projectsPerMonth: projectsPerMonth,
-        modificationExtra: dto.modificationExtra ?? 0,
-        defaultCommercialLicensePercentage: dto.defaultCommercialLicensePercentage ?? 30, // <--
-        defaultUrgencyPercentage: dto.defaultUrgencyPercentage ?? 20, // <--
+        projectsPerMonth: dto.projectsPerMonth,
+        modificationExtra: dto.modificationExtra,
+        defaultCommercialLicensePercentage: dto.defaultCommercialLicensePercentage,
+        defaultUrgencyPercentage: dto.defaultUrgencyPercentage,
         user: { connect: { id: userId } },
         artType: { connect: { id: dto.artTypeId } }
       },

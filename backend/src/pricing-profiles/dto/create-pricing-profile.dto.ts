@@ -1,27 +1,32 @@
-import { IsInt, IsPositive, IsOptional, Min } from 'class-validator';
+import { IsNumber, IsPositive, Min, Max } from 'class-validator';
 
 export class CreatePricingProfileDto {
-  @IsInt()
+  @IsNumber()
   artTypeId: number;
 
+  @IsNumber()
   @IsPositive()
   standardHourlyRate: number;
 
+  @IsNumber()
   @IsPositive()
   preferredHourlyRate: number;
 
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  projectsPerMonth?: number;
+  @IsNumber()
+  @IsPositive()
+  projectsPerMonth: number;
 
-  @IsOptional()
-  defaultCommercialLicensePercentage?: number;
-
-  @IsOptional()
-  defaultUrgencyPercentage?: number;
-
-  @IsOptional()
+  @IsNumber()
   @Min(0)
-  modificationExtra?: number;
+  modificationExtra: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  defaultCommercialLicensePercentage: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  defaultUrgencyPercentage: number;
 }

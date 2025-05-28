@@ -5,6 +5,8 @@ export function useProjects() {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessages, setErrorMessages] = useState({});
 
   // Pagination and filtering states
   const [currentPage, setCurrentPage] = useState(1);
@@ -19,14 +21,25 @@ export function useProjects() {
 
   const fetchProjects = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("access_token");
-      if (!token) return console.error("No hay token disponible.");
+      if (!token) throw new Error("No hay token");
+
       const response = await api.get("/projects", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setProjects(response.data);
+
+      // ✅ Ordenar por fecha de creación (más nuevo primero)
+      const sortedProjects = response.data.sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      setProjects(sortedProjects);
     } catch (error) {
-      console.error("Error al obtener proyectos:", error);
+      console.error("Error al cargar los proyectos:", error);
+      setErrorMessages({ general: "Error al cargar los proyectos" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,5 +158,7 @@ export function useProjects() {
     handleFieldChange,
     handleSave,
     handleDelete,
+    loading,
+    errorMessages,
   };
 }

@@ -1,21 +1,28 @@
-import { IsString, IsNumber, IsBoolean, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsNumber, IsBoolean, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateSoftwareDto {
   @IsString()
   name: string;
 
-  @IsOptional() // Solo se valida si se envía
+  @IsOptional()
+  @IsString()
+  version?: string; // ✅ Agregar este campo
+
+  @IsOptional()
   @IsNumber()
-  @Type(() => Number)
+  @Min(0)
+  @Transform(({ value }) => value === null || value === undefined ? 0 : Number(value))
   monthlyCost?: number;
 
-  @IsOptional() // Solo se valida si se envía
+  @IsOptional()
   @IsNumber()
-  @Type(() => Number)
+  @Min(0)
+  @Transform(({ value }) => value === null || value === undefined ? 0 : Number(value))
   annualCost?: number;
 
+  @IsOptional()
   @IsBoolean()
-  @Type(() => Boolean)
-  hasFreeVersion: boolean;
+  @Transform(({ value }) => value === 'true' || value === true)
+  hasFreeVersion?: boolean;
 }

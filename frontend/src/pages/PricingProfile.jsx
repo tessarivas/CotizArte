@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
 import { SparklesText } from "@/components/magicui/sparkles-text-variant";
 import {
   PlusCircleIcon,
-  Trash2Icon,
-  AlertCircleIcon,
   DollarSignIcon,
   ClockIcon,
-  PaletteIcon,
-  PercentIcon,
-  FileTextIcon,
-  TagIcon,
+  FolderPenIcon,
   EditIcon,
   SearchIcon,
   FilterIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ScissorsIcon,
+  PercentIcon,
+  TrendingUpIcon,
 } from "lucide-react";
 import DeleteButton from "@/components/DeleteButton";
-import EditPricingProfileModal from "@/components/EditPricingProfileModal"; // Importamos el nuevo modal
+import EditPricingProfileModal from "@/components/EditPricingProfileModal";
+import { usePricingProfiles } from "@/hooks/usePricingProfiles";
 
 const ART_TYPES = [
   { id: 1, name: "Ilustración Digital" },
@@ -31,172 +28,85 @@ const ART_TYPES = [
 
 export default function PricingProfile() {
   const navigate = useNavigate();
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  // ✅ Usar el hook personalizado
+  const {
+    // Estados
+    profiles,
+    loading,
+    isModalOpen,
+    formData,
+    errorMessages,
+    successMessage,
+    isNew, // ✅ Agregar isNew
+
+    // Funciones
+    saveProfile,
+    deleteProfile,
+    handleFieldChange,
+    openEditModal,
+    openNewModal,
+    closeModal,
+  } = usePricingProfiles();
+
+  // Estados locales para UI (filtros, búsqueda, paginación)
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [artTypeFilter, setArtTypeFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
 
-  // Estado para el formulario del modal
-  const [formData, setFormData] = useState({
-    artTypeId: "",
-    standardHourlyRate: "",
-    preferredHourlyRate: "",
-    projectsPerMonth: "",
-    defaultCommercialLicensePercentage: "",
-    defaultUrgencyPercentage: "",
-    modificationExtra: "",
-  });
-
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
-
-  const fetchProfiles = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("access_token");
-      if (!token) throw new Error("No hay token");
-      const response = await api.get("/pricing-profiles", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProfiles(response.data);
-    } catch (error) {
-      console.error("Error al cargar los perfiles de precio:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Función para manejar los cambios en los campos del formulario
-  const handleFieldChange = (field, value) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-  };
-
+  // ✅ Funciones simplificadas que usan el hook
   const handleEdit = (profile) => {
-    setSelectedProfile(profile);
-    setFormData({
-      artTypeId: profile.artTypeId,
-      standardHourlyRate: profile.standardHourlyRate,
-      preferredHourlyRate: profile.preferredHourlyRate,
-      projectsPerMonth: profile.projectsPerMonth,
-      defaultCommercialLicensePercentage:
-        profile.defaultCommercialLicensePercentage,
-      defaultUrgencyPercentage: profile.defaultUrgencyPercentage,
-      modificationExtra: profile.modificationExtra,
-    });
-    setIsModalOpen(true);
+    openEditModal(profile);
   };
 
   const handleNewProfile = () => {
-    setSelectedProfile(null);
-    setFormData({
-      artTypeId: "",
-      standardHourlyRate: "",
-      preferredHourlyRate: "",
-      projectsPerMonth: 10,
-      defaultCommercialLicensePercentage: 30,
-      defaultUrgencyPercentage: 20,
-      modificationExtra: 10,
-    });
-    setIsModalOpen(true);
+    openNewModal();
   };
 
   const handleDelete = async (id) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      await api.delete(`/pricing-profiles/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      fetchProfiles(); // Actualizar lista
-    } catch (error) {
-      console.error("Error al eliminar el perfil:", error);
-    }
+    await deleteProfile(id);
   };
 
   const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) throw new Error("No hay token");
-
-      const payload = {
-        artTypeId: Number(formData.artTypeId),
-        standardHourlyRate: Math.max(Number(formData.standardHourlyRate), 1),
-        preferredHourlyRate: Math.max(Number(formData.preferredHourlyRate), 1),
-        projectsPerMonth: Math.max(Number(formData.projectsPerMonth), 1),
-        defaultCommercialLicensePercentage: Math.max(
-          Number(formData.defaultCommercialLicensePercentage),
-          1
-        ),
-        defaultUrgencyPercentage: Math.max(
-          Number(formData.defaultUrgencyPercentage),
-          1
-        ),
-        modificationExtra: Math.max(Number(formData.modificationExtra), 0),
-      };
-
-      if (selectedProfile) {
-        await api.put(`/pricing-profiles/${selectedProfile.id}`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        await api.post("/pricing-profiles", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-
-      setIsModalOpen(false);
-      fetchProfiles(); // Actualizar la lista
-      closeModal();
-    } catch (error) {
-      console.error("Error al guardar el perfil de precios:", error);
-    }
+    await saveProfile();
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedProfile(null);
-    setFormData({
-      artTypeId: "",
-      standardHourlyRate: "",
-      preferredHourlyRate: "",
-      projectsPerMonth: 10,
-      defaultCommercialLicensePercentage: 30,
-      defaultUrgencyPercentage: 20,
-      modificationExtra: 10,
-    });
-  };
-
-  // Filtrado de perfiles
+  // Filtrado de perfiles (lógica de UI, no de backend)
   const filteredProfiles = profiles.filter((profile) => {
     const artTypeName =
       ART_TYPES.find((type) => type.id === profile.artTypeId)?.name || "";
     const matchesSearch =
       artTypeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.standardHourlyRate.toString().includes(searchTerm) ||
-      profile.preferredHourlyRate.toString().includes(searchTerm);
+      profile.standardHourlyRate.toString().includes(searchTerm);
 
+    // Filtro por tipo de arte
+    if (artTypeFilter !== "all" && artTypeName !== artTypeFilter) {
+      return false;
+    }
+
+    // Filtros adicionales
     if (filterType === "all") return matchesSearch;
     if (filterType === "highRate" && profile.standardHourlyRate > 50)
       return matchesSearch;
     if (filterType === "lowRate" && profile.standardHourlyRate <= 50)
       return matchesSearch;
-    if (filterType === "digital" && [1, 2].includes(profile.artTypeId))
+    if (
+      filterType === "highCommission" &&
+      profile.defaultCommercialLicensePercentage > 30
+    )
       return matchesSearch;
-    if (filterType === "traditional" && [3, 4].includes(profile.artTypeId))
+    if (
+      filterType === "lowCommission" &&
+      profile.defaultCommercialLicensePercentage <= 30
+    )
       return matchesSearch;
 
     return false;
   });
 
-  // Paginación
+  // Paginación (lógica de UI)
   const indexOfLastProfile = currentPage * rowsPerPage;
   const indexOfFirstProfile = indexOfLastProfile - rowsPerPage;
   const currentProfiles = filteredProfiles.slice(
@@ -211,12 +121,8 @@ export default function PricingProfile() {
     }
   };
 
-  const toggleFilters = () => {
-    setShowFilters(!showFilters);
-  };
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen font-regular-text">
       {/* Encabezado de la página */}
       <div className="bg-gradient-to-r from-primary via-secondary to-accent h-[30vh] flex items-center justify-center relative">
         <div className="mt-22">
@@ -242,7 +148,53 @@ export default function PricingProfile() {
               <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            {/* Dropdown de filtros con daisyUI */}
+            {/* Art Type Filters */}
+            <div className="flex items-center gap-2">
+              <button
+                className={`btn ${
+                  artTypeFilter === "all" ? "btn-secondary" : "btn-gost"
+                }`}
+                onClick={() => setArtTypeFilter("all")}
+              >
+                Todos
+              </button>
+              <button
+                className={`btn ${
+                  artTypeFilter === "Pintura" ? "btn-primary" : "btn-gost"
+                }`}
+                onClick={() => setArtTypeFilter("Pintura")}
+              >
+                Pintura
+              </button>
+              <button
+                className={`btn ${
+                  artTypeFilter === "Dibujo" ? "btn-primary" : "btn-gost"
+                }`}
+                onClick={() => setArtTypeFilter("Dibujo")}
+              >
+                Dibujo
+              </button>
+              <button
+                className={`btn ${
+                  artTypeFilter === "Ilustración Digital" ? "btn-primary" : "btn-gost"
+                }`}
+                onClick={() => setArtTypeFilter("Ilustración Digital")}
+              >
+                Ilustración
+              </button>
+              <button
+                className={`btn ${
+                  artTypeFilter === "Edición de Video"
+                    ? "btn-primary"
+                    : "btn-gost"
+                }`}
+                onClick={() => setArtTypeFilter("Edición de Video")}
+              >
+                Edición
+              </button>
+            </div>
+
+            {/* Dropdown de filtros adicionales */}
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
@@ -294,31 +246,31 @@ export default function PricingProfile() {
                 <li>
                   <a
                     className={
-                      filterType === "digital"
+                      filterType === "highCommission"
                         ? "active bg-pink-500 text-white"
                         : ""
                     }
-                    onClick={() => setFilterType("digital")}
+                    onClick={() => setFilterType("highCommission")}
                   >
-                    Arte Digital
+                    Comisión Alta (+30%)
                   </a>
                 </li>
                 <li>
                   <a
                     className={
-                      filterType === "traditional"
+                      filterType === "lowCommission"
                         ? "active bg-pink-500 text-white"
                         : ""
                     }
-                    onClick={() => setFilterType("traditional")}
+                    onClick={() => setFilterType("lowCommission")}
                   >
-                    Arte Tradicional
+                    Comisión Baja (-30%)
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Selector de filas por página */}
+            {/* Selector de perfiles por página */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold font-regular-text text-gray-600">
                 Mostrar:
@@ -328,216 +280,224 @@ export default function PricingProfile() {
                 onChange={(e) => setRowsPerPage(Number(e.target.value))}
                 className="select select-secondary w-20 text-sm font-bold font-regular-text cursor-pointer"
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={15}>15</option>
-                <option value={20}>20</option>
+                <option value={4}>4</option>
+                <option value={8}>8</option>
+                <option value={12}>12</option>
               </select>
             </div>
           </div>
 
-          {/* Botón para agregar un nuevo perfil (lado derecho) */}
+          {/* Botón para agregar un nuevo perfil */}
           <button
             onClick={handleNewProfile}
             className="cursor-pointer border-2 border-white bg-gradient-to-br from-[#f28da9] to-[#f2b78d] font-bold font-regular-text text-white px-4 py-3 rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center"
           >
-            <PlusCircleIcon className="w-6 h-6 mr-2" /> Nuevo Perfil de Precio
+            <PlusCircleIcon className="w-6 h-6 mr-2" /> Nuevo Perfil
           </button>
         </div>
 
-        {/* Tabla de perfiles */}
-        <div className="w-full">
-          <div className="overflow-x-auto rounded-lg shadow-sm">
-            <table className="w-full divide-y divide-gray-200 shadow-lg rounded-lg">
-              <thead className="bg-gradient-to-r from-teal-300 via-pink-300 to-orange-300 text-neutral">
-                <tr>
-                  {/* Columna Tipo de Arte con PaletteIcon */}
-                  <th className="px-6 py-3 text-left font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    <div className="flex items-center gap-1">
-                      <PaletteIcon className="w-5 h-5" /> Tipo de Arte
-                    </div>
-                  </th>
-                  {/* Columna Tarifa Estándar con DollarSignIcon */}
-                  <th className="px-6 py-3 text-left font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    <div className="flex items-center gap-1">
-                      <DollarSignIcon className="w-5 h-5" /> Tarifa Estándar
-                    </div>
-                  </th>
-                  {/* Columna Tarifa Preferida con TagIcon */}
-                  <th className="px-6 py-3 text-left font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    <div className="flex items-center gap-1">
-                      <TagIcon className="w-5 h-5" /> Tarifa Preferida
-                    </div>
-                  </th>
-                  {/* Columna Proyectos/mes con ClockIcon */}
-                  <th className="px-6 py-3 text-left font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    <div className="flex items-center gap-1">
-                      <ClockIcon className="w-5 h-5" /> Proyectos/Mes
-                    </div>
-                  </th>
-                  {/* Columna Extra por Modificación con ScissorsIcon */}
-                  <th className="px-6 py-3 text-left font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    <div className="flex items-center gap-1">
-                      <ScissorsIcon className="w-5 h-5" /> Extra Modificación
-                    </div>
-                  </th>
-                  {/* Columna Acciones */}
-                  <th className="px-6 py-3 text-center font-bold font-title-text uppercase tracking-wider whitespace-nowrap text-base">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-primary"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : currentProfiles.length > 0 ? (
-                  currentProfiles.map((profile) => (
-                    <tr key={profile.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+        {/* Loading state */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+          </div>
+        ) : (
+          <>
+            {/* Grid de perfiles de precios */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {currentProfiles.length > 0 ? (
+                currentProfiles.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 flex flex-col"
+                  >
+                    {/* Header del perfil */}
+                    <div className="bg-gradient-to-r from-secondary to-accent p-4 font-regular-text">
+                      <h3 className="text-xl font-bold text-neutral truncate flex items-center gap-2">
+                        <FolderPenIcon className="w-5 h-5" />
                         {ART_TYPES.find((type) => type.id === profile.artTypeId)
-                          ?.name || "No especificado"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${profile.standardHourlyRate}/hora
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${profile.preferredHourlyRate}/hora
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {profile.projectsPerMonth}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${profile.modificationExtra}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        {/* Botones de acciones en la misma fila */}
-                        <div className="flex flex-wrap gap-2 justify-center">
-                          {/* Botón Editar */}
-                          <button
-                            onClick={() => handleEdit(profile)}
-                            className="flex items-center gap-1 cursor-pointer btn btn-secondary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
-                          >
-                            <EditIcon className="w-4 h-4" /> Editar
-                          </button>
-                          {/* Botón Eliminar */}
-                          <DeleteButton
-                            onConfirm={() => handleDelete(profile.id)}
-                            className="btn-sm font-bold font-regular-text rounded-lg shadow-md"
-                          />
+                          ?.name || "Sin especificar"}
+                      </h3>
+                    </div>
+
+                    {/* Cuerpo del perfil */}
+                    <div className="p-5 flex flex-col flex-grow">
+                      <div className="space-y-3 flex-grow">
+                        {/* Tarifa Estándar */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <DollarSignIcon className="w-5 h-5 text-emerald-500" />
+                            <span className="text-sm font-semibold">
+                              Tarifa por Hora:
+                            </span>
+                          </div>
+                          <span className="text-lg font-bold text-emerald-500">
+                            ${profile.standardHourlyRate}
+                          </span>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
-                    >
-                      {filteredProfiles.length === 0
-                        ? "No se encontraron perfiles con los filtros actuales."
-                        : "Aún no tienes perfiles de precio registrados."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
-        {/* Paginación */}
-        {filteredProfiles.length > 0 && (
-          <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            {/* Información de paginación */}
-            <div className="text-sm text-gray-500 font-regular-text font-semibold">
-              Mostrando {indexOfFirstProfile + 1} -{" "}
-              {Math.min(indexOfLastProfile, filteredProfiles.length)} de{" "}
-              {filteredProfiles.length} perfiles
+                        {/* Proyectos por mes */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-5 h-5 text-blue-500" />
+                            <span className="text-sm">Proyectos/Mes:</span>
+                          </div>
+                          <span className="text-sm font-bold">
+                            {profile.projectsPerMonth}
+                          </span>
+                        </div>
+
+                        {/* Extra por modificación */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ScissorsIcon className="w-5 h-5 text-orange-500" />
+                            <span className="text-sm">Extra Modificación:</span>
+                          </div>
+                          <span className="text-sm font-bold">
+                            ${profile.modificationExtra}
+                          </span>
+                        </div>
+
+                        {/* Porcentajes */}
+                        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <PercentIcon className="w-4 h-4 text-purple-500" />
+                              <span className="text-xs">
+                                Licencia Comercial:
+                              </span>
+                            </div>
+                            <span className="text-xs font-bold text-purple-600">
+                              {profile.defaultCommercialLicensePercentage}%
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <TrendingUpIcon className="w-4 h-4 text-red-500" />
+                              <span className="text-xs">Urgencia:</span>
+                            </div>
+                            <span className="text-xs font-bold text-red-600">
+                              {profile.defaultUrgencyPercentage}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Acciones del perfil */}
+                      <div className="flex justify-between gap-2 mt-5 pt-4 border-t border-gray-100">
+                        <button
+                          onClick={() => handleEdit(profile)}
+                          className="btn btn-secondary btn-sm flex rounded-lg text-sm font-regular-text items-center gap-2 flex-1"
+                        >
+                          <EditIcon className="w-4 h-4" /> Editar
+                        </button>
+                        <DeleteButton
+                          onConfirm={() => handleDelete(profile.id)}
+                          className="btn-sm font-bold font-regular-text rounded-lg shadow-md"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500 text-lg">
+                    {filteredProfiles.length === 0
+                      ? "No se encontraron perfiles con los filtros actuales."
+                      : "Aún no tienes perfiles de precio registrados."}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Controles de paginación */}
-            <div className="flex items-center space-x-2">
-              {/* Botón anterior */}
-              <button
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
-                  currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <ChevronLeftIcon className="w-5 h-5" />
-              </button>
+            {/* Paginación */}
+            {filteredProfiles.length > 0 && (
+              <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="text-sm text-gray-500 font-regular-text font-semibold">
+                  Mostrando {indexOfFirstProfile + 1} -{" "}
+                  {Math.min(indexOfLastProfile, filteredProfiles.length)} de{" "}
+                  {filteredProfiles.length} perfiles
+                </div>
 
-              {/* Números de página */}
-              {Array.from({ length: totalPages }).map((_, index) => {
-                const pageNumber = index + 1;
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
+                      currentPage === 1
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <ChevronLeftIcon className="w-5 h-5" />
+                  </button>
 
-                if (
-                  pageNumber === 1 ||
-                  pageNumber === totalPages ||
-                  (pageNumber >= currentPage - 1 &&
-                    pageNumber <= currentPage + 1)
-                ) {
-                  return (
-                    <button
-                      key={pageNumber}
-                      onClick={() => paginate(pageNumber)}
-                      className={`cursor-pointer px-3 py-1 rounded-md text-sm font-medium transition ${
-                        currentPage === pageNumber
-                          ? "bg-primary text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                } else if (
-                  (pageNumber === 2 && currentPage > 3) ||
-                  (pageNumber === totalPages - 1 &&
-                    currentPage < totalPages - 2)
-                ) {
-                  return (
-                    <span key={pageNumber} className="px-3 py-1 text-gray-400">
-                      ...
-                    </span>
-                  );
-                }
-                return null;
-              })}
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const pageNumber = index + 1;
+                    if (
+                      pageNumber === 1 ||
+                      pageNumber === totalPages ||
+                      (pageNumber >= currentPage - 1 &&
+                        pageNumber <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => paginate(pageNumber)}
+                          className={`cursor-pointer px-3 py-1 rounded-md text-sm font-medium transition ${
+                            currentPage === pageNumber
+                              ? "bg-primary text-white"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    } else if (
+                      (pageNumber === 2 && currentPage > 3) ||
+                      (pageNumber === totalPages - 1 &&
+                        currentPage < totalPages - 2)
+                    ) {
+                      return (
+                        <span
+                          key={pageNumber}
+                          className="px-3 py-1 text-gray-400"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
 
-              {/* Botón siguiente */}
-              <button
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages || totalPages === 0}
-                className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
-                  currentPage === totalPages || totalPages === 0
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <ChevronRightIcon className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={`cursor-pointer px-1 py-1 rounded-md text-sm font-medium transition ${
+                      currentPage === totalPages || totalPages === 0
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <ChevronRightIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Modal para crear/editar perfil de precio */}
+      {/* Modal */}
       {isModalOpen && (
         <EditPricingProfileModal
           profile={formData}
           onFieldChange={handleFieldChange}
           onClose={closeModal}
           onSave={handleSave}
-          isNew={!selectedProfile}
+          isNew={isNew} // ✅ Pasar isNew del hook
+          errorMessages={errorMessages}
+          successMessage={successMessage}
         />
       )}
     </div>

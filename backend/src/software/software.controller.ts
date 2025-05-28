@@ -14,7 +14,6 @@ export class SoftwareController {
 
   @Post()
   create(@Body() dto: CreateSoftwareDto, @Req() req: any) {
-    // req.user.id debe existir aquí
     console.log('req.user:', req.user);
     return this.softwareService.create(dto, req.user.userId);
   }
@@ -29,13 +28,22 @@ export class SoftwareController {
     return this.softwareService.findOne(id, req.user.userId);
   }
 
+  // ✅ CORRECCIÓN: Agregar logging y manejo de errores
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateSoftwareDto,
-    @Req() req: any
-  ) {
-    return this.softwareService.update(id, updateDto, req.user.userId);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSoftwareDto, @Req() req: any) {
+    try {
+      console.log('Updating software ID:', id);
+      console.log('Update DTO received:', dto);
+      console.log('User ID:', req.user.userId);
+      
+      const result = await this.softwareService.update(id, dto, req.user.userId);
+      console.log('Software updated successfully:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('Controller error updating software:', error);
+      throw error;
+    }
   }
 
   @Delete(':id')

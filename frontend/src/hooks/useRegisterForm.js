@@ -1,7 +1,11 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
 import api from "@/api/axios";
 
 export default function useRegisterForm() {
+  const navigate = useNavigate();
+
   // Estados del formulario
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,10 +49,10 @@ export default function useRegisterForm() {
 
     if (name.length < 2 || name.length > 50)
       errors.name = "El nombre debe tener entre 2 y 50 caracteres.";
-    
+
     if (!email.includes("@") || !email.includes("."))
       errors.email = "Correo electrónico no válido.";
-    
+
     if (
       password.length < 8 ||
       !/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/.test(password)
@@ -56,7 +60,7 @@ export default function useRegisterForm() {
       errors.password =
         "La contraseña debe tener al menos 8 caracteres, incluir un número, una mayúscula y una minúscula.";
     }
-    
+
     if (password !== confirmPassword)
       errors.confirmPassword = "Las contraseñas no coinciden.";
 
@@ -91,6 +95,11 @@ export default function useRegisterForm() {
 
       console.log("Registro exitoso:", response.data);
       setSuccessMessage("¡Registro exitoso! Ahora puedes iniciar sesión.");
+
+      // ✅ Redirigir después de 2 segundos
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
       setErrorMessages({});
     } catch (error) {
       setErrorMessages({
@@ -104,7 +113,7 @@ export default function useRegisterForm() {
     // Estados
     name,
     setName,
-    email, 
+    email,
     setEmail,
     bio,
     setBio,
@@ -119,12 +128,12 @@ export default function useRegisterForm() {
     showPassword,
     showConfirmPassword,
     fileInputRef,
-    
+
     // Funciones
     handleFileChange,
     handleRemoveImage,
     togglePasswordVisibility,
     toggleConfirmPasswordVisibility,
-    handleSubmit
+    handleSubmit,
   };
 }

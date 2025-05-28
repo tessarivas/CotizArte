@@ -31,6 +31,7 @@ export function useMaterials() {
     // eslint-disable-next-line
   }, []);
 
+  // ✅ Función fetchAllMaterials (que ya tenías)
   const fetchAllMaterials = async () => {
     setLoading(true);
     const token = localStorage.getItem("access_token");
@@ -129,7 +130,6 @@ export function useMaterials() {
           averageLifespan: Number(formData.averageLifespan),
         };
         break;
-      // En el switch case de traditionalMaterial dentro de handleSave
       case "traditionalMaterial":
         url = "/traditional-materials";
         payload = {
@@ -169,8 +169,53 @@ export function useMaterials() {
     }
   };
 
-  // Agrega todos los ítems en un solo array con su tipo
-  // NO agregues icon: <CodesandboxIcon ... /> aquí
+  // ✅ Función updateMaterial (CORREGIDA - cambiado fetchMaterials por fetchAllMaterials)
+  const updateMaterial = async (materialId, payload, materialType) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) throw new Error("No hay token");
+
+      let endpoint = "";
+      switch (materialType) {
+        case "software":
+          endpoint = `/software/${materialId}`;
+          break;
+        case "digitalTool":
+          endpoint = `/digital-tools/${materialId}`;
+          break;
+        case "traditionalMaterial":
+          endpoint = `/traditional-materials/${materialId}`;
+          break;
+        case "traditionalTool":
+          endpoint = `/traditional-tools/${materialId}`;
+          break;
+        default:
+          throw new Error("Tipo de material no válido");
+      }
+
+      // ✅ Agregar logging para debug
+      console.log("Sending PATCH request to:", endpoint);
+      console.log("Payload:", payload);
+      console.log("Material type:", materialType);
+
+      const response = await api.patch(endpoint, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Material actualizado exitosamente:", response.data);
+
+      await fetchAllMaterials();
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al actualizar material:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
+      throw error;
+    }
+  };
+
+  // ✅ Opción recomendada: Priorizar updatedAt sobre createdAt
   const aggregatedMaterials = [
     ...software.map((item) => ({
       type: "Software",
@@ -188,7 +233,17 @@ export function useMaterials() {
       type: "Herramienta Tradicional",
       ...item,
     })),
-  ];
+  ].sort((a, b) => {
+    // ✅ Usar updatedAt si existe, sino createdAt
+    const getRelevantDate = (item) => {
+      return item.updatedAt ? new Date(item.updatedAt) : new Date(item.createdAt);
+    };
+
+    const dateA = getRelevantDate(a);
+    const dateB = getRelevantDate(b);
+
+    return dateB - dateA; // Orden descendente (más reciente arriba)
+  });
 
   // Búsqueda y filtro
   const filteredMaterials = aggregatedMaterials.filter((material) => {
@@ -227,6 +282,7 @@ export function useMaterials() {
     }
   };
 
+  // ✅ Return con todas las funciones necesarias
   return {
     // Estados y handlers principales
     loading,
@@ -238,6 +294,8 @@ export function useMaterials() {
     handleCloseModal,
     handleDelete,
     handleSave,
+    updateMaterial, // ✅ Incluir updateMaterial
+    fetchAllMaterials, // ✅ Exportar también fetchAllMaterials por si lo necesitas
 
     // Búsqueda, filtro y paginación
     searchTerm,
@@ -257,6 +315,7 @@ export function useMaterials() {
   };
 }
 
+// ✅ Función getTypeIcon (mantenerla como estaba)
 export function getTypeIcon(type) {
   switch (type) {
     case "Software":

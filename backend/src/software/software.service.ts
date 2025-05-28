@@ -30,16 +30,40 @@ export class SoftwareService {
     return software;
   }
 
+  // ✅ CORRECCIÓN en el método update
   async update(id: number, dto: UpdateSoftwareDto, userId: number) {
-    // Verifica que el software pertenezca al usuario
-    const software = await this.prisma.software.findFirst({ where: { id, userId } });
-    if (!software) {
-      throw new NotFoundException('Software not found');
+    try {
+      // Verificar que el software pertenezca al usuario
+      const software = await this.prisma.software.findFirst({ where: { id, userId } });
+      if (!software) {
+        throw new NotFoundException('Software not found');
+      }
+
+      // ✅ Incluir el campo version y redondear monthlyCost
+      const updateData = {
+        name: dto.name?.trim() || software.name,
+        version: dto.version || software.version, // ✅ Manejar version
+        monthlyCost: dto.monthlyCost !== undefined 
+          ? Math.round(Number(dto.monthlyCost) * 100) / 100  // ✅ Redondear a 2 decimales
+          : software.monthlyCost,
+        annualCost: dto.annualCost !== undefined 
+          ? Math.round(Number(dto.annualCost) * 100) / 100   // ✅ Redondear a 2 decimales
+          : software.annualCost,
+        hasFreeVersion: dto.hasFreeVersion !== undefined 
+          ? Boolean(dto.hasFreeVersion) 
+          : software.hasFreeVersion,
+      };
+
+      console.log('Updating software with data:', updateData);
+
+      return this.prisma.software.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      console.error('Error updating software:', error);
+      throw error;
     }
-    return this.prisma.software.update({
-      where: { id },
-      data: dto,
-    });
   }
 
   async remove(id: number, userId: number) {
@@ -47,7 +71,7 @@ export class SoftwareService {
     const software = await this.prisma.software.findFirst({ where: { id, userId } });
     if (!software) {
       throw new NotFoundException('Software not found');
-  }
+    }
     return this.prisma.software.delete({ where: { id } });
   }
 }

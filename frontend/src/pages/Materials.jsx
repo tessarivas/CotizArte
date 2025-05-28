@@ -14,10 +14,12 @@ import {
   FolderPenIcon,
   TypeIcon,
   ReceiptTextIcon,
-  ReceiptIcon
+  ReceiptIcon,
 } from "lucide-react";
 import AddMaterialModal from "@/components/AddMaterialModal";
 import DeleteButton from "@/components/DeleteButton";
+import { useState } from "react";
+import EditMaterialModal from "@/components/EditMaterialModal";
 
 export default function Materials() {
   const {
@@ -30,6 +32,7 @@ export default function Materials() {
     handleCloseModal,
     handleDelete,
     handleSave,
+    updateMaterial, // ✅ Agregar esta línea
     searchTerm,
     setSearchTerm,
     filterType,
@@ -45,6 +48,59 @@ export default function Materials() {
     indexOfLastMaterial,
     paginate,
   } = useMaterials();
+
+  // ✅ Nuevos estados para el modal de edición
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [selectedMaterialType, setSelectedMaterialType] = useState(null);
+  const [editSuccessMessage, setEditSuccessMessage] = useState(""); // ✅ Estado para mensaje de éxito
+
+  // ✅ Función para manejar la edición
+  const handleEdit = (material) => {
+    setSelectedMaterial(material);
+
+    // Determinar el tipo de material basado en las propiedades
+    let type = "software";
+    if (material.averageLifespan && material.category) {
+      type = "traditionalTool";
+    } else if (material.category && material.unit) {
+      type = "traditionalMaterial";
+    } else if (material.averageLifespan) {
+      type = "digitalTool";
+    }
+
+    setSelectedMaterialType(type);
+    setShowEditModal(true);
+    setEditSuccessMessage(""); // ✅ Limpiar mensaje previo
+  };
+
+  // ✅ Función para cerrar el modal de edición
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedMaterial(null);
+    setSelectedMaterialType(null);
+    setEditSuccessMessage(""); // ✅ Limpiar mensaje
+  };
+
+  // ✅ Función para guardar los cambios
+  const handleSaveEdit = async (materialId, payload, materialType) => {
+    try {
+      setEditSuccessMessage(""); // Limpiar mensaje previo
+
+      await updateMaterial(materialId, payload, materialType);
+
+      // ✅ Mostrar mensaje de éxito
+      setEditSuccessMessage("Material actualizado correctamente");
+
+      // ✅ Cerrar modal después de un breve delay
+      setTimeout(() => {
+        handleCloseEditModal();
+      }, 1500);
+    } catch (error) {
+      console.error("Error al actualizar material:", error);
+      // El modal ya maneja los errores internamente
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -244,6 +300,11 @@ export default function Materials() {
                   </th>
                   <th className="px-6 py-3 text-center text-xl font-bold font-title-text uppercase tracking-wider">
                     <div className="flex items-center gap-2 justify-center">
+                      Última actividad
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-center text-xl font-bold font-title-text uppercase tracking-wider">
+                    <div className="flex items-center gap-2 justify-center">
                       Acciones
                     </div>
                   </th>
@@ -252,7 +313,7 @@ export default function Materials() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center">
+                    <td colSpan="5" className="px-6 py-4 text-center">
                       <div className="flex justify-center items-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                         <span className="ml-2">Cargando...</span>
@@ -386,11 +447,21 @@ export default function Materials() {
                           </div>
                         )}
                       </td>
+
+                      <td className="px-6 py-4 text-sm text-gray-500">
+                        {material.updatedAt !== material.createdAt
+                          ? `Editado: ${new Date(
+                              material.updatedAt
+                            ).toLocaleDateString()}`
+                          : `Creado: ${new Date(
+                              material.createdAt
+                            ).toLocaleDateString()}`}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                         <div className="flex justify-center gap-2">
                           {/* Botón Editar */}
                           <button
-                            onClick={() => handleEdit(quote)}
+                            onClick={() => handleEdit(material)}
                             className="flex items-center gap-1 cursor-pointer btn btn-secondary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <Edit2Icon className="w-4 h-4" /> Editar
@@ -408,7 +479,7 @@ export default function Materials() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan="5"
                       className="px-6 py-4 whitespace-nowrap text-center text-gray-500"
                     >
                       {filteredMaterials.length === 0
@@ -507,6 +578,17 @@ export default function Materials() {
           selectedType={selectedType}
           onClose={handleCloseModal}
           onSave={handleSave}
+        />
+      )}
+
+      {/* ✅ Modal para editar material con mensaje de éxito */}
+      {showEditModal && selectedMaterial && (
+        <EditMaterialModal
+          material={selectedMaterial}
+          materialType={selectedMaterialType}
+          onClose={handleCloseEditModal}
+          onSave={handleSaveEdit}
+          successMessage={editSuccessMessage} // ✅ Pasar mensaje de éxito
         />
       )}
     </div>

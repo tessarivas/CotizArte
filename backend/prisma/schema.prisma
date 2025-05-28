@@ -177,6 +177,7 @@ model Software {
   id             Int      @id @default(autoincrement())
   userId         Int 
   name           String
+  version        String?
   monthlyCost    Float
   annualCost     Float
   hasFreeVersion Boolean  @default(false)
