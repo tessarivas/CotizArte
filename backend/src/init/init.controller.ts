@@ -474,4 +474,95 @@ export class InitController {
       };
     }
   }
+
+  // ✅ Agregar este nuevo endpoint después de los existentes
+  @Get('update-software-schema')
+  async updateSoftwareSchema() {
+    try {
+      console.log('🔄 Actualizando schema de software para agregar campo version...');
+      
+      // Verificar si la columna ya existe
+      const checkColumn = await this.prisma.$queryRaw`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'Software' AND column_name = 'version'
+      `;
+      
+      if (Array.isArray(checkColumn) && checkColumn.length > 0) {
+        return {
+          success: true,
+          message: 'El campo version ya existe en la tabla Software',
+          alreadyExists: true
+        };
+      }
+      
+      // Agregar la columna version si no existe
+      await this.prisma.$executeRaw`
+        ALTER TABLE "Software" 
+        ADD COLUMN "version" TEXT
+      `;
+      
+      console.log('✅ Campo version agregado a tabla Software');
+      
+      // Opcional: actualizar registros existentes con una versión por defecto
+      await this.prisma.$executeRaw`
+        UPDATE "Software" 
+        SET "version" = '2024' 
+        WHERE "version" IS NULL
+      `;
+      
+      console.log('✅ Registros existentes actualizados con version por defecto');
+      
+      return {
+        success: true,
+        message: 'Campo version agregado correctamente a la tabla Software',
+        updated: true
+      };
+      
+    } catch (error) {
+      console.error('❌ Error al actualizar schema de Software:', error);
+      return {
+        success: false,
+        error: error.message,
+        details: 'No se pudo agregar el campo version a la tabla Software'
+      };
+    }
+  }
+
+  // ✅ También agregar un endpoint más general para sincronizar todo el schema
+  @Get('sync-schema')
+  async syncSchema() {
+    try {
+      console.log('🔄 Sincronizando schema completo...');
+      
+      // Ejecutar db push remotamente
+      const { exec } = require('child_process');
+      
+      return new Promise((resolve) => {
+        exec('npx prisma db push --force-reset', (error, stdout, stderr) => {
+          if (error) {
+            console.error('❌ Error en sync:', error);
+            resolve({
+              success: false,
+              error: error.message,
+              stderr,
+              suggestion: 'Intenta usar el endpoint update-software-schema en su lugar'
+            });
+          } else {
+            console.log('✅ Schema sincronizado:', stdout);
+            resolve({
+              success: true,
+              message: 'Schema sincronizado correctamente',
+              output: stdout
+            });
+          }
+        });
+      });
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
 }
