@@ -18,9 +18,7 @@ import { TraditionalMaterialsModule } from './traditional-materials/traditional-
 import { TraditionalToolsModule } from './traditional-tools/traditional-tools.module';
 import { ClientsModule } from './clients/clients.module';
 import { PricingProfilesModule } from './pricing-profiles/pricing-profiles.module';
-import { CommercialLicenseModule } from './commercial-licence/commercial-license.module';
-import { DiscountsModule } from './discoutns/discount.module';
-import { InitController } from './init/init.controller'; // ✅ AGREGAR
+import { InitController } from './init/init.controller';
 
 @Module({
   imports: [
@@ -42,8 +40,6 @@ import { InitController } from './init/init.controller'; // ✅ AGREGAR
     PricingProfilesModule,
     QuotesModule,
     ClientsModule,
-    CommercialLicenseModule,
-    DiscountsModule
   ],
   controllers: [AppController, InitController], // ✅ AGREGAR InitController
   providers: [AppService],
