@@ -162,37 +162,30 @@ CotizArte es una aplicación web completa diseñada para artistas independientes
     
 *   Git
 
-*   Variables de entorno requeridas
+*   Variables de entorno requeridas*
 
 
 ### **Instalación Local**
-
+```
 \# Clonar repositorio
 
 git clone https://github.com/usuario/cotizarte.git
-
 cd cotizarte
 
 \# Backend
 
 cd backend
-
 npm install
-
 npx prisma migrate dev
-
 npx prisma generate
-
 npm run start:dev
 
 \# Frontend
 
 cd ../frontend
-
 npm install
-
 npm run dev
-
+```
 
 📞 Contacto
 -----------
