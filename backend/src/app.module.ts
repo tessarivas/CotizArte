@@ -41,7 +41,7 @@ import { InitController } from './init/init.controller';
     QuotesModule,
     ClientsModule,
   ],
-  controllers: [AppController, InitController], // ✅ AGREGAR InitController
+  controllers: [AppController, InitController], 
   providers: [AppService],
 })
 export class AppModule {}

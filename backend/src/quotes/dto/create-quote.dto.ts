@@ -24,6 +24,10 @@ export class CreateQuoteDto {
   @IsOptional()
   clientId?: number;
 
+  @IsOptional()
+  @IsNumber()
+  pricingProfileId?: number;
+
   selectedSoftwareIds?: number[];
   selectedDigitalToolIds?: number[];
   selectedTraditionalMaterialIds?: number[];
