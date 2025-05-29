@@ -46,7 +46,6 @@ import {
       return this.artTypesService.remove(+id);
     }
   
-    // Endpoint adicional para filtrar por categoría
     @Get('by-category/:categoryId')
     findByCategory(@Param('categoryId') categoryId: string) {
       return this.artTypesService.findByCategory(+categoryId);

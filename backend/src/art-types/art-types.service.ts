@@ -8,7 +8,6 @@ export class ArtTypesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createArtTypeDto: CreateArtTypeDto) {
-    // Verificar si la categoría existe
     const categoryExists = await this.prisma.artCategory.findUnique({
       where: { id: createArtTypeDto.categoryId },
     });
@@ -68,7 +67,6 @@ export class ArtTypesService {
     }
   }
 
-  // Método adicional para buscar tipos por categoría
   async findByCategory(categoryId: number) {
     return this.prisma.artType.findMany({
       where: { categoryId },

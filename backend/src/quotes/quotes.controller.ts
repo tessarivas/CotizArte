@@ -31,8 +31,6 @@ export class QuotesController {
     return this.quotesService.findAllByUser(req.user.id);
   }
 
-  // ✅ NUEVO ENDPOINT PÚBLICO PARA COTIZACIONES COMPARTIDAS
-  // IMPORTANTE: Este endpoint debe ir ANTES del endpoint con :id
   @Get('shared/:shareableLink')
   async findByShareableLink(@Param('shareableLink') shareableLink: string) {
     return this.quotesService.findByShareableLink(shareableLink);

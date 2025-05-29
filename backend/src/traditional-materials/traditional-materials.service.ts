@@ -31,7 +31,6 @@ export class TraditionalMaterialsService {
   }
 
   async update(id: number, dto: UpdateTraditionalMaterialDto, userId: number) {
-    // Verifica propiedad antes de actualizar
     const material = await this.prisma.traditionalMaterial.findFirst({ where: { id, userId } });
     if (!material) throw new NotFoundException('Traditional Material not found');
     return this.prisma.traditionalMaterial.update({
@@ -41,7 +40,6 @@ export class TraditionalMaterialsService {
   }
 
   async remove(id: number, userId: number) {
-    // Verifica propiedad antes de borrar
     const material = await this.prisma.traditionalMaterial.findFirst({ where: { id, userId } });
     if (!material) throw new NotFoundException('Traditional Material not found');
     return this.prisma.traditionalMaterial.delete({ where: { id } });

@@ -66,7 +66,6 @@ export function useQuotePreview({
           0
         );
 
-        // ✅ REMOVER LA REDECLARACIÓN DE modsCount - ya está declarado arriba
         const modsUnit =
           (specializedData.customModificationExtra !== undefined &&
           specializedData.customModificationExtra !== null &&
@@ -83,7 +82,6 @@ export function useQuotePreview({
         const incrementoDetalle = baseSinDetalle * detailMultiplier;
         const baseMasDetalle = baseSinDetalle + incrementoDetalle;
 
-        // ✅ PRECIO BASE FINAL (incluyendo modificaciones)
         basePrice = baseMasDetalle + modsCosts;
         break;
 
@@ -110,7 +108,7 @@ export function useQuotePreview({
         const detailIncrease = hourlyWork * detailMultiplier;
         const softwareShare = videoSoftwareCost / projectsPerMonth;
         const toolsShare = videoToolsCost / projectsPerMonth;
-        const modsCost = modsCount * customModExtra; // ✅ Ahora puede usar modsCount sin problema
+        const modsCost = modsCount * customModExtra; 
 
         basePrice = hourlyWork + detailIncrease + softwareShare + toolsShare + modsCost;
         finalToolsCost = toolsShare;

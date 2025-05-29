@@ -3,25 +3,21 @@ import { useState, useEffect } from "react";
 import api from "@/api/axios";
 
 export const useClients = () => {
-  // Estados existentes...
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editSuccessMessage, setEditSuccessMessage] = useState("");
 
-  // ✅ Estados para el modal de cotizaciones
   const [showQuotesModal, setShowQuotesModal] = useState(false);
   const [selectedClientForQuotes, setSelectedClientForQuotes] = useState(null);
 
-  // Estados para búsqueda, filtros y paginación
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Cargar clientes al inicializar
   useEffect(() => {
     fetchClients();
   }, []);
@@ -142,7 +138,6 @@ export const useClients = () => {
     }
   };
 
-  // ✅ Funciones para el modal de cotizaciones
   const handleViewQuotes = (client) => {
     setSelectedClientForQuotes(client);
     setShowQuotesModal(true);
@@ -221,7 +216,6 @@ export const useClients = () => {
     // Modal de edición
     editSuccessMessage,
     
-    // ✅ Modal de cotizaciones
     handleViewQuotes,
     showQuotesModal,
     selectedClientForQuotes,

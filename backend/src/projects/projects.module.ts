@@ -8,6 +8,6 @@ import { PrismaModule } from "src/prisma/prisma.module";
   imports: [PrismaModule],
   controllers: [ProjectsController],
   providers: [ProjectsService],
-  exports: [ProjectsService], // Exportamos el servicio para que pueda ser utilizado en otros módulos
+  exports: [ProjectsService], 
 })
 export class ProjectsModule {}

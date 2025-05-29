@@ -1,15 +1,11 @@
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-// ✅ CORREGIR LA CONFIGURACIÓN DE FUENTES
 pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts;
 
-// ✅ IMPORTAR LOS LOGOS BASE64
-import logoChico from '@/assets/base64/logo_chico.txt?raw';
 import logoCotizarteNombre from '@/assets/base64/logo_cotizarte_nombre.txt?raw';
 
 export const generateQuotePDF = (quote, pricingProfile) => {
-  // ✅ CALCULAR DATOS IGUAL QUE EN QUOTEDETAILSMODAL
   const commercialPercentage = quote.commercialPercentage ||
     (quote.commercialLicenseFee && quote.basePrice
       ? ((quote.commercialLicenseFee / quote.basePrice) * 100).toFixed(2)
@@ -22,7 +18,6 @@ export const generateQuotePDF = (quote, pricingProfile) => {
       ? ((quote.urgencyFee / quote.basePrice) * 100).toFixed(2)
       : "0";
 
-  // ✅ USAR LOS MISMOS DATOS QUE QUOTEDETAILSMODAL
   const basePrice = quote.basePrice || 0;
   const commercialFee = quote.commercialLicenseFee || 0;
   const urgencyFee = quote.urgencyFee || 0;
@@ -48,7 +43,6 @@ export const generateQuotePDF = (quote, pricingProfile) => {
         margin: [0, 0, 0, 0] 
       },
 
-      // ✅ LOGO GRANDE Y DATOS DE LA EMPRESA
       {
         columns: [
           {
@@ -242,7 +236,6 @@ export const generateQuotePDF = (quote, pricingProfile) => {
       style: 'footer'
     }),
 
-    // ✅ ESTILOS (sin cambios)
     styles: {
       companySubtitle: {
         fontSize: 14,
@@ -314,7 +307,7 @@ export const generateQuotePDF = (quote, pricingProfile) => {
         fontSize: 14,
         bold: true,
         alignment: 'right',
-        color: '#005c57' // Tu color original
+        color: '#005c57' 
       },
       notes: {
         fontSize: 12,

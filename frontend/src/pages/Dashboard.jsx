@@ -3,7 +3,7 @@ import GradientText from "../blocks/TextAnimations/GradientText/GradientText";
 import { SparklesText } from "@/components/magicui/sparkles-text-variant";
 import ActionCards from "@/components/ActionCards";
 import DashboardStats from "@/components/DashboardStats";
-import { HeartIcon } from "lucide-react"; // ✅ Importar iconos
+import { HeartIcon } from "lucide-react"; 
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +29,6 @@ function Dashboard() {
       {/* Dashboard Stats */}
       <DashboardStats />
 
-      {/* ✅ Footer elegante */}
       <footer className="bg-gradient-to-r from-accent via-secondary to-primary">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="text-center">

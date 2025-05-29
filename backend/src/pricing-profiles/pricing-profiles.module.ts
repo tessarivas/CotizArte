@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [PricingProfilesController],
   providers: [PricingProfilesService],
-  exports: [PricingProfilesService], // Para usarlo en Projects/Quotes
+  exports: [PricingProfilesService], 
 })
 export class PricingProfilesModule {}

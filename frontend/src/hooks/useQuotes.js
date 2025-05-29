@@ -23,10 +23,8 @@ export const useQuotes = () => {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ AGREGAR ESTADO PARA PRICING PROFILE
   const [pricingProfile, setPricingProfile] = useState(null);
 
-  // ✅ AGREGAR ESTADOS PARA EL MODAL DE COMPARTIR
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedQuoteForShare, setSelectedQuoteForShare] = useState(null);
 
@@ -54,7 +52,6 @@ export const useQuotes = () => {
     }
   };
 
-  // ✅ CARGAR PRICING PROFILE
   useEffect(() => {
     fetchPricingProfile();
   }, []);
@@ -91,7 +88,6 @@ export const useQuotes = () => {
         quote.client?.name.toLowerCase().includes(searchLower)) ||
       quote.status?.toLowerCase().includes(searchLower);
 
-    // ✅ CORREGIR: Filtro por estado usando los valores reales de la BD
     let typeMatch = true;
     if (filterType === "pending") {
       typeMatch = quote.status === "PENDING";
@@ -135,8 +131,6 @@ export const useQuotes = () => {
     if (projectId) {
       navigate(`/create-quote/${projectId}`);
     } else {
-      // Este caso no debería ocurrir ahora con nuestro nuevo flujo,
-      // pero lo dejamos como respaldo por si se llama directamente sin ID
       navigate("/create-quote");
     }
   };
@@ -200,13 +194,11 @@ export const useQuotes = () => {
     }
   };
 
-  // ✅ CAMBIAR handlePrintQuote por handleShareQuote
   const handleShareQuote = (quote) => {
     setSelectedQuoteForShare(quote);
     setShowShareModal(true);
   };
 
-  // ✅ FUNCIÓN PARA CERRAR MODAL
   const closeShareModal = () => {
     setShowShareModal(false);
     setSelectedQuoteForShare(null);

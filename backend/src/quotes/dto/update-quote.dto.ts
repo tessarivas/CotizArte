@@ -8,7 +8,6 @@ export enum QuoteStatus {
 }
 
 export class UpdateQuoteDto {
-  // Campos que SÍ existen en la base de datos según tu esquema
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -22,7 +21,6 @@ export class UpdateQuoteDto {
   @IsEnum(QuoteStatus)
   status?: QuoteStatus;
 
-  // Precios recalculados
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -31,7 +29,7 @@ export class UpdateQuoteDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  commercialLicenseFee?: number; // Este campo SÍ existe en tu BD
+  commercialLicenseFee?: number; 
 
   @IsOptional()
   @IsNumber()
@@ -51,14 +49,10 @@ export class UpdateQuoteDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  finalPrice?: number; // Precio antes del descuento
+  finalPrice?: number; 
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  finalPriceAfterDiscount?: number; // Precio final con descuento
-
-  // REMOVIDOS: Los campos que NO existen en la BD
-  // isCommercial, commercialPercentage, rapidDeliveryPercentage, 
-  // detailLevel, hoursWorked, forceRecalculate
+  finalPriceAfterDiscount?: number; 
 }

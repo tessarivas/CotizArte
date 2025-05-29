@@ -1,18 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express'; // ✅ AGREGAR
-import { join } from 'path'; // ✅ AGREGAR
+import { NestExpressApplication } from '@nestjs/platform-express'; 
+import { join } from 'path'; 
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule); // ✅ CAMBIAR TIPO
+  const app = await NestFactory.create<NestExpressApplication>(AppModule); 
   
-  // ✅ CONFIGURAR ARCHIVOS ESTÁTICOS
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
   
-  // ✅ CONFIGURAR CORS PARA VERCEL
   app.enableCors({
     origin: [
       'http://localhost:5173',

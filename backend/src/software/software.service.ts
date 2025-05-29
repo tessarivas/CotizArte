@@ -30,24 +30,21 @@ export class SoftwareService {
     return software;
   }
 
-  // ✅ CORRECCIÓN en el método update
   async update(id: number, dto: UpdateSoftwareDto, userId: number) {
     try {
-      // Verificar que el software pertenezca al usuario
       const software = await this.prisma.software.findFirst({ where: { id, userId } });
       if (!software) {
         throw new NotFoundException('Software not found');
       }
 
-      // ✅ Incluir el campo version y redondear monthlyCost
       const updateData = {
         name: dto.name?.trim() || software.name,
-        version: dto.version || software.version, // ✅ Manejar version
+        version: dto.version || software.version, 
         monthlyCost: dto.monthlyCost !== undefined 
-          ? Math.round(Number(dto.monthlyCost) * 100) / 100  // ✅ Redondear a 2 decimales
+          ? Math.round(Number(dto.monthlyCost) * 100) / 100  
           : software.monthlyCost,
         annualCost: dto.annualCost !== undefined 
-          ? Math.round(Number(dto.annualCost) * 100) / 100   // ✅ Redondear a 2 decimales
+          ? Math.round(Number(dto.annualCost) * 100) / 100 
           : software.annualCost,
         hasFreeVersion: dto.hasFreeVersion !== undefined 
           ? Boolean(dto.hasFreeVersion) 
@@ -67,7 +64,6 @@ export class SoftwareService {
   }
 
   async remove(id: number, userId: number) {
-    // Verifica que el software pertenezca al usuario
     const software = await this.prisma.software.findFirst({ where: { id, userId } });
     if (!software) {
       throw new NotFoundException('Software not found');

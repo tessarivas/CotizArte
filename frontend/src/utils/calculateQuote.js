@@ -1,6 +1,5 @@
 // src/utils/calculateQuote.js
 export function calculateDigitalIllustrationQuote(project, pricingProfile) {
-  // Se espera que project.hoursWorked y project.detailLevel estén definidos
   const workCost = project.hoursWorked * pricingProfile.hourlyRate;
   const softwareCost = pricingProfile.softwareCost || 0;
   const extras = (project.additionalModifications || 0) * (pricingProfile.modificationExtra || 0);

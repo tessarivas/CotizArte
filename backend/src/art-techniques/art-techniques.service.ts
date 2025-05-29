@@ -29,7 +29,7 @@ export class ArtTechniquesService {
       include: {
         artType: {
           include: {
-            category: true, // Incluye la categoría padre
+            category: true, 
           },
         },
       },
@@ -66,8 +66,6 @@ export class ArtTechniquesService {
     }
   }
 
-  // Método adicional: Buscar técnicas por tipo de arte
-  // En art-techniques.service.ts
   async findByArtType(artTypeId: number) {
     return this.prisma.artTechnique.findMany({
         where: { artTypeId },
@@ -75,7 +73,7 @@ export class ArtTechniquesService {
             id: true,
             name: true,
             description: true,
-            priceMultiplier: true, // Asegúrate de que esté incluido
+            priceMultiplier: true, 
             artType: true,
         },
     });

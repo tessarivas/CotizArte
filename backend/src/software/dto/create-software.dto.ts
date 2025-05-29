@@ -7,7 +7,7 @@ export class CreateSoftwareDto {
 
   @IsOptional()
   @IsString()
-  version?: string; // ✅ Agregar este campo
+  version?: string; 
 
   @IsOptional()
   @IsNumber()

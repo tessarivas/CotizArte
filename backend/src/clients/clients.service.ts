@@ -12,7 +12,7 @@ export class ClientsService {
     return this.prisma.client.create({
       data: {
         ...createClientDto,
-        userId, // ✅ Se añade `userId` correctamente
+        userId, 
       },
     });
   }  
@@ -37,7 +37,7 @@ export class ClientsService {
   }
 
   async update(userId: number, clientId: number, updateClientDto: UpdateClientDto) {
-    await this.findOne(userId, clientId); // Verifica pertenencia
+    await this.findOne(userId, clientId); 
     
     return this.prisma.client.update({
       where: { id: clientId },
@@ -46,7 +46,7 @@ export class ClientsService {
   }
 
   async remove(userId: number, clientId: number) {
-    await this.findOne(userId, clientId); // Verifica pertenencia
+    await this.findOne(userId, clientId); 
     
     return this.prisma.client.delete({
       where: { id: clientId }

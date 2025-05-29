@@ -28,7 +28,6 @@ export class SoftwareController {
     return this.softwareService.findOne(id, req.user.userId);
   }
 
-  // ✅ CORRECCIÓN: Agregar logging y manejo de errores
   @Patch(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSoftwareDto, @Req() req: any) {
     try {

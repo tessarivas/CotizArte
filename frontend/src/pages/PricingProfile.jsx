@@ -29,7 +29,6 @@ const ART_TYPES = [
 export default function PricingProfile() {
   const navigate = useNavigate();
 
-  // ✅ Usar el hook personalizado
   const {
     // Estados
     profiles,
@@ -38,7 +37,7 @@ export default function PricingProfile() {
     formData,
     errorMessages,
     successMessage,
-    isNew, // ✅ Agregar isNew
+    isNew, 
 
     // Funciones
     saveProfile,
@@ -56,7 +55,6 @@ export default function PricingProfile() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
 
-  // ✅ Funciones simplificadas que usan el hook
   const handleEdit = (profile) => {
     openEditModal(profile);
   };
@@ -449,7 +447,7 @@ export default function PricingProfile() {
           onFieldChange={handleFieldChange}
           onClose={closeModal}
           onSave={handleSave}
-          isNew={isNew} // ✅ Pasar isNew del hook
+          isNew={isNew} 
           errorMessages={errorMessages}
           successMessage={successMessage}
         />

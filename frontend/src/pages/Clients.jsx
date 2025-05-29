@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import EditClientModal from "@/components/EditClientModal";
 import AddClientModal from "@/components/AddClientModal";
-import ClientQuotesModal from "@/components/ClientsQuotesModal"; // ✅ Importar el nuevo modal
+import ClientQuotesModal from "@/components/ClientsQuotesModal";
 import DeleteButton from "@/components/DeleteButton";
 
 export default function Clients() {
@@ -32,7 +32,7 @@ export default function Clients() {
     handleSave,
     handleDelete,
     handleViewQuotes,
-    editSuccessMessage, // ✅ Agregar mensaje de éxito
+    editSuccessMessage, 
 
     // Estados y funciones de paginación
     currentPage,
@@ -53,13 +53,11 @@ export default function Clients() {
     showFilters,
     toggleFilters,
 
-    // ✅ Nuevos estados y funciones para agregar cliente
     showAddModal,
     openAddModal,
     closeAddModal,
     handleAddClient,
 
-    // ✅ Estados y funciones para el modal de cotizaciones
     showQuotesModal,
     selectedClientForQuotes,
     closeQuotesModal,
@@ -174,7 +172,6 @@ export default function Clients() {
             </div>
           </div>
 
-          {/* ✅ Botón actualizado para abrir modal en lugar de navegar */}
           <button
             onClick={openAddModal}
             className="cursor-pointer border-2 border-white bg-gradient-to-br from-[#f28da9] to-[#f2b78d] font-bold font-regular-text text-white px-4 py-3 rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center"
@@ -354,7 +351,7 @@ export default function Clients() {
           client={selectedClient}
           onClose={closeModal}
           onSave={handleSave}
-          successMessage={editSuccessMessage} // ✅ Pasar mensaje de éxito
+          successMessage={editSuccessMessage} 
         />
       )}
 
@@ -366,7 +363,6 @@ export default function Clients() {
         />
       )}
 
-      {/* ✅ Modal para ver cotizaciones del cliente */}
       {showQuotesModal && selectedClientForQuotes && (
         <ClientQuotesModal
           client={selectedClientForQuotes}

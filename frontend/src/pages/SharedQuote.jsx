@@ -46,7 +46,6 @@ export default function SharedQuote() {
     }
   };
 
-  // ✅ FUNCIONES AUXILIARES (igual que en QuoteDetailsModal)
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("es-US", {
       style: "currency",

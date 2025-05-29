@@ -22,7 +22,6 @@ export const usePricingProfiles = () => {
   const [errorMessages, setErrorMessages] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
-  // ✅ Agregar estado para isNew
   const [isNew, setIsNew] = useState(false);
 
   // Cargar perfiles al montar el hook
@@ -30,7 +29,6 @@ export const usePricingProfiles = () => {
     fetchProfiles();
   }, []);
 
-  // ✅ Función para obtener todos los perfiles
   const fetchProfiles = async () => {
     try {
       setLoading(true);
@@ -41,7 +39,6 @@ export const usePricingProfiles = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ Ordenar por fecha de creación (más nuevo primero)
       const sortedProfiles = response.data.sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
@@ -55,7 +52,6 @@ export const usePricingProfiles = () => {
     }
   };
 
-  // ✅ Función para crear o actualizar un perfil
   const saveProfile = async () => {
     try {
       // Reset mensajes
@@ -123,7 +119,6 @@ export const usePricingProfiles = () => {
     }
   };
 
-  // ✅ Función para eliminar un perfil
   const deleteProfile = async (id) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -143,7 +138,6 @@ export const usePricingProfiles = () => {
     }
   };
 
-  // ✅ Función para validar los datos del formulario
   const validateFormData = (data) => {
     const errors = {};
 
@@ -180,7 +174,6 @@ export const usePricingProfiles = () => {
     return errors;
   };
 
-  // ✅ Función para manejar cambios en los campos del formulario
   const handleFieldChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -188,10 +181,9 @@ export const usePricingProfiles = () => {
     }));
   };
 
-  // ✅ Función para abrir modal para editar
   const openEditModal = (profile) => {
     setSelectedProfile(profile);
-    setIsNew(false); // ✅ Es edición, no nuevo
+    setIsNew(false); 
     setFormData({
       artTypeId: profile.artTypeId,
       standardHourlyRate: profile.standardHourlyRate,
@@ -206,10 +198,9 @@ export const usePricingProfiles = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Función para abrir modal para crear nuevo
   const openNewModal = () => {
     setSelectedProfile(null);
-    setIsNew(true); // ✅ Es nuevo perfil
+    setIsNew(true); 
     setFormData({
       artTypeId: "",
       standardHourlyRate: "",
@@ -223,11 +214,10 @@ export const usePricingProfiles = () => {
     setIsModalOpen(true);
   };
 
-  // ✅ Función para cerrar modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProfile(null);
-    setIsNew(false); // ✅ Reset isNew
+    setIsNew(false); 
     setErrorMessages({});
     setSuccessMessage("");
     setFormData({
@@ -250,7 +240,7 @@ export const usePricingProfiles = () => {
     formData,
     errorMessages,
     successMessage,
-    isNew, // ✅ Exportar isNew
+    isNew, 
 
     // Funciones de API
     fetchProfiles,

@@ -28,8 +28,8 @@ export default function Projects() {
     setRowsPerPage,
     searchTerm,
     setSearchTerm,
-    artTypeFilter, // ✅ Agregar este estado
-    setArtTypeFilter, // ✅ Agregar esta función
+    artTypeFilter, 
+    setArtTypeFilter,
     paginate,
     selectedProject,
     isModalOpen,
@@ -71,7 +71,6 @@ export default function Projects() {
               <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            {/* ✅ Dropdown de filtros por tipo de arte */}
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
@@ -173,7 +172,6 @@ export default function Projects() {
           </button>
         </div>
 
-        {/* ✅ Indicador de filtro activo (opcional) */}
         {artTypeFilter !== "all" && (
           <div className="mb-4 flex items-center gap-2">
             <span className="text-sm text-gray-600">Filtrando por:</span>

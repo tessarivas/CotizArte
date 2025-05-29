@@ -79,14 +79,14 @@ export default function CreateQuote() {
             pricingProfile={selectedPricingProfile}
           />
         );
-      case "3": // ✅ Pintura - AGREGAR ESTE CASO
+      case "3": 
         return (
           <PaintingQuoteForm
             data={specializedData}
             handleChange={handleQuoteFieldChange}
-            handleQuoteFieldChange={handleQuoteFieldChange} // ✅ Agregar esta prop
+            handleQuoteFieldChange={handleQuoteFieldChange} 
             errors={formErrors}
-            pricingProfile={selectedPricingProfile} // ✅ Agregar esta prop
+            pricingProfile={selectedPricingProfile} 
           />
         );
       case "4": // Dibujo
@@ -127,7 +127,7 @@ export default function CreateQuote() {
             selectedClient={quoteClient}
             setSelectedClient={setQuoteClient}
             projectHasClient={projectHasClient}
-            selectedArtType={selectedArtType} // ✅ Pasar selectedArtType
+            selectedArtType={selectedArtType} 
           />
         );
       case 2:
@@ -245,7 +245,6 @@ export default function CreateQuote() {
               Anterior
             </button>
 
-            {/* ✅ Simplificar la lógica de botones */}
             {currentStep < steps.length - 1 ? (
               <button
                 type="button"
@@ -257,7 +256,6 @@ export default function CreateQuote() {
                 Siguiente
               </button>
             ) : (
-              /* ✅ Un solo botón de confirmación */
               <button
                 type="button"
                 className="btn btn-success text-white font-bold"

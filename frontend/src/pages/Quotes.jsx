@@ -36,7 +36,6 @@ export default function Quotes() {
         const response = await api.get("/pricing-profiles", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Si la respuesta es un arreglo, selecciona el primer elemento (o el que corresponda)
         if (Array.isArray(response.data) && response.data.length > 0) {
           setPricingProfile(response.data[0]);
         } else {
@@ -356,7 +355,7 @@ export default function Quotes() {
                           </button>
                           {/* Botón Imprimir */}
                           <button
-                            onClick={() => handleShareQuote(quote)} // ✅ CAMBIAR A handleShareQuote
+                            onClick={() => handleShareQuote(quote)} 
                             className="flex items-center gap-1 cursor-pointer btn btn-primary btn-sm font-bold font-regular-text px-3 py-1 rounded-lg shadow-md"
                           >
                             <ShareIcon className="w-4 h-4" /> Compartir

@@ -18,7 +18,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async cleanDatabase() {
     if (process.env.NODE_ENV === 'development') {
-      // Solo para entorno de desarrollo
       const models = Reflect.ownKeys(this).filter(key => key[0] !== '_' && key[0] !== '$');
       return Promise.all(models.map(modelKey => this[modelKey].deleteMany()));
     }

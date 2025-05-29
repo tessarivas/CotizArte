@@ -26,5 +26,5 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
-  profileImageUrl?: any; // Cambia el tipo según lo que necesites (string, URL, etc.)
+  profileImageUrl?: any; 
 }

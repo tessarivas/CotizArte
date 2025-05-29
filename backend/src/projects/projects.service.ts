@@ -54,11 +54,9 @@ export class ProjectsService {
   }
 
   async create(userId: number, dto: CreateProjectCompleteDto) {
-    // Validación de relaciones: artType, técnica y cliente
     await this.validateRelations(userId, dto);
     try {
       const project = await this.prisma.$transaction(async (tx) => {
-        // Extraer las propiedades de especialización del DTO
         const { 
           digitalIllustration,
           videoEditing,
@@ -67,7 +65,6 @@ export class ProjectsService {
           ...projectData 
         } = dto;
         
-        // Crear el registro principal en Project
         const createdProject = await tx.project.create({
           data: {
             ...projectData,
@@ -80,7 +77,6 @@ export class ProjectsService {
           },
         });
 
-        // Crear el registro especializado según el artTypeId
         if (digitalIllustration && dto.artTypeId === 1) {
           await tx.digitalIllustration.create({
             data: {
@@ -127,10 +123,8 @@ export class ProjectsService {
 
   async update(userId: number, id: number, dto: UpdateProjectDto) {
     try {
-      // Log the incoming data
       console.log('Update DTO:', dto);
 
-      // Verify project exists and belongs to user
       const project = await this.prisma.project.findFirst({
         where: { id, userId },
       });
@@ -139,7 +133,6 @@ export class ProjectsService {
         throw new NotFoundException('Proyecto no encontrado');
       }
 
-      // Validate numeric fields
       if (dto.detailLevel && (isNaN(Number(dto.detailLevel)) || Number(dto.detailLevel) < 1 || Number(dto.detailLevel) > 5)) {
         throw new BadRequestException('Nivel de detalle debe ser un número entre 1 y 5');
       }
@@ -148,17 +141,14 @@ export class ProjectsService {
         throw new BadRequestException('Horas trabajadas debe ser un número positivo');
       }
 
-      // Clean up undefined values
       const cleanDto = Object.fromEntries(
         Object.entries(dto).filter(([_, v]) => v !== undefined)
       );
 
-      // Validate relationships if being updated
       if (cleanDto.artTypeId || cleanDto.artTechniqueId || cleanDto.clientId) {
         await this.validateRelations(userId, cleanDto as CreateProjectCompleteDto);
       }
 
-      // Update project
       const updated = await this.prisma.project.update({
         where: { id },
         data: {

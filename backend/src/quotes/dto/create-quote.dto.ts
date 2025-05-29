@@ -8,7 +8,7 @@ export class CreateQuoteDto {
 
   @IsInt()
   @IsPositive()
-  @IsIn([1, 2, 3, 4]) // Validar que sea uno de los tipos conocidos
+  @IsIn([1, 2, 3, 4]) 
   artTypeId: number;
 
   @IsNumber()
@@ -24,15 +24,10 @@ export class CreateQuoteDto {
   @IsOptional()
   clientId?: number;
 
-  // Arrays opcionales para IDs de recursos seleccionados
   selectedSoftwareIds?: number[];
   selectedDigitalToolIds?: number[];
   selectedTraditionalMaterialIds?: number[];
   selectedTraditionalToolIds?: number[];
-
-  // ===== VALORES CALCULADOS DESDE EL FRONTEND =====
-  // Estos valores vienen ya calculados desde useQuotePreview
-  // Nota: shippingFee y certificateFee están incluidos en basePrice
   
   @IsNumber()
   @Min(0)
@@ -67,7 +62,6 @@ export class CreateQuoteDto {
   @Min(0)
   total: number;
 
-  // Campos para referencia (no se guardan en DB pero pueden venir del frontend)
   @IsNumber()
   @Min(0)
   @IsOptional()

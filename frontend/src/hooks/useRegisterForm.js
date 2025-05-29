@@ -96,7 +96,6 @@ export default function useRegisterForm() {
       console.log("Registro exitoso:", response.data);
       setSuccessMessage("¡Registro exitoso! Ahora puedes iniciar sesión.");
 
-      // ✅ Redirigir después de 2 segundos
       setTimeout(() => {
         navigate("/login");
       }, 1500);

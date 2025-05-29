@@ -15,7 +15,6 @@ export default function Account() {
     }
 
     const rawProfileImageUrl = localStorage.getItem("profileImageUrl");
-    // ✅ Usar la misma lógica que el Navbar
     let fullProfileImageUrl;
 
     if (!rawProfileImageUrl || rawProfileImageUrl === "null") {
@@ -39,7 +38,7 @@ export default function Account() {
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
-    window.location.reload(); // ✅ Refresca la página para que el Navbar se actualice
+    window.location.reload(); 
   };
 
   return (
@@ -53,13 +52,11 @@ export default function Account() {
         {/* Verificar que hay usuario antes de mostrar contenido */}
         {user ? (
           <>
-            {/* ✅ Mostrar imagen siempre, incluso si es la default */}
             <img
               src={user.profileImageUrl}
               alt="Foto de perfil"
               className="w-24 h-24 rounded-full mx-auto shadow-md object-cover border-2 border-gray-200"
               onError={(e) => {
-                // ✅ Fallback si la imagen falla al cargar
                 e.target.src = "/default-profile.webp";
               }}
             />

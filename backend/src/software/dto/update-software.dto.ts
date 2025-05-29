@@ -10,7 +10,7 @@ export class UpdateSoftwareDto extends PartialType(CreateSoftwareDto) {
 
   @IsOptional()
   @IsString()
-  version?: string; // ✅ Agregar este campo
+  version?: string; 
 
   @IsOptional()
   @IsNumber()

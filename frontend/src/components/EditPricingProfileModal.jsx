@@ -20,7 +20,6 @@ const EditPricingProfileModal = ({
   return (
     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm z-50 font-regular-text">
       <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-7 w-[500px] max-h-[90vh] overflow-y-auto">
-        {/* ✅ Título mejorado */}
         <div className="text-center mb-6">
           <div className="text-4xl font-logo-text text-base-content mb-1">
             {isNew ? "- Nuevo -" : "- Editar -"}

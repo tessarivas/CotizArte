@@ -32,7 +32,7 @@ export default function Materials() {
     handleCloseModal,
     handleDelete,
     handleSave,
-    updateMaterial, // ✅ Agregar esta línea
+    updateMaterial, 
     searchTerm,
     setSearchTerm,
     filterType,
@@ -49,13 +49,11 @@ export default function Materials() {
     paginate,
   } = useMaterials();
 
-  // ✅ Nuevos estados para el modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [selectedMaterialType, setSelectedMaterialType] = useState(null);
-  const [editSuccessMessage, setEditSuccessMessage] = useState(""); // ✅ Estado para mensaje de éxito
+  const [editSuccessMessage, setEditSuccessMessage] = useState(""); 
 
-  // ✅ Función para manejar la edición
   const handleEdit = (material) => {
     setSelectedMaterial(material);
 
@@ -71,28 +69,24 @@ export default function Materials() {
 
     setSelectedMaterialType(type);
     setShowEditModal(true);
-    setEditSuccessMessage(""); // ✅ Limpiar mensaje previo
+    setEditSuccessMessage(""); 
   };
 
-  // ✅ Función para cerrar el modal de edición
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedMaterial(null);
     setSelectedMaterialType(null);
-    setEditSuccessMessage(""); // ✅ Limpiar mensaje
+    setEditSuccessMessage(""); 
   };
 
-  // ✅ Función para guardar los cambios
   const handleSaveEdit = async (materialId, payload, materialType) => {
     try {
       setEditSuccessMessage(""); // Limpiar mensaje previo
 
       await updateMaterial(materialId, payload, materialType);
 
-      // ✅ Mostrar mensaje de éxito
       setEditSuccessMessage("Material actualizado correctamente");
 
-      // ✅ Cerrar modal después de un breve delay
       setTimeout(() => {
         handleCloseEditModal();
       }, 1500);
@@ -581,14 +575,13 @@ export default function Materials() {
         />
       )}
 
-      {/* ✅ Modal para editar material con mensaje de éxito */}
       {showEditModal && selectedMaterial && (
         <EditMaterialModal
           material={selectedMaterial}
           materialType={selectedMaterialType}
           onClose={handleCloseEditModal}
           onSave={handleSaveEdit}
-          successMessage={editSuccessMessage} // ✅ Pasar mensaje de éxito
+          successMessage={editSuccessMessage} 
         />
       )}
     </div>

@@ -8,20 +8,9 @@ export class InitController {
   @Get('db')
   async initializeDatabase() {
     try {
-      console.log('🔄 Inicializando base de datos...');
-      
-      // Verificar conexión
-      await this.prisma.$connect();
-      console.log('✅ Conexión exitosa a la base de datos');
-      
-      // Aplicar el schema usando db push
-      console.log('📊 Aplicando schema a la base de datos...');
-      
-      // Esto forzará a Prisma a crear las tablas según el schema
       await this.prisma.$executeRaw`SELECT 1`;
-      
-      console.log('✅ Schema aplicado correctamente');
-      
+      console.log('✅ Conexión a la base de datos exitosa');
+
       return { 
         success: true, 
         message: 'Base de datos inicializada correctamente',
@@ -79,7 +68,6 @@ export class InitController {
       const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('123456', 10);
       
-      // Verificar si el usuario ya existe
       const existingUser = await this.prisma.user.findUnique({
         where: { email: 'test@test.com' }
       });
@@ -124,17 +112,13 @@ export class InitController {
 
   @Get('logs')
   async checkTables() {
-    try {
-      console.log('🔍 Verificando tablas...');
-      
-      // Verificar qué tablas existen
+    try {      
       const tables = await this.prisma.$queryRaw`
         SELECT table_name 
         FROM information_schema.tables 
         WHERE table_schema = 'public'
       `;
       
-      // Contar usuarios
       const userCount = await this.prisma.user.count();
       
       return {
@@ -153,10 +137,7 @@ export class InitController {
 
   @Get('seed-my-data')
   async seedMyOriginalData() {
-    try {
-      console.log('🔄 Cargando MIS datos originales de localhost...');
-      
-      // 1. ART CATEGORIES (exactamente como los tenías)
+    try {      
       const categories = [
         {
           id: 1,
@@ -181,7 +162,6 @@ export class InitController {
         });
       }
 
-      // 2. ART TYPES (exactamente como los tenías)
       const artTypes = [
         {
           id: 1,
@@ -226,7 +206,6 @@ export class InitController {
         });
       }
 
-      // 3. ART TECHNIQUES (todas las técnicas que tenías)
       const techniques = [
         // Ilustración Digital
         {
@@ -392,7 +371,6 @@ export class InitController {
   @Get('test-quotes-create')
   async testQuotesCreate() {
     try {
-      // Simular creación de quote sin auth
       const testQuote = {
         projectId: 1,
         basePrice: 100,
@@ -475,7 +453,6 @@ export class InitController {
     }
   }
 
-  // ✅ Agregar este nuevo endpoint después de los existentes
   @Get('update-software-schema')
   async updateSoftwareSchema() {
     try {
@@ -504,7 +481,6 @@ export class InitController {
       
       console.log('✅ Campo version agregado a tabla Software');
       
-      // Opcional: actualizar registros existentes con una versión por defecto
       await this.prisma.$executeRaw`
         UPDATE "Software" 
         SET "version" = '2024' 
@@ -529,7 +505,6 @@ export class InitController {
     }
   }
 
-  // ✅ También agregar un endpoint más general para sincronizar todo el schema
   @Get('sync-schema')
   async syncSchema() {
     try {

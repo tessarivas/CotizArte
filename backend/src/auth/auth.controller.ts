@@ -10,7 +10,6 @@ import { extname } from 'path';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // ✅ Panel visual súper sencillo
   @Get('admin')
   async getAdminPanel() {
     const users = await this.authService.getAllUsers();

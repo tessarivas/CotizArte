@@ -17,7 +17,7 @@ export function useMaterials() {
 
   // Modal y formulario
   const [showModal, setShowModal] = useState(false);
-  const [selectedType, setSelectedType] = useState(""); // "software", "digitalTool", etc.
+  const [selectedType, setSelectedType] = useState(""); 
 
   // Estados para búsqueda, filtrado y paginación
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +31,6 @@ export function useMaterials() {
     // eslint-disable-next-line
   }, []);
 
-  // ✅ Función fetchAllMaterials (que ya tenías)
   const fetchAllMaterials = async () => {
     setLoading(true);
     const token = localStorage.getItem("access_token");
@@ -169,7 +168,6 @@ export function useMaterials() {
     }
   };
 
-  // ✅ Función updateMaterial (CORREGIDA - cambiado fetchMaterials por fetchAllMaterials)
   const updateMaterial = async (materialId, payload, materialType) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -193,7 +191,6 @@ export function useMaterials() {
           throw new Error("Tipo de material no válido");
       }
 
-      // ✅ Agregar logging para debug
       console.log("Sending PATCH request to:", endpoint);
       console.log("Payload:", payload);
       console.log("Material type:", materialType);
@@ -215,7 +212,6 @@ export function useMaterials() {
     }
   };
 
-  // ✅ Opción recomendada: Priorizar updatedAt sobre createdAt
   const aggregatedMaterials = [
     ...software.map((item) => ({
       type: "Software",
@@ -234,7 +230,6 @@ export function useMaterials() {
       ...item,
     })),
   ].sort((a, b) => {
-    // ✅ Usar updatedAt si existe, sino createdAt
     const getRelevantDate = (item) => {
       return item.updatedAt ? new Date(item.updatedAt) : new Date(item.createdAt);
     };
@@ -282,7 +277,6 @@ export function useMaterials() {
     }
   };
 
-  // ✅ Return con todas las funciones necesarias
   return {
     // Estados y handlers principales
     loading,
@@ -294,8 +288,8 @@ export function useMaterials() {
     handleCloseModal,
     handleDelete,
     handleSave,
-    updateMaterial, // ✅ Incluir updateMaterial
-    fetchAllMaterials, // ✅ Exportar también fetchAllMaterials por si lo necesitas
+    updateMaterial, 
+    fetchAllMaterials, 
 
     // Búsqueda, filtro y paginación
     searchTerm,
@@ -315,7 +309,6 @@ export function useMaterials() {
   };
 }
 
-// ✅ Función getTypeIcon (mantenerla como estaba)
 export function getTypeIcon(type) {
   switch (type) {
     case "Software":

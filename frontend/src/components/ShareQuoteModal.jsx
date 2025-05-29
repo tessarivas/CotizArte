@@ -8,10 +8,8 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
 
   if (!isOpen || !quote) return null;
 
-  // ✅ GENERAR ENLACE COMPARTIBLE CORRECTO
   const shareableLink = `${window.location.origin}/shared-quote/${quote.shareableLink}`;
 
-  // ✅ FUNCIÓN PARA COPIAR ENLACE
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareableLink);
@@ -19,7 +17,6 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (error) {
       console.error('Error al copiar:', error);
-      // Fallback para navegadores que no soportan clipboard API
       const textArea = document.createElement('textarea');
       textArea.value = shareableLink;
       document.body.appendChild(textArea);
@@ -31,7 +28,6 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
     }
   };
 
-  // ✅ FUNCIÓN PARA DESCARGAR PDF
   const handleDownloadPDF = () => {
     try {
       const pdf = generateQuotePDF(quote, pricingProfile);
@@ -46,14 +42,12 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
   return (
     <div className="fixed inset-0 flex justify-center items-center backdrop-blur-sm z-50 font-regular-text">
       <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-7 w-[450px]">
-        {/* ✅ TÍTULO CON GRADIENTE */}
         <div className="flex justify-center items-center gap-2 mb-4">
           <GradientText className="text-4xl font-logo-text mb-2">
             Compartir Cotización
           </GradientText>
         </div>
 
-        {/* ✅ INFORMACIÓN DE LA COTIZACIÓN */}
         <div className="bg-gray-50/50 backdrop-blur-sm rounded-lg p-4 mb-4 border border-gray-200/50">
           <h4 className="font-semibold text-gray-900 mb-2 text-lg">
             {quote.project?.title || 'Sin título'}
@@ -66,7 +60,6 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
           </p>
         </div>
 
-        {/* ✅ BOTÓN DESCARGAR PDF */}
         <div className="relative mb-4">
           <button
             onClick={handleDownloadPDF}
@@ -77,7 +70,6 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
           </button>
         </div>
 
-        {/* ✅ ENLACE COMPARTIBLE */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Enlace compartible
@@ -116,7 +108,6 @@ export function ShareQuoteModal({ isOpen, onClose, quote, pricingProfile }) {
           </p>
         </div>
 
-        {/* ✅ BOTONES DE ACCIÓN */}
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onClose} className="btn btn-secondary">
             Cerrar

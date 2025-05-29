@@ -53,7 +53,6 @@ export class UsersController {
     return this.usersService.remove(id);
   }
 
-  // ✅ Nueva ruta para subir imagen de perfil
   @Post(':id/upload-profile-image')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
@@ -62,7 +61,7 @@ export class UsersController {
         destination: './uploads',
         filename: (req, file, cb) => {
           const fileExt = extname(file.originalname);
-          const allowedTypes = ['.png', '.jpg', '.jpeg']; // ✅ Validar tipo de archivo
+          const allowedTypes = ['.png', '.jpg', '.jpeg'];
 
           if (!allowedTypes.includes(fileExt)) {
             return cb(new Error('Formato de imagen no permitido'), '');
@@ -80,7 +79,6 @@ export class UsersController {
 
     const imageUrl = `/uploads/${file.filename}`;
 
-    // ✅ Verificar que el usuario existe antes de actualizarlo
     const userExists = await this.usersService.findOne(id);
     if (!userExists) {
       throw new Error('Usuario no encontrado');

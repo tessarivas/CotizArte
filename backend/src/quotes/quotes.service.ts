@@ -24,7 +24,7 @@ export class QuotesService {
     if (!project) throw new NotFoundException('El proyecto no existe');
     if (project.userId !== userId) throw new NotFoundException('El proyecto no pertenece a este usuario');
 
-    // El frontend ya calculó todo, solo guardamos los valores
+    // guardamos los valores
     return this.prisma.quote.create({
       data: {
         projectId: project.id,
@@ -37,18 +37,15 @@ export class QuotesService {
         materialsCost: dto.materialsCost,
         toolsCost: dto.toolsCost,
         
-        // Precio final SIN descuento (subtotal)
         finalPrice: dto.subtotal,
         
-        // Descuento
         discountPercentage: dto.discountPercentage || 0,
         
-        // Precio final CON descuento aplicado
         finalPriceAfterDiscount: dto.total,
         
         status: 'PENDING',
         notes: dto.notes,
-        shareableLink: this.generateShareableLink() // ✅ GENERAR SOLO ID ÚNICO
+        shareableLink: this.generateShareableLink() 
       },
       include: {
         client: true,
@@ -117,7 +114,6 @@ export class QuotesService {
     console.log("Datos recibidos para actualizar:", updateData);
 
     try {
-      // Verifica que la cotización existe y pertenece al usuario
       const existingQuote = await this.prisma.quote.findFirst({
         where: { id, project: { userId } },
       });
@@ -128,8 +124,6 @@ export class QuotesService {
 
       console.log("Cotización encontrada, procediendo a actualizar...");
 
-      // Actualizar directamente con los datos recibidos
-      // Ya no filtramos campos porque el DTO ya está limpio
       const updatedQuote = await this.prisma.quote.update({
         where: { id },
         data: updateData,
@@ -155,7 +149,6 @@ export class QuotesService {
         throw error;
       }
       
-      // Log más detallado del error de Prisma
       if (error.code) {
         console.error("Código de error Prisma:", error.code);
         console.error("Meta del error:", error.meta);
@@ -166,7 +159,6 @@ export class QuotesService {
   }
 
   async delete(id: number, userId: number) {
-    // Verificar que la cotización pertenece al usuario
     await this.findOne(id, userId);
 
     return this.prisma.quote.delete({
@@ -174,7 +166,6 @@ export class QuotesService {
     });
   }
 
-  // ✅ AGREGAR ENDPOINT PARA COTIZACIONES COMPARTIDAS
   async findByShareableLink(shareableLink: string) {
     const quote = await this.prisma.quote.findFirst({
       where: {
@@ -200,12 +191,7 @@ export class QuotesService {
     return quote;
   }
 
-  // ✅ MÉTODO CORREGIDO PARA GENERAR SOLO ID ÚNICO
   private generateShareableLink(): string {
-    // Opción 1: Usando crypto (más seguro)
     return randomBytes(16).toString('hex').substring(0, 12);
-    
-    // Opción 2: Alternativa sin crypto
-    // return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
   }
 }

@@ -21,7 +21,7 @@ export class UsersService {
 
   async findAll() {
     return this.prisma.user.findMany({
-      select: { id: true, email: true, name: true }, // No exponer contraseñas
+      select: { id: true, email: true, name: true }, 
     });
   }
 
@@ -64,7 +64,7 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    const user = await this.findOne(id); // Asegurarse de que el usuario existe
+    const user = await this.findOne(id); 
     return this.prisma.user.delete({ where: { id } });
   }
 }

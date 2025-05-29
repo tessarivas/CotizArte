@@ -9,13 +9,11 @@ export class PricingProfilesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: number, dto: CreatePricingProfileDto) {
-    // Verifica que el usuario exista
     const userExists = await this.prisma.user.findUnique({
       where: { id: userId }
     });
     if (!userExists) throw new NotFoundException('Usuario no encontrado');
 
-    // Verifica que el ArtType exista
     const artTypeExists = await this.prisma.artType.findUnique({
       where: { id: dto.artTypeId }
     });
@@ -40,7 +38,7 @@ export class PricingProfilesService {
     return this.prisma.pricingProfile.findMany({
       where: { 
         userId,
-        ...(artTypeId && { artTypeId }) // Filtrar por tipo de arte si se pasa
+        ...(artTypeId && { artTypeId }) 
       },
       include: { artType: true },
     });
@@ -70,7 +68,7 @@ export class PricingProfilesService {
   }
 
   async remove(userId: number, id: number) {
-    await this.findOne(userId, id); // Verifica pertenencia
+    await this.findOne(userId, id); 
 
     return this.prisma.pricingProfile.delete({
       where: { id },

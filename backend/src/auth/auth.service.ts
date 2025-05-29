@@ -11,9 +11,8 @@ import { v2 as cloudinary } from 'cloudinary';
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService, // Asegúrate de importar JwtModule en auth.module.ts
+    private jwtService: JwtService, 
   ) {
-    // Configurar Cloudinary
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
@@ -22,17 +21,14 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    // 1. Buscar usuario en la base de datos
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
     });
   
-    // 2. Verificar contraseña
     if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
       throw new UnauthorizedException("Credenciales inválidas");
     }
   
-    // 3. Generar token JWT
     const payload = { email: user.email, sub: user.id };
   
     return {
@@ -40,9 +36,9 @@ export class AuthService {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email, // ✅ Ahora incluye el email
-        bio: user.bio, // ✅ Ahora incluye la bio
-        profileImageUrl: user.profileImageUrl, // ✅ Ahora incluye la imagen de perfil
+        email: user.email,
+        bio: user.bio, 
+        profileImageUrl: user.profileImageUrl, 
       },
     };
   }
@@ -59,7 +55,6 @@ export class AuthService {
   
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
       
-      // ✅ Subir imagen a Cloudinary si existe
       let imageUrl = null;
       if (file) {
         const result = await cloudinary.uploader.upload(file.path, {
@@ -75,7 +70,7 @@ export class AuthService {
           email: registerDto.email,
           password: hashedPassword,
           bio: registerDto.bio,
-          profileImageUrl: imageUrl, // ✅ URL de Cloudinary
+          profileImageUrl: imageUrl, 
         },
       });
   

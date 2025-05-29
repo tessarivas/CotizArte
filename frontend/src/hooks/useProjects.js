@@ -29,7 +29,6 @@ export function useProjects() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // ✅ Ordenar por fecha de creación (más nuevo primero)
       const sortedProjects = response.data.sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
@@ -124,7 +123,6 @@ export function useProjects() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    // ✅ Filtro por tipo de arte
     const matchesArtType =
       artTypeFilter === "all" ||
       project.artType.id.toString() === artTypeFilter;

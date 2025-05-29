@@ -345,8 +345,7 @@ export function useQuoteForm(projectId, navigate) {
     projectHasClient,
     validateForm,
     handleSubmit,
-    breakdown, // Exponemos el breakdown para uso en otros componentes
-    // Estados de insumos
+    breakdown,
     selectedSoftware,
     setSelectedSoftware,
     selectedDigitalTools,

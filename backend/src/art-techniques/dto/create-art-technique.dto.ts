@@ -4,21 +4,21 @@ export class CreateArtTechniqueDto {
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  artTypeId: number; // ID del tipo de arte (ej: Pintura)
+  artTypeId: number;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(2, { message: 'El nombre debe tener al menos 2 caracteres' })
   @MaxLength(50, { message: 'El nombre no puede exceder los 50 caracteres' })
-  name: string; // Ej: "Óleo", "Acrílico"
+  name: string; 
 
   @IsNotEmpty()
   @IsString()
   @MaxLength(255)
-  description: string; // Descripción opcional
+  description: string; 
 
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  priceMultiplier: number; // Ej: 1.2 (aumenta el precio base en 20%)
+  priceMultiplier: number; 
 }

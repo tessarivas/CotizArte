@@ -5,9 +5,9 @@ import { ArtCategoriesService } from './art-categories.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule], // Importa PrismaModule para usar PrismaService
+  imports: [PrismaModule], 
   controllers: [ArtCategoriesController],
   providers: [ArtCategoriesService],
-  exports: [ArtCategoriesService], // Opcional: Si otros módulos necesitan usar este servicio
+  exports: [ArtCategoriesService], 
 })
 export class ArtCategoriesModule {}

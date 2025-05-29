@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [ArtTypesController],
   providers: [ArtTypesService],
-  exports: [ArtTypesService], // Para usar el servicio en otros módulos (ej: técnicas de arte)
+  exports: [ArtTypesService], 
 })
 export class ArtTypesModule {}
